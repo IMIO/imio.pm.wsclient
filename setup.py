@@ -27,7 +27,7 @@ setup(name='imio.pm.wsclient',
       install_requires=[
           'setuptools',
           # -*- Extra requirements: -*-
-          'Products.PloneMeeting'
+          'Products.PloneMeeting',
           # -*- optional SOAP clients for tests (see docs/README.txt) -*-
           'SOAPpy',
           'suds',
