@@ -13,10 +13,9 @@ __docformat__ = 'plaintext'
 
 import logging
 logger = logging.getLogger('imio.pm.wsclient: setuphandlers')
-from Products.CMFCore.utils import getToolByName
 
 
-def isNotImioPmWsProfile(context):
+def isNotImioPmWsClientProfile(context):
     return context.readDataFile("imio_pm_wsclient_marker.txt") is None
 
 def postInstall(context):

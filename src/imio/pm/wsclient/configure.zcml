@@ -10,6 +10,8 @@
 
   <include package="Products.CMFPlacefulWorkflow"/>
   <include package="Products.PloneMeeting"/>
+  <include package="plone.app.registry" />
+  <include package=".browser" />
 
   <genericsetup:registerProfile
     name="default"
