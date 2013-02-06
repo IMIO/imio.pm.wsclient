@@ -16,9 +16,7 @@ class pm_proposing_group_id_vocabulary(object):
         portal = getSite()
         ctrl = getMultiAdapter((portal, portal.REQUEST), name='ws4pmclient-settings')
         pmConfigInfos = ctrl._soap_getConfigInfos()
-        if not pmConfigInfos:
-            terms.append(SimpleTerm('Enter a valid value in for the PloneMeeting WSDL URL and save this form', 'Enter a valid value in for the PloneMeeting WSDL URL and save this form', 'Enter a valid value in for the PloneMeeting WSDL URL and save this form'))
-        else:
+        if pmConfigInfos:
             terms.append(SimpleTerm('GroupPM1', 'GroupPM1', 'GroupPM1'))
             terms.append(SimpleTerm('GroupPM2', 'GroupPM2', 'GroupPM2'))
             terms.append(SimpleTerm('GroupPM3', 'GroupPM3', 'GroupPM3'))
@@ -36,9 +34,7 @@ class pm_meeting_config_id_vocabulary(object):
         portal = getSite()
         ctrl = getMultiAdapter((portal, portal.REQUEST), name='ws4pmclient-settings')
         pmConfigInfos = ctrl._soap_getConfigInfos()
-        if not pmConfigInfos:
-            terms.append(SimpleTerm('Enter a valid value in for the PloneMeeting WSDL URL and save this form', 'Enter a valid value in for the PloneMeeting WSDL URL and save this form', 'Enter a valid value in for the PloneMeeting WSDL URL and save this form'))
-        else:
+        if pmConfigInfos:
             terms.append(SimpleTerm('meeting-config-college', 'MeetingConfigCollege', 'MeetingConfigCollege'))
             terms.append(SimpleTerm('meeting-config-council', 'MeetingConfigCouncil', 'MeetingConfigCouncil'))
         return SimpleVocabulary(terms)
