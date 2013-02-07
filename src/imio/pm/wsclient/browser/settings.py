@@ -165,7 +165,6 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         if not client:
             return None
         try:
-            import ipdb;ipdb.set_trace()
             return client.service.getConfigInfos(dummy='')
         except Exception, e:
             IStatusMessage(self.request).addStatusMessage(_(u"Unable to getConfigInfos with given username/password, the error was : %s" % str(e)),
