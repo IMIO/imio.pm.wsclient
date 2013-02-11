@@ -1,3 +1,6 @@
+from SOAPpy import Config, SOAPProxy, HTTPTransport, SOAPAddress
+from SOAPpy.Types import faultType
+
 from zope.component import getMultiAdapter, queryUtility
 from zope.component.hooks import getSite
 
@@ -21,6 +24,7 @@ from collective.z3cform.datagridfield.registry import DictRow
 from Products.statusmessages.interfaces import IStatusMessage
 
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
+from imio.pm.wsclient.config import SOAP_NAMESPACE
 
 
 class IGeneratedActionsSchema(Interface):
@@ -49,9 +53,9 @@ class IWS4PMClientSettings(Interface):
     """
     Configuration of the WS4PM Client
     """
-    pm_wsdl_url = schema.TextLine(
-        title=_(u"PloneMeeting WSDL URL"),
-        description=_(u"Enter the PloneMeeting WSDL URL you want to work with."),
+    pm_url = schema.TextLine(
+        title=_(u"PloneMeeting URL"),
+        description=_(u"Enter the PloneMeeting URL you want to work with."),
         required=True,
         )
     pm_username = schema.TextLine(
@@ -87,7 +91,7 @@ class WS4PMClientSettingsEditForm(RegistryEditForm):
         super(WS4PMClientSettingsEditForm, self).updateFields()
         portal = getSite()
         ctrl = getMultiAdapter((portal, portal.REQUEST), name='ws4pmclient-settings')
-        # if we can not getConfigInfos to the given plonemeeting_wsdl_url, we do not permit to edit other parameters
+        # if we can not getConfigInfos from the given pm_url, we do not permit to edit other parameters
         generated_actions_field = self.fields.get('generated_actions')
         if not ctrl._soap_getConfigInfos():
             generated_actions_field.mode='display'
@@ -137,36 +141,51 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         """Connect to distant PloneMeeting.
            Either return None or the connected client.
         """
-        from suds.client import Client
-        from suds.xsd.doctor import ImportDoctor, Import
-        from suds.transport.http import HttpAuthenticated
-        imp = Import('http://schemas.xmlsoap.org/soap/encoding/')
-        d = ImportDoctor(imp)
         settings = self.settings()
-        # get the defined values either in the request.form
-        # if the form is just being saved or the already saved value
-        url = self.request.form.get('form.widgets.pm_wsdl_url') or settings.pm_wsdl_url
+        url = self.request.form.get('form.widgets.pm_url') or settings.pm_url
         username = self.request.form.get('form.widgets.pm_username') or settings.pm_username
         password = self.request.form.get('form.widgets.pm_password') or settings.pm_password
-        # build the authentication envelope
-        t = HttpAuthenticated(username=username, password=password)
+        AuthHTTPTransport.setAuthentication(username, password)
+        client = None
         try:
-            client = Client(url, doctor=d, transport=t)
-            return client
-        except Exception, e:
-            IStatusMessage(self.request).addStatusMessage(_(u"Unable to connect using given PloneMeeting WSDL URL, the error was : %s" % str(e)),
-                                                      "warning")
+            client = SOAPProxy(url, namespace=SOAP_NAMESPACE, transport=AuthHTTPTransport, )
+            # client just contains data connections but don't really connect
+            # call a SOAP server test method to check that everything is fine with given parameters
+            client.testConnectionRequest('')
+        except:
+            IStatusMessage(self.request).addStatusMessage(_(u"Unable to connect with given url/username/password!"), "warning")
             return None
+        return client
 
     @memoize
     def _soap_getConfigInfos(self):
         """Query the getConfigInfos SOAP server method."""
         client = self._soap_connectToPloneMeeting()
-        if not client:
-            return None
-        try:
-            return client.service.getConfigInfos(dummy='')
-        except Exception, e:
-            IStatusMessage(self.request).addStatusMessage(_(u"Unable to getConfigInfos with given username/password, the error was : %s" % str(e)),
-                                                      "warning")
-            return None
+        if client is not None:
+            try:
+                return client.getConfigInfosRequest(dummy='')
+            except faultType:
+                pass
+
+
+# Add special transport to be able to define authentication data
+class AuthHTTPTransport(HTTPTransport):
+    username = None
+    passwd = None
+    
+    @classmethod
+    def setAuthentication(cls,u,p):
+        cls.username = u
+        cls.passwd = p
+          
+    def call(self, addr, data, namespace, soapaction=None, encoding=None,
+             http_proxy=None, config=Config, timeout=None):
+        
+        if not isinstance(addr, SOAPAddress):
+            addr=SOAPAddress(addr, config)
+            
+        if self.username != None:
+            addr.user = self.username+":"+self.passwd
+            
+        return HTTPTransport.call(self, addr, data, namespace, soapaction,
+                                  encoding, http_proxy, config, timeout)

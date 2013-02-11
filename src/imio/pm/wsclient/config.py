@@ -1,0 +1,1 @@
+SOAP_NAMESPACE='http://ws4pm.imio.be'
