@@ -1,11 +1,14 @@
-from SOAPpy import Config, SOAPProxy, HTTPTransport, SOAPAddress
-from SOAPpy.Types import faultType
+from suds.client import Client
+from suds.xsd.doctor import ImportDoctor, Import
+from suds.transport.http import HttpAuthenticated
 
 from zope.component import getMultiAdapter, queryUtility
 from zope.component.hooks import getSite
 
-from zope.interface import Interface
+from zope.interface import Interface, invariant, Invalid
 from zope import schema
+
+from zope.i18n import translate
 
 from z3c.form import button
 from z3c.form import field
@@ -14,17 +17,19 @@ from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 
 from plone.memoize.view import memoize
 
-from plone.registry.interfaces import IRegistry 
+from plone.registry.interfaces import IRegistry, IRecordModifiedEvent
+
 from plone.app.registry.browser.controlpanel import RegistryEditForm
 from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 
 from collective.z3cform.datagridfield import DataGridFieldFactory
 from collective.z3cform.datagridfield.registry import DictRow
 
+from Products.CMFCore.ActionInformation import Action
 from Products.statusmessages.interfaces import IStatusMessage
 
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
-from imio.pm.wsclient.config import SOAP_NAMESPACE
+from imio.pm.wsclient.config import ACTION_SUFFIX
 
 
 class IGeneratedActionsSchema(Interface):
@@ -54,8 +59,8 @@ class IWS4PMClientSettings(Interface):
     Configuration of the WS4PM Client
     """
     pm_url = schema.TextLine(
-        title=_(u"PloneMeeting URL"),
-        description=_(u"Enter the PloneMeeting URL you want to work with."),
+        title=_(u"PloneMeeting WSDL URL"),
+        description=_(u"Enter the PloneMeeting WSDL URL you want to work with."),
         required=True,
         )
     pm_username = schema.TextLine(
@@ -66,6 +71,13 @@ class IWS4PMClientSettings(Interface):
         title=_("PloneMeeting password to use"),
         required=True
         )
+    user_mappings = schema.Text(
+        title=_("User ids mappings"),
+        description=_("By default, while sending an element to PloneMeeting, the user id of the logged in user sending the element is considered and a check is made in PloneMeeting to see" \
+                      "if the same user id also exists.  If it does not, you can define here the user mappings to use.  For example : 'jdoe' in current application correspond to 'johndoe' " \
+                      "in PloneMeeting.  The format to use is <strong>one mapping by line with userIds separated by a '|'</strong>, for example : <br />currentAppUserId|plonemeetingCorrespondingUserId<br />anotherUserId|aUserIdInPloneMeeting"),
+        required=False
+        )
     generated_actions = schema.List(
         title=_("Generated actions"),
         description=_("Enter a 'TAL condition' evaluated to show the action.  Choose permission(s) the user must have to see the action.  Enter a PloneMeeting proposingGroup id to force the creation of the item with this proposingGroup.  Warning, if the user can not create an item for this proposingGroup, a warning message will appear.  If left empty, if the user is in only one proposingGroup, it will be used automatically, if the user is in several proposingGroups, a popup will ask him which proposingGroup to use.  Finally, choose a meetingConfig the item will be created in."),
@@ -74,6 +86,15 @@ class IWS4PMClientSettings(Interface):
                            required=False),
         required=False,
         )
+
+    @invariant
+    def isUserMappingsCorrectFormat(settings):
+        user_mappings = settings.user_mappings
+        for user_mapping in user_mappings.split('\n'):
+            try:
+                localuser, pmuser = user_mapping.split('|')
+            except:
+                raise Invalid("User ids mapping : the format is not correct, it should be one mapping by line (no blank line!) with user ids separated by a '|', for example : currentAppUserId|plonemeetingCorrespondingUserId")
 
 
 class WS4PMClientSettingsEditForm(RegistryEditForm):
@@ -90,6 +111,9 @@ class WS4PMClientSettingsEditForm(RegistryEditForm):
     def updateFields(self):
         super(WS4PMClientSettingsEditForm, self).updateFields()
         portal = getSite()
+        # this is also called by the kss inline_validation, avoid too much work...
+        if not portal.__module__ == 'Products.CMFPlone.Portal':
+            return
         ctrl = getMultiAdapter((portal, portal.REQUEST), name='ws4pmclient-settings')
         # if we can not getConfigInfos from the given pm_url, we do not permit to edit other parameters
         generated_actions_field = self.fields.get('generated_actions')
@@ -137,23 +161,26 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         return settings
 
     @memoize
-    def _soap_connectToPloneMeeting(self):
+    def _soap_connectToPloneMeeting(self, addPortalMessage=True):
         """Connect to distant PloneMeeting.
            Either return None or the connected client.
+           If given p_addPortalMessage is True, portal_messages will be added if necessary.
+           This is useful if we want to call this method and add another portal_message than the one added here under.
         """
         settings = self.settings()
         url = self.request.form.get('form.widgets.pm_url') or settings.pm_url
         username = self.request.form.get('form.widgets.pm_username') or settings.pm_username
         password = self.request.form.get('form.widgets.pm_password') or settings.pm_password
-        AuthHTTPTransport.setAuthentication(username, password)
-        client = None
+        imp = Import('http://schemas.xmlsoap.org/soap/encoding/')
+        d = ImportDoctor(imp)
+        t = HttpAuthenticated(username=username, password=password)
         try:
-            client = SOAPProxy(url, namespace=SOAP_NAMESPACE, transport=AuthHTTPTransport, )
-            # client just contains data connections but don't really connect
+            client = Client(url, doctor=d, transport=t)
             # call a SOAP server test method to check that everything is fine with given parameters
-            client.testConnectionRequest('')
+            client.service.testConnection()
         except:
-            IStatusMessage(self.request).addStatusMessage(_(u"Unable to connect with given url/username/password!"), "warning")
+            if addPortalMessage:
+                IStatusMessage(self.request).addStatusMessage(_(u"Unable to connect with given url/username/password!"), "warning")
             return None
         return client
 
@@ -162,30 +189,34 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         """Query the getConfigInfos SOAP server method."""
         client = self._soap_connectToPloneMeeting()
         if client is not None:
-            try:
-                return client.getConfigInfosRequest(dummy='')
-            except faultType:
-                pass
+            return client.service.getConfigInfos()
 
 
-# Add special transport to be able to define authentication data
-class AuthHTTPTransport(HTTPTransport):
-    username = None
-    passwd = None
-    
-    @classmethod
-    def setAuthentication(cls,u,p):
-        cls.username = u
-        cls.passwd = p
-          
-    def call(self, addr, data, namespace, soapaction=None, encoding=None,
-             http_proxy=None, config=Config, timeout=None):
-        
-        if not isinstance(addr, SOAPAddress):
-            addr=SOAPAddress(addr, config)
-            
-        if self.username != None:
-            addr.user = self.username+":"+self.passwd
-            
-        return HTTPTransport.call(self, addr, data, namespace, soapaction,
-                                  encoding, http_proxy, config, timeout)
+def notify_configuration_changed(event):
+    """Event subscriber that is called every time the configuration changed.
+    """
+    portal = getSite()
+
+    if IRecordModifiedEvent.providedBy(event):
+        # generated_actions changed, we need to update generated actions
+        if event.record.fieldName == 'generated_actions':
+            # if generated_actions have been changed, first remove every existing generated_actions then recreate them
+            # first remove every actions starting with ACTION_SUFFIX
+            object_buttons = portal.portal_actions.object_buttons
+            for object_button in object_buttons.objectValues():
+                if object_button.id.startswith(ACTION_SUFFIX):
+                    object_buttons.manage_delObjects([object_button.id])
+            # then recreate them
+            i = 1
+            for actionToGenerate in event.record.value:
+                actionId = "%s%d" % (ACTION_SUFFIX, i)
+                action = Action(actionId, title=translate('Send to', domain='imio.pm.wsclient',
+                                                          mapping={'meetingConfigTitle': actionToGenerate['pm_meeting_config_id']},
+                                                          context=portal.REQUEST),
+                           description='', i18n_domain='imio.pm.wsclient',
+                           url_expr='string:${object_url}/@@send_to_plonemeeting?meetingConfigId=%s&proposingGroup=%s' % \
+                                    (actionToGenerate['pm_meeting_config_id'], actionToGenerate['pm_proposing_group_id']),
+                           icon_expr='', available_expr='', permissions=('View',), visible=True)
+                object_buttons._setObject(actionId, action)
+                i = i + 1
+

@@ -4,21 +4,24 @@
     xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
     xmlns:soap="http://namespaces.zope.org/soap"
     xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:i18n="http://namespaces.zope.org/i18n"
     i18n_domain="imio.pm.wsclient">
 
-  <five:registerPackage package="." initialize=".initialize" />
+    <i18n:registerTranslations directory="locales" />
+    <five:registerPackage package="." initialize=".initialize" />
 
-  <include package="Products.CMFPlacefulWorkflow"/>
-  <include package="Products.PloneMeeting"/>
-  <include package="plone.app.registry" />
-  <include package=".browser" />
+    <include package="Products.CMFPlacefulWorkflow"/>
+    <include package="Products.PloneMeeting"/>
+    <include package="plone.app.registry" />
+    <include package=".browser" />
+    <include file="subscribers.zcml" />
 
-  <genericsetup:registerProfile
-    name="default"
-    title="Webservices Client for PloneMeeting"
-    directory="profiles/default"
-    description="Registration of the Webservices Client for PloneMeeting"
-    provides="Products.GenericSetup.interfaces.EXTENSION"
-  />
+    <genericsetup:registerProfile
+      name="default"
+      title="Webservices Client for PloneMeeting"
+      directory="profiles/default"
+      description="Registration of the Webservices Client for PloneMeeting"
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+    />
 
 </configure>

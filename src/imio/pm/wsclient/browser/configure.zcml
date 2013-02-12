@@ -6,30 +6,39 @@
     xmlns:browser="http://namespaces.zope.org/browser"
     i18n_domain="imio.pm.wsclient">
 
-  <!-- Control panel -->
-  <browser:page
+    <!-- Control panel -->
+    <browser:page
       name="ws4pmclient-settings"
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"
       class=".settings.WS4PMClientSettings"
       permission="cmf.ManagePortal"
-  />
+    />
 
-  <utility
-    provides="zope.schema.interfaces.IVocabularyFactory"
-    component=".vocabularies.pm_proposing_group_id_vocabularyFactory"
-    name="imio.pm.wsclient.pm_proposing_group_id_vocabulary"
-  />
+    <!-- View that sends the element to PloneMeeting -->
+    <browser:page
+        for="*"
+        name="send_to_plonemeeting"
+        class=".views.SendToPloneMeetingView"
+        permission="zope2.View"
+      />
 
-  <utility
-    provides="zope.schema.interfaces.IVocabularyFactory"
-    component=".vocabularies.pm_meeting_config_id_vocabularyFactory"
-    name="imio.pm.wsclient.pm_meeting_config_id_vocabulary"
-  />
-
-  <utility
-    provides="zope.schema.interfaces.IVocabularyFactory"
-    component=".vocabularies.possible_permissions_vocabularyFactory"
-    name="imio.pm.wsclient.possible_permissions_vocabulary"
-  />
+    <!-- Vocabularies -->
+    <utility
+      provides="zope.schema.interfaces.IVocabularyFactory"
+      component=".vocabularies.pm_proposing_group_id_vocabularyFactory"
+      name="imio.pm.wsclient.pm_proposing_group_id_vocabulary"
+    />
+  
+    <utility
+      provides="zope.schema.interfaces.IVocabularyFactory"
+      component=".vocabularies.pm_meeting_config_id_vocabularyFactory"
+      name="imio.pm.wsclient.pm_meeting_config_id_vocabulary"
+    />
+  
+    <utility
+      provides="zope.schema.interfaces.IVocabularyFactory"
+      component=".vocabularies.possible_permissions_vocabularyFactory"
+      name="imio.pm.wsclient.possible_permissions_vocabulary"
+    />
 
 </configure>
