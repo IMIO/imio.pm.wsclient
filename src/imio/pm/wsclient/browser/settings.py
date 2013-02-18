@@ -53,6 +53,18 @@ class IGeneratedActionsSchema(Interface):
         required=False,
         vocabulary=u'imio.pm.wsclient.pm_meeting_config_id_vocabulary')
 
+class IFieldMappingsSchema(Interface):
+    """Schema used for the datagrid field 'field_mappings' of IWS4PMClientSettings."""   
+    field_name = schema.Choice(
+        title=_("PloneMeeting field name"),
+        required=False,
+        vocabulary=u'imio.pm.wsclient.pm_item_data_vocabulary'
+        )
+    expression = schema.TextLine(
+        title=_("TAL expression to evaluate to get the value to use for the given data"),
+        required=False,
+        )
+
 
 class IWS4PMClientSettings(Interface):
     """
@@ -70,6 +82,14 @@ class IWS4PMClientSettings(Interface):
     pm_password = schema.Password(
         title=_("PloneMeeting password to use"),
         required=True
+        )
+    field_mappings = schema.List(
+        title=_("Field accessor mappings"),
+        description=_("For every available data you can send, define in the mapping a TAL expression that will be executed to obtain the correct value to send"),
+        value_type=DictRow(title=_("Actions"),
+                           schema=IFieldMappingsSchema,
+                           required=False),
+        required=False
         )
     user_mappings = schema.Text(
         title=_("User ids mappings"),
@@ -107,6 +127,7 @@ class WS4PMClientSettingsEditForm(RegistryEditForm):
 
     fields = field.Fields(IWS4PMClientSettings)
     fields['generated_actions'].widgetFactory = DataGridFieldFactory
+    fields['field_mappings'].widgetFactory = DataGridFieldFactory
 
     def updateFields(self):
         super(WS4PMClientSettingsEditForm, self).updateFields()
@@ -117,15 +138,17 @@ class WS4PMClientSettingsEditForm(RegistryEditForm):
         ctrl = getMultiAdapter((portal, portal.REQUEST), name='ws4pmclient-settings')
         # if we can not getConfigInfos from the given pm_url, we do not permit to edit other parameters
         generated_actions_field = self.fields.get('generated_actions')
+        field_mappings = self.fields.get('field_mappings')
         if not ctrl._soap_getConfigInfos():
             generated_actions_field.mode='display'
+            field_mappings.mode='display'
         else:
             if generated_actions_field.mode == 'display' and \
                not 'form.buttons.save' in self.request.form.keys():
                 # only change mode while not in the "saving" process (that calls updateFields, but why?)
                 # because it leads to loosing generated_actions because a [] is returned by extractDate here above
                 self.fields.get('generated_actions').mode='input'
-                #self.request.form.set('form.widgets.generated_actions')
+                self.fields.get('field_mappings').mode='input'
 
     def updateWidgets(self):
         super(WS4PMClientSettingsEditForm, self).updateWidgets()
@@ -191,16 +214,47 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         if client is not None:
             return client.service.getConfigInfos()
 
+    def _soap_searchItems(self, **data):
+        """Query the searchItems SOAP server method."""
+        client = self._soap_connectToPloneMeeting()
+        if client is not None:
+            return client.service.searchItems(**data)
+
+    def _soap_getItemInfos(self, **data):
+        """Query the getItemInfos SOAP server method."""
+        client = self._soap_connectToPloneMeeting()
+        if client is not None:
+            return client.service.getItemInfos(**data)
+
+    @memoize
+    def _soap_getItemCreationAvailableData(self):
+        """Query SOAP WSDL to obtain the list of available fields useable while creating an item."""
+        client = self._soap_connectToPloneMeeting()
+        if client is not None:
+            # extract data from the CreationData ComplexType that is used to create an item
+            namespace = str(client.wsdl.tns[1])
+            return [data.name for data in client.factory.wsdl.build_schema().types['CreationData', namespace].rawchildren[0].rawchildren]
+
+    @memoize
+    def _soap_createItem(self, meetingConfigId, proposingGroupId, creationData):
+        """Query the createItem SOAP server method."""
+        client = self._soap_connectToPloneMeeting()
+        if client is not None:
+            try:
+                uid, warnings = client.service.createItem(meetingConfigId, proposingGroupId, creationData=creationData)
+                return uid, warnings
+            except Exception, exc:
+                IStatusMessage(self.request).addStatusMessage(_(u"An error occured during the item creation in PloneMeeting!  The error message was : %s" % exc), "error")
+
 
 def notify_configuration_changed(event):
-    """Event subscriber that is called every time the configuration changed.
-    """
+    """Event subscriber that is called every time the configuration changed."""
     portal = getSite()
 
     if IRecordModifiedEvent.providedBy(event):
-        # generated_actions changed, we need to update generated actions
+        # generated_actions changed, we need to update generated actions in portal_actions
         if event.record.fieldName == 'generated_actions':
-            # if generated_actions have been changed, first remove every existing generated_actions then recreate them
+            # if generated_actions have been changed, remove every existing generated_actions then recreate them
             # first remove every actions starting with ACTION_SUFFIX
             object_buttons = portal.portal_actions.object_buttons
             for object_button in object_buttons.objectValues():
@@ -214,9 +268,9 @@ def notify_configuration_changed(event):
                                                           mapping={'meetingConfigTitle': actionToGenerate['pm_meeting_config_id']},
                                                           context=portal.REQUEST),
                            description='', i18n_domain='imio.pm.wsclient',
-                           url_expr='string:${object_url}/@@send_to_plonemeeting?meetingConfigId=%s&proposingGroup=%s' % \
+                           url_expr='string:${object_url}/@@send_to_plonemeeting?meetingConfigId=%s&proposingGroupId=%s' % \
                                     (actionToGenerate['pm_meeting_config_id'], actionToGenerate['pm_proposing_group_id']),
-                           icon_expr='', available_expr='', permissions=('View',), visible=True)
+                           icon_expr='', available_expr=actionToGenerate['condition'], permissions=('View',), visible=True)
                 object_buttons._setObject(actionId, action)
                 i = i + 1
 

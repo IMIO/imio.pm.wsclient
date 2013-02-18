@@ -22,6 +22,14 @@
         permission="zope2.View"
       />
 
+    <!-- Viewlets -->
+    <browser:viewlet
+        name="imio.pm.ws.pminfos"
+        manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
+        class=".viewlets.PloneMeetingInfosViewlet"
+        permission="zope2.View"
+        />
+
     <!-- Vocabularies -->
     <utility
       provides="zope.schema.interfaces.IVocabularyFactory"
@@ -39,6 +47,12 @@
       provides="zope.schema.interfaces.IVocabularyFactory"
       component=".vocabularies.possible_permissions_vocabularyFactory"
       name="imio.pm.wsclient.possible_permissions_vocabulary"
+    />
+
+    <utility
+      provides="zope.schema.interfaces.IVocabularyFactory"
+      component=".vocabularies.pm_item_data_vocabularyFactory"
+      name="imio.pm.wsclient.pm_item_data_vocabulary"
     />
 
 </configure>
