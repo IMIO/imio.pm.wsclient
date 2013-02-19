@@ -8,6 +8,7 @@ from Products.CMFCore.Expression import Expression, createExprContext
 from Products.statusmessages.interfaces import IStatusMessage
 
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
+from imio.pm.wsclient.config import DEFAULT_NO_WARNING_MESSAGE
 
 
 class SendToPloneMeetingView(BrowserView):
@@ -82,9 +83,14 @@ class SendToPloneMeetingView(BrowserView):
         # initialize the externalIdentifier to the context UID
         creation_data['externalIdentifier'] = self.context.UID()
         # we create an item inTheNameOf the currently connected member
-        ws4pmSettings._getUserIdToCreateWith
+        # _getUserIdToCreateWith returns None if the settings defined username creates the item
+        userId = ws4pmSettings._getUserIdToCreateInTheNameOfWith()
+
         # call the SOAP method actually creating the item
-        res = ws4pmSettings._soap_createItem(self.meetingConfigId, self.proposingGroupId, creation_data)
+        res = ws4pmSettings._soap_createItem(self.meetingConfigId,
+                                             self.proposingGroupId,
+                                             creation_data,
+                                             inTheNameOf=userId)
         if res:
             uid, warnings = res
             IStatusMessage(self.request).addStatusMessage(_(u"The item has been correctly sent to PloneMeeting."),
@@ -92,7 +98,12 @@ class SendToPloneMeetingView(BrowserView):
             if warnings:
                 for warning in warnings[1]:
                     # show warnings in the web interface for Managers and add it to the Zope log
+                    if warning == DEFAULT_NO_WARNING_MESSAGE:
+                        type = "info"
+                        logger.info(warning)
+                    else:
+                        type = "warning"
+                        logger.warning(warning)
                     if self.portal_state.member().has_role('Manager'):
-                        IStatusMessage(self.request).addStatusMessage(_(warning), "warning")
-                    logger.warning(warning)
+                        IStatusMessage(self.request).addStatusMessage(_(warning), type)
         return self.request.RESPONSE.redirect(self.context.absolute_url())

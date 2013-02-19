@@ -17,7 +17,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
 
     def available(self):
         """Check if the viewlet is available and needs to be shown."""
-        return bool(self.getPloneMeetingLinkedInfos())
+        return not self.context.portal_type == 'Plone Site' and bool(self.getPloneMeetingLinkedInfos())
 
     @memoize
     def getPloneMeetingLinkedInfos(self):
@@ -35,3 +35,14 @@ class PloneMeetingInfosViewlet(ViewletBase):
             # here we are sure that getItemInfos returns one and only one result
             res.append(ws4pmSettings._soap_getItemInfos(UID=item['UID'], showExtraInfos=True)[0])
         return res
+
+    def displayMeetingDate(self, meeting_date):
+        """Display a correct related meeting date :
+           - if linked to a meeting, either '-'
+           - manage displayed hours (hide hours if 00:00)"""
+        if meeting_date.year == 1950:
+            return '-'
+        long_format = True
+        if meeting_date.hour == 0 and meeting_date.minute == 0:
+            long_format = False
+        return self.context.restrictedTraverse('@@plone').toLocalizedTime(meeting_date, long_format=long_format)

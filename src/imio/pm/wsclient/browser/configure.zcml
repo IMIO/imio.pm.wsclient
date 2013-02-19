@@ -19,7 +19,7 @@
         for="*"
         name="send_to_plonemeeting"
         class=".views.SendToPloneMeetingView"
-        permission="zope2.View"
+        permission="zope2.SOAPAccess"
       />
 
     <!-- Viewlets -->
@@ -27,7 +27,7 @@
         name="imio.pm.ws.pminfos"
         manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
         class=".viewlets.PloneMeetingInfosViewlet"
-        permission="zope2.View"
+        permission="zope2.SOAPAccess"
         />
 
     <!-- Vocabularies -->
@@ -36,13 +36,13 @@
       component=".vocabularies.pm_proposing_group_id_vocabularyFactory"
       name="imio.pm.wsclient.pm_proposing_group_id_vocabulary"
     />
-  
+
     <utility
       provides="zope.schema.interfaces.IVocabularyFactory"
       component=".vocabularies.pm_meeting_config_id_vocabularyFactory"
       name="imio.pm.wsclient.pm_meeting_config_id_vocabulary"
     />
-  
+
     <utility
       provides="zope.schema.interfaces.IVocabularyFactory"
       component=".vocabularies.possible_permissions_vocabularyFactory"

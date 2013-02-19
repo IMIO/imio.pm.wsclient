@@ -1,12 +1,11 @@
-<tal:block condition="view/available"
-           define="items view/getPloneMeetingLinkedInfos;
+<tal:available condition="view/available">
+<tal:block define="items view/getPloneMeetingLinkedInfos;
                    DateTime python:modules['DateTime'].DateTime;
                    toLocalizedTime nocall:context/@@plone/toLocalizedTime;"
            i18n:domain="imio.pm.wsclient">
 
     <fieldset><legend>PloneMeeting informations</legend>
     <p class="discreet" i18n:translate="pm_informations_help">You see these informations because the current element has been sent to PloneMeeting.</p>
-    <tal:loop repeat="item items">
         <table class="vertical listing">
             <thead i18n:domain="PloneMeeting">
                <th i18n:translate="pm_listing_th_title">Title</th>
@@ -15,14 +14,14 @@
                <th i18n:translate="pm_listing_th_relatedMeeting">Related meeting date</th>
             </thead>
             <tbody>
-                <tr>
+                <tr tal:repeat="item items">
                    <td><a href="#" tal:attributes="href item/absolute_url" tal:content="item/title" target="_blank">Item title</a></td>
                    <td tal:content="item/extraInfos/meeting_config_title">Meeting config title</td>
                    <td tal:content="item/review_state" i18n:domain="plone" i18n:translate="">Review state</td>
-                   <td tal:content="python: not item['meeting_date'].year == 1950 and toLocalizedTime(item['meeting_date'], long_format=True) or '-'">Related meeting date</td>
+                   <td tal:content="python: view.displayMeetingDate(item['meeting_date'])">Related meeting date</td>
                 </tr>
             </tbody>
         </table>
-    </tal:loop>
     </fieldset>
 </tal:block>
+</tal:available>

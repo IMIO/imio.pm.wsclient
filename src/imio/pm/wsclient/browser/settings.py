@@ -33,7 +33,7 @@ from imio.pm.wsclient.config import ACTION_SUFFIX
 
 
 class IGeneratedActionsSchema(Interface):
-    """Schema used for the datagrid field 'generated_actions' of IWS4PMClientSettings."""   
+    """Schema used for the datagrid field 'generated_actions' of IWS4PMClientSettings."""
     condition = schema.TextLine(
         title=_("TAL Condition"),
         required=False
@@ -53,8 +53,9 @@ class IGeneratedActionsSchema(Interface):
         required=False,
         vocabulary=u'imio.pm.wsclient.pm_meeting_config_id_vocabulary')
 
+
 class IFieldMappingsSchema(Interface):
-    """Schema used for the datagrid field 'field_mappings' of IWS4PMClientSettings."""   
+    """Schema used for the datagrid field 'field_mappings' of IWS4PMClientSettings."""
     field_name = schema.Choice(
         title=_("PloneMeeting field name"),
         required=False,
@@ -85,7 +86,8 @@ class IWS4PMClientSettings(Interface):
         )
     field_mappings = schema.List(
         title=_("Field accessor mappings"),
-        description=_("For every available data you can send, define in the mapping a TAL expression that will be executed to obtain the correct value to send"),
+        description=_("For every available data you can send, define in the mapping a TAL expression that will be " \
+                      "executed to obtain the correct value to send"),
         value_type=DictRow(title=_("Actions"),
                            schema=IFieldMappingsSchema,
                            required=False),
@@ -93,14 +95,25 @@ class IWS4PMClientSettings(Interface):
         )
     user_mappings = schema.Text(
         title=_("User ids mappings"),
-        description=_("By default, while sending an element to PloneMeeting, the user id of the logged in user sending the element is considered and a check is made in PloneMeeting to see" \
-                      "if the same user id also exists.  If it does not, you can define here the user mappings to use.  For example : 'jdoe' in current application correspond to 'johndoe' " \
-                      "in PloneMeeting.  The format to use is <strong>one mapping by line with userIds separated by a '|'</strong>, for example : <br />currentAppUserId|plonemeetingCorrespondingUserId<br />anotherUserId|aUserIdInPloneMeeting"),
+        description=_("By default, while sending an element to PloneMeeting, the user id of the logged in user " \
+                      "sending the element is considered and a check is made in PloneMeeting to see" \
+                      "if the same user id also exists.  If it does not, you can define here the user mappings " \
+                      "to use.  For example : 'jdoe' in current application correspond to 'johndoe' " \
+                      "in PloneMeeting.  The format to use is <strong>one mapping by line with userIds separated by " \
+                      "a '|'</strong>, for example : " \
+                      "<br />currentAppUserId|plonemeetingCorrespondingUserId<br />anotherUserId|aUserIdInPloneMeeting"
+                     ),
         required=False
         )
     generated_actions = schema.List(
         title=_("Generated actions"),
-        description=_("Enter a 'TAL condition' evaluated to show the action.  Choose permission(s) the user must have to see the action.  Enter a PloneMeeting proposingGroup id to force the creation of the item with this proposingGroup.  Warning, if the user can not create an item for this proposingGroup, a warning message will appear.  If left empty, if the user is in only one proposingGroup, it will be used automatically, if the user is in several proposingGroups, a popup will ask him which proposingGroup to use.  Finally, choose a meetingConfig the item will be created in."),
+        description=_("Enter a 'TAL condition' evaluated to show the action.  " \
+                      "Choose permission(s) the user must have to see the action.  " \
+                      "Enter a PloneMeeting proposingGroup id to force the creation of the item with this " \
+                      "proposingGroup.  Warning, if the user can not create an item for this proposingGroup, " \
+                      "a warning message will appear.  If left empty, if the user is in only one proposingGroup, " \
+                      "it will be used automatically, if the user is in several proposingGroups, a popup will ask " \
+                      "him which proposingGroup to use.  Finally, choose a meetingConfig the item will be created in."),
         value_type=DictRow(title=_("Actions"),
                            schema=IGeneratedActionsSchema,
                            required=False),
@@ -114,7 +127,9 @@ class IWS4PMClientSettings(Interface):
             try:
                 localuser, pmuser = user_mapping.split('|')
             except:
-                raise Invalid("User ids mapping : the format is not correct, it should be one mapping by line (no blank line!) with user ids separated by a '|', for example : currentAppUserId|plonemeetingCorrespondingUserId")
+                raise Invalid("User ids mapping : the format is not correct, it should be one mapping by line " \
+                              "(no blank line!) with user ids separated by a '|', for example : " \
+                              "currentAppUserId|plonemeetingCorrespondingUserId")
 
 
 class WS4PMClientSettingsEditForm(RegistryEditForm):
@@ -140,15 +155,15 @@ class WS4PMClientSettingsEditForm(RegistryEditForm):
         generated_actions_field = self.fields.get('generated_actions')
         field_mappings = self.fields.get('field_mappings')
         if not ctrl._soap_getConfigInfos():
-            generated_actions_field.mode='display'
-            field_mappings.mode='display'
+            generated_actions_field.mode = 'display'
+            field_mappings.mode = 'display'
         else:
             if generated_actions_field.mode == 'display' and \
                not 'form.buttons.save' in self.request.form.keys():
                 # only change mode while not in the "saving" process (that calls updateFields, but why?)
                 # because it leads to loosing generated_actions because a [] is returned by extractDate here above
-                self.fields.get('generated_actions').mode='input'
-                self.fields.get('field_mappings').mode='input'
+                self.fields.get('generated_actions').mode = 'input'
+                self.fields.get('field_mappings').mode = 'input'
 
     def updateWidgets(self):
         super(WS4PMClientSettingsEditForm, self).updateWidgets()
@@ -200,10 +215,11 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         try:
             client = Client(url, doctor=d, transport=t)
             # call a SOAP server test method to check that everything is fine with given parameters
-            client.service.testConnection()
+            client.service.testConnection('')
         except:
             if addPortalMessage:
-                IStatusMessage(self.request).addStatusMessage(_(u"Unable to connect with given url/username/password!"), "warning")
+                IStatusMessage(self.request).addStatusMessage(_(u"Unable to connect with given url/username/password!"),
+                                                              "warning")
             return None
         return client
 
@@ -212,7 +228,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         """Query the getConfigInfos SOAP server method."""
         client = self._soap_connectToPloneMeeting()
         if client is not None:
-            return client.service.getConfigInfos()
+            return client.service.getConfigInfos('')
 
     def _soap_searchItems(self, **data):
         """Query the searchItems SOAP server method."""
@@ -236,15 +252,39 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             return [data.name for data in client.factory.wsdl.build_schema().types['CreationData', namespace].rawchildren[0].rawchildren]
 
     @memoize
-    def _soap_createItem(self, meetingConfigId, proposingGroupId, creationData):
+    def _soap_createItem(self, meetingConfigId, proposingGroupId, creationData, inTheNameOf=None):
         """Query the createItem SOAP server method."""
         client = self._soap_connectToPloneMeeting()
         if client is not None:
             try:
-                uid, warnings = client.service.createItem(meetingConfigId, proposingGroupId, creationData=creationData)
+                uid, warnings = client.service.createItem(meetingConfigId, proposingGroupId, creationData, inTheNameOf)
                 return uid, warnings
             except Exception, exc:
-                IStatusMessage(self.request).addStatusMessage(_(u"An error occured during the item creation in PloneMeeting!  The error message was : %s" % exc), "error")
+                IStatusMessage(self.request).addStatusMessage(_(u"An error occured during the item creation in " \
+                                                                "PloneMeeting!  The error message was : %s" % exc),
+                                                              "error")
+
+    def _getUserIdToCreateInTheNameOfWith(self):
+        """Returns the userId that will actually create the item.
+           Returns None if we found out that it is the defined settings.pm_username
+           that will create the item : either it is the currently connected user,
+           either there is an existing user_mapping between currentrly connected user
+           and settings.pm_username user."""
+        member = self.context.restrictedTraverse('@@plone_portal_state').member()
+        memberId = member.getId()
+        # get username specified to connect to the SOAP distant site
+        settings = self.settings()
+        soapUsername = settings.pm_username
+        # first check if a user_mapping exists
+        for user_mapping in settings.user_mappings.split('\n'):
+            localUserId, distantUserId = user_mapping.split('|')
+            # we found a username to use if it is not the soapUsername
+            if memberId == localUserId and not soapUsername == localUserId:
+                return distantUserId
+        # if current user is the user defined in the settings, return None
+        if not memberId == soapUsername:
+            return memberId
+        return None
 
 
 def notify_configuration_changed(event):
@@ -262,15 +302,16 @@ def notify_configuration_changed(event):
                     object_buttons.manage_delObjects([object_button.id])
             # then recreate them
             i = 1
-            for actionToGenerate in event.record.value:
+            for actToGen in event.record.value:
                 actionId = "%s%d" % (ACTION_SUFFIX, i)
-                action = Action(actionId, title=translate('Send to', domain='imio.pm.wsclient',
-                                                          mapping={'meetingConfigTitle': actionToGenerate['pm_meeting_config_id']},
-                                                          context=portal.REQUEST),
+                action = Action(actionId,
+                                title=translate('Send to',
+                                                domain='imio.pm.wsclient',
+                                                mapping={'meetingConfigTitle': actToGen['pm_meeting_config_id']},
+                                                context=portal.REQUEST),
                            description='', i18n_domain='imio.pm.wsclient',
-                           url_expr='string:${object_url}/@@send_to_plonemeeting?meetingConfigId=%s&proposingGroupId=%s' % \
-                                    (actionToGenerate['pm_meeting_config_id'], actionToGenerate['pm_proposing_group_id']),
-                           icon_expr='', available_expr=actionToGenerate['condition'], permissions=('View',), visible=True)
+                           url_expr='string:${object_url}/@@send_to_plonemeeting?meetingConfigId=%s&proposingGroupId=%s'
+                                    % (actToGen['pm_meeting_config_id'], actToGen['pm_proposing_group_id']),
+                           icon_expr='', available_expr=actToGen['condition'], permissions=('View',), visible=True)
                 object_buttons._setObject(actionId, action)
                 i = i + 1
-
