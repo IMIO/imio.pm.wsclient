@@ -9,6 +9,7 @@ from Products.statusmessages.interfaces import IStatusMessage
 
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 
+
 class SendToPloneMeetingView(BrowserView):
     """
       This manage the action that sends the element to PloneMeeting
@@ -27,7 +28,9 @@ class SendToPloneMeetingView(BrowserView):
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         client = ws4pmSettings._soap_connectToPloneMeeting(addPortalMessage=False)
         if client is None:
-            IStatusMessage(self.request).addStatusMessage(_(u"Unable to connect to PloneMeeting, check the 'WS4PM Client settings'!  Please contact system administrator!"), "warning")
+            IStatusMessage(self.request).addStatusMessage(
+                _(u"Unable to connect to PloneMeeting, check the 'WS4PM Client settings'! \
+                    Please contact system administrator!"), "warning")
             return self.request.RESPONSE.redirect(self.context.absolute_url())
         # now that we can connect to the webservice, check that the user can actually trigger that action
         # indeed paramters are sent thru the request, and so someone could do nasty things...
@@ -50,7 +53,9 @@ class SendToPloneMeetingView(BrowserView):
         res = ws4pmSettings._soap_searchItems(**{'externalIdentifier': self.context.UID(),
                                                  'meetingConfigId': self.meetingConfigId})
         if res:
-            IStatusMessage(self.request).addStatusMessage(_("This element has already been sent to PloneMeeting!"), "error")
+            IStatusMessage(self.request).addStatusMessage(
+                _("This element has already been sent to PloneMeeting!"),
+                "error")
             return self.request.RESPONSE.redirect(self.context.absolute_url())
 
         # build the creationData
@@ -64,21 +69,26 @@ class SendToPloneMeetingView(BrowserView):
                     res = Expression(expression)(ctx)
                     data[field_name] = res
                 except Exception, e:
-                    IStatusMessage(self.request).addStatusMessage(_(u"There was an error evaluating the TAL expression '%s' for the field '%s'!  " \
-                                                                    "The error was : '%s'.  Please contact system administrator." % (expression, field_name, e)), "error")
+                    IStatusMessage(self.request).addStatusMessage(
+                        _(u"There was an error evaluating the TAL expression '%s' for the field '%s'!  " \
+                           "The error was : '%s'.  Please contact system administrator." % (expression, field_name, e)),
+                        "error")
                     return self.request.RESPONSE.redirect(self.context.absolute_url())
 
-        # now that every values are evaluated, create the CreationData
-        creationData = client.factory.create('CreationData')
+        # now that every values are evaluated, build the CreationData
+        creation_data = client.factory.create('CreationData')
         for elt in data:
-            creationData[elt] = data[elt]
+            creation_data[elt] = data[elt]
         # initialize the externalIdentifier to the context UID
-        creationData['externalIdentifier'] = self.context.UID()
+        creation_data['externalIdentifier'] = self.context.UID()
+        # we create an item inTheNameOf the currently connected member
+        ws4pmSettings._getUserIdToCreateWith
         # call the SOAP method actually creating the item
-        res = ws4pmSettings._soap_createItem(self.meetingConfigId, self.proposingGroupId, creationData)
+        res = ws4pmSettings._soap_createItem(self.meetingConfigId, self.proposingGroupId, creation_data)
         if res:
             uid, warnings = res
-            IStatusMessage(self.request).addStatusMessage(_(u"The item has been correctly sent to PloneMeeting."), "info")
+            IStatusMessage(self.request).addStatusMessage(_(u"The item has been correctly sent to PloneMeeting."),
+                                                          "info")
             if warnings:
                 for warning in warnings[1]:
                     # show warnings in the web interface for Managers and add it to the Zope log
@@ -86,4 +96,3 @@ class SendToPloneMeetingView(BrowserView):
                         IStatusMessage(self.request).addStatusMessage(_(warning), "warning")
                     logger.warning(warning)
         return self.request.RESPONSE.redirect(self.context.absolute_url())
-
