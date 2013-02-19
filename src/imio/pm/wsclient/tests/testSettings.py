@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2013 by Imio.be
+# File: testItemMethods.py
+#
+# Copyright (c) 2012 by CommunesPlone
 #
 # GNU General Public License (GPL)
 #
@@ -20,15 +22,23 @@
 # 02110-1301, USA.
 #
 
-from Products.PloneMeeting.tests.PloneMeetingTestCase import PloneMeetingTestCase
-from imio.pm.wsclient.testing import WS4PMCLIENT_PM_TEST_PROFILE_FUNCTIONAL
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
 
 
-class WS4PMCLIENTTestCase(PloneMeetingTestCase):
-    '''Base class for defining WS4PMCLIENT test cases.'''
+class testSettings(WS4PMCLIENTTestCase):
+    """
+        Tests the browser.settings SOAP client methods
+    """
 
-    layer = WS4PMCLIENT_PM_TEST_PROFILE_FUNCTIONAL
+    def test_connectToPloneMeeting(self):
+        """Test connection to the SOAP server."""
+        self.changeUser('pmManager')
+        import ipdb; ipdb.set_trace()
 
-    def setUp(self):
-        """ """
-        PloneMeetingTestCase.setUp(self)
+
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    # add a prefix because we heritate from testMeeting and we do not want every tests of testMeeting to be run here...
+    suite.addTest(makeSuite(testSettings, prefix='test_'))
+    return suite

@@ -26,13 +26,13 @@ setup(name='imio.pm.wsclient',
       zip_safe=False,
       install_requires=[
           'setuptools',
+          'collective.z3cform.datagridfield',
           # -*- Extra requirements: -*-
-          'Products.PloneMeeting',
           # -*- optional SOAP clients for tests (see docs/README.txt) -*-
           'SOAPpy',
           'suds',
       ],
-      extras_require={'test': ['plone.app.testing', 'unittest2']},
+      extras_require={'test': ['plone.app.testing', 'unittest2', 'imio.pm.ws']},
       entry_points="""
       # -*- Entry points: -*-
       """,

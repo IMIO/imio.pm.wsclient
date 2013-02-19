@@ -2,8 +2,7 @@
     xmlns="http://namespaces.zope.org/zope"
     xmlns:five="http://namespaces.zope.org/five"
     xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
-    xmlns:soap="http://namespaces.zope.org/soap"
-    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:zcml="http://namespaces.zope.org/zcml"
     xmlns:i18n="http://namespaces.zope.org/i18n"
     i18n_domain="imio.pm.wsclient">
 
@@ -11,7 +10,7 @@
     <five:registerPackage package="." initialize=".initialize" />
 
     <!-- borrowed from z3c.soap -->
-    <permission
+    <permission zcml:condition="not-installed z3c.soap"
       id="zope2.SOAPAccess"
       title="SOAP Access"/>
 

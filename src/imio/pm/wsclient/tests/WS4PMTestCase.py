@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2013 by Imio.be
+# Copyright (c) 2012 by CommunesPlone
 #
 # GNU General Public License (GPL)
 #
@@ -21,14 +21,33 @@
 #
 
 from Products.PloneMeeting.tests.PloneMeetingTestCase import PloneMeetingTestCase
-from imio.pm.wsclient.testing import WS4PMCLIENT_PM_TEST_PROFILE_FUNCTIONAL
+from imio.pm.ws.testing import WS4PM_PM_TEST_PROFILE_FUNCTIONAL
 
+class WS4PMTestCase(PloneMeetingTestCase):
+    '''Base class for defining WS4PM test cases.'''
 
-class WS4PMCLIENTTestCase(PloneMeetingTestCase):
-    '''Base class for defining WS4PMCLIENT test cases.'''
-
-    layer = WS4PMCLIENT_PM_TEST_PROFILE_FUNCTIONAL
+    layer = WS4PM_PM_TEST_PROFILE_FUNCTIONAL
 
     def setUp(self):
         """ """
         PloneMeetingTestCase.setUp(self)
+
+
+from lxml import etree
+from ZSI import SoapWriter, TC
+
+def serializeRequest(request):
+    tc = getattr(request, 'typecode', None)
+    sw = SoapWriter(nsdict={}, header=True, outputclass=None,
+                    encodingStyle=None)
+    return str(sw.serialize(request, tc))
+
+
+def deserialize(objectToDeserialize):
+    sw = SoapWriter(nsdict={}, header=True, outputclass=None,
+                    encodingStyle=None)
+    tc = TC.Any(pname=None, aslist=False)
+    deserializedObject = sw.serialize(objectToDeserialize, tc).body
+    root = etree.XML(str(deserializedObject))
+    body = root[0]
+    return etree.tostring(body, encoding='utf-8', pretty_print=True)
