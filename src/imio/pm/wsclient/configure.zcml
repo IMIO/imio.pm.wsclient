@@ -10,9 +10,9 @@
     <five:registerPackage package="." initialize=".initialize" />
 
     <!-- borrowed from z3c.soap -->
-    <permission zcml:condition="not-installed z3c.soap"
-      id="zope2.SOAPAccess"
-      title="SOAP Access"/>
+    <permission
+      id="zope2.SOAPClientAccess"
+      title="SOAP Client Access"/>
 
     <include package="plone.app.registry" />
     <include package=".browser" />

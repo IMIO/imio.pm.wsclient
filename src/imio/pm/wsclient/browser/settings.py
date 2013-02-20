@@ -212,6 +212,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         imp = Import('http://schemas.xmlsoap.org/soap/encoding/')
         d = ImportDoctor(imp)
         t = HttpAuthenticated(username=username, password=password)
+        import ipdb; ipdb.set_trace()
         try:
             client = Client(url, doctor=d, transport=t)
             # call a SOAP server test method to check that everything is fine with given parameters
@@ -249,7 +250,8 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         if client is not None:
             # extract data from the CreationData ComplexType that is used to create an item
             namespace = str(client.wsdl.tns[1])
-            return [data.name for data in client.factory.wsdl.build_schema().types['CreationData', namespace].rawchildren[0].rawchildren]
+            return [data.name for data in \
+                    client.factory.wsdl.build_schema().types['CreationData', namespace].rawchildren[0].rawchildren]
 
     @memoize
     def _soap_createItem(self, meetingConfigId, proposingGroupId, creationData, inTheNameOf=None):
@@ -268,23 +270,28 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         """Returns the userId that will actually create the item.
            Returns None if we found out that it is the defined settings.pm_username
            that will create the item : either it is the currently connected user,
-           either there is an existing user_mapping between currentrly connected user
+           or there is an existing user_mapping between currently connected user
            and settings.pm_username user."""
-        member = self.context.restrictedTraverse('@@plone_portal_state').member()
+        member = self.context.portal_membership.getAuthenticatedMember()
         memberId = member.getId()
         # get username specified to connect to the SOAP distant site
         settings = self.settings()
-        soapUsername = settings.pm_username
-        # first check if a user_mapping exists
-        for user_mapping in settings.user_mappings.split('\n'):
-            localUserId, distantUserId = user_mapping.split('|')
-            # we found a username to use if it is not the soapUsername
-            if memberId == localUserId and not soapUsername == localUserId:
-                return distantUserId
+        soapUsername = settings.pm_username and settings.pm_username.strip()
         # if current user is the user defined in the settings, return None
-        if not memberId == soapUsername:
-            return memberId
-        return None
+        if memberId == soapUsername:
+            return None
+        # check if a user_mapping exists
+        if settings.user_mappings and settings.user_mappings.strip():
+            for user_mapping in settings.user_mappings.split('\n'):
+                localUserId, distantUserId = user_mapping.split('|')
+                # if we found a mapping for the current user, check also
+                # that the distantUserId to mapping is linking to is not the soapUsername
+                if memberId == localUserId.strip():
+                    if not soapUsername == distantUserId.strip():
+                        return distantUserId.strip()
+                    else:
+                        return None
+        return memberId
 
 
 def notify_configuration_changed(event):
@@ -312,6 +319,6 @@ def notify_configuration_changed(event):
                            description='', i18n_domain='imio.pm.wsclient',
                            url_expr='string:${object_url}/@@send_to_plonemeeting?meetingConfigId=%s&proposingGroupId=%s'
                                     % (actToGen['pm_meeting_config_id'], actToGen['pm_proposing_group_id']),
-                           icon_expr='', available_expr=actToGen['condition'], permissions=('View',), visible=True)
+                           icon_expr='', available_expr=actToGen['condition'], permissions=(actToGen['permissions'], ), visible=True)
                 object_buttons._setObject(actionId, action)
                 i = i + 1

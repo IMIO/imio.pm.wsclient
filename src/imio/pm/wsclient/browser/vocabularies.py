@@ -22,7 +22,8 @@ class pm_proposing_group_id_vocabulary(object):
             for pmConfigInfo in pmConfigInfos:
                 if not pmConfigInfo['type'] == 'MeetingGroup':
                     continue
-                terms.append(SimpleTerm(pmConfigInfo['id'], pmConfigInfo['id'], pmConfigInfo['title'],))
+                # force terms to be str or it may be 'suds.sax.text.Text' instances
+                terms.append(SimpleTerm(str(pmConfigInfo['id']), str(pmConfigInfo['id']), str(pmConfigInfo['title']),))
             terms.append(SimpleTerm('GroupPM1', 'GroupPM1', 'GroupPM1'))
             terms.append(SimpleTerm('GroupPM2', 'GroupPM2', 'GroupPM2'))
             terms.append(SimpleTerm('GroupPM3', 'GroupPM3', 'GroupPM3'))
@@ -47,7 +48,7 @@ class pm_meeting_config_id_vocabulary(object):
             for pmConfigInfo in pmConfigInfos:
                 if not pmConfigInfo['type'] == 'MeetingConfig':
                     continue
-                terms.append(SimpleTerm(pmConfigInfo['id'], pmConfigInfo['id'], pmConfigInfo['title'],))
+                terms.append(SimpleTerm(str(pmConfigInfo['id']), str(pmConfigInfo['id']), str(pmConfigInfo['title']),))
         return SimpleVocabulary(terms)
 pm_meeting_config_id_vocabularyFactory = pm_meeting_config_id_vocabulary()
 
@@ -84,6 +85,6 @@ class pm_item_data_vocabulary(object):
         availableDatas = settings._soap_getItemCreationAvailableData()
         if availableDatas:
             for availableData in availableDatas:
-                terms.append(SimpleTerm(availableData, availableData, availableData,))
+                terms.append(SimpleTerm(str(availableData), str(availableData), str(availableData),))
         return SimpleVocabulary(terms)
 pm_item_data_vocabularyFactory = pm_item_data_vocabulary()

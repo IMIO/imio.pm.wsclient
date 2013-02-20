@@ -32,3 +32,55 @@ class WS4PMCLIENTTestCase(PloneMeetingTestCase):
     def setUp(self):
         """ """
         PloneMeetingTestCase.setUp(self)
+
+
+def setCorrectSettingsConfig(settings, minimal=False, withValidation=True):
+    """Set a workable set of settings for tests.
+       If p_withValidation is False, remove validation because we want
+       to force to set some values and relevant vocabularies for example do not contain that value.
+       If p_minimal is True, only minimal settings are set to be able to connect."""
+    if not withValidation:
+        # disable validation when forcing some values to set
+        from zope.schema._field import AbstractCollection
+        old_validate = AbstractCollection._validate
+
+        def _validate(self, value):
+            return
+        AbstractCollection._validate = _validate
+    settings.pm_url = u'http://nohost/plone/ws4pm.wsdl'
+    settings.pm_username = u'pmManager'
+    settings.pm_password = u'meeting'
+    settings.user_mappings = u'localUserId|pmCreator1\r\nlocalUserId2|pmCreator2\r\nadmin|pmCreator1'
+    if not minimal:
+        # these parameters are only available while correctly connected
+        # to PloneMeeting webservices, either use withValidation=False
+        settings.fields_mappings = [{'field_name': u'title', 'expression': u'python: object.Title()'},
+            {'field_name': u'description', 'expression': u'python: object.Description()'},
+            {'field_name': u'category', 'expression': u"python: 'secretariat'"},
+            {'field_name': u'decision', 'expression': u'python: object.getText()'},
+            {'field_name': u'externalIdentifier', 'expression': u"python: 'gni'"}]
+        settings.generated_actions = [
+            {'pm_proposing_group_id': u'developers',
+             'pm_meeting_config_id': 'plonegov-assembly',
+             'condition': u'python:True',
+             'permissions': u'View'},
+            {'pm_proposing_group_id': u'vendors',
+             'pm_meeting_config_id': 'plonegov-assembly',
+             'condition': u'python:True',
+             'permissions': u'View'},
+            {'pm_proposing_group_id': u'developers',
+             'pm_meeting_config_id': 'plonemeeting-assembly',
+             'condition': u'python:True',
+             'permissions': u'View'},
+            {'pm_proposing_group_id': u'vendors',
+             'pm_meeting_config_id': 'plonemeeting-assembly',
+             'condition': u'python:False',
+             'permissions': u'View'},
+            {'pm_proposing_group_id': u'vendors',
+             'pm_meeting_config_id': 'plonemeeting-assembly',
+             'condition': u'python:True',
+             'permissions': u'Manage portal'},
+            ]
+    if not withValidation:
+        AbstractCollection._validate = old_validate
+

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# File: testSOAPClient.py
+# File: testItemMethods.py
 #
-# Copyright (c) 2013 by Imio.be
+# Copyright (c) 2012 by CommunesPlone
 #
 # GNU General Public License (GPL)
 #
@@ -22,16 +22,27 @@
 # 02110-1301, USA.
 #
 
-from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
+from zope.component import getMultiAdapter
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, setCorrectSettingsConfig
 
-class testSOAPClient(WS4PMCLIENTTestCase):
+
+class testSettingsSOAPMethods(WS4PMCLIENTTestCase):
     """
-        Tests the SOAP client functionnalities
-    """ 
+        Tests the browser.settings SOAP client methods
+    """
+
+    def test_soap_connectToPloneMeeting(self):
+        """Check that we can actually connect to PloneMeeting with given parameters."""
+        ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
+        settings = ws4pmSettings.settings()
+        setCorrectSettingsConfig(settings, minimal=True)
+        ws4pmSettings._soap_connectToPloneMeeting()
+        import ipdb; ipdb.set_trace()
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
     # add a prefix because we heritate from testMeeting and we do not want every tests of testMeeting to be run here...
-    suite.addTest(makeSuite(testItemSOAPMethods, prefix='test_'))
+    suite.addTest(makeSuite(testSettingsSOAPMethods, prefix='test_'))
     return suite

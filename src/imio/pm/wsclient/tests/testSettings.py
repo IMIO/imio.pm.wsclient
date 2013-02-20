@@ -22,23 +22,112 @@
 # 02110-1301, USA.
 #
 
-from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
+import unittest2
+from plone.app.testing.interfaces import TEST_USER_ID, TEST_USER_NAME
+from plone.app.testing import login, setRoles
+
+from AccessControl import Unauthorized
+from zope.component import getMultiAdapter
+
+from imio.pm.wsclient.config import ACTION_SUFFIX
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
+from imio.pm.wsclient.testing import WS4PMCLIENT_PROFILE_FUNCTIONAL
 
 
-class testSettings(WS4PMCLIENTTestCase):
+class testSettings(unittest2.TestCase):
     """
         Tests the browser.settings SOAP client methods
     """
 
-    def test_connectToPloneMeeting(self):
-        """Test connection to the SOAP server."""
-        self.changeUser('pmManager')
-        import ipdb; ipdb.set_trace()
+    layer = WS4PMCLIENT_PROFILE_FUNCTIONAL
+
+    def setUp(self):
+        portal = self.layer['portal']
+        request = self.layer['request']
+        self.portal = portal
+        self.request = request
+
+    def test_ws4pmSettings(self):
+        """Check that we can actually access settings and that we have the correct fields."""
+        # settings are only available to connected users having "Manage portal" permission
+        self.assertRaises(Unauthorized, self.portal.restrictedTraverse, '@@ws4pmclient-settings')
+        login(self.portal, TEST_USER_NAME)
+        self.assertRaises(Unauthorized, self.portal.restrictedTraverse, '@@ws4pmclient-settings')
+        setRoles(self.portal, TEST_USER_ID, ('Manager',))
+        ws4pmSettings = self.portal.restrictedTraverse('@@ws4pmclient-settings')
+        settings = ws4pmSettings.settings()
+        fields = settings.__schema__._InterfaceClass__attrs.keys()
+        fields.sort()
+        self.assertEquals(fields, ['field_mappings',
+                                   'generated_actions',
+                                   'pm_password',
+                                   'pm_url',
+                                   'pm_username',
+                                   'user_mappings'])
+
+    def test_saveSettings(self):
+        """While settings are saved, some actions are added to portal_actions/object_buttons."""
+        setRoles(self.portal, TEST_USER_ID, ('Manager',))
+        login(self.portal, TEST_USER_NAME)
+        ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
+        settings = ws4pmSettings.settings()
+        # for now, there are no relative plonemeeting actions in portal_actions/object_buttons
+        object_buttons_ids = self.portal.portal_actions.object_buttons.objectIds()
+        self.failIf([actId for actId in object_buttons_ids if actId.startswith(ACTION_SUFFIX)])
+        setCorrectSettingsConfig(settings, withValidation=False)
+        # now relevant actions exist
+        number_actions_to_generated = len(settings.generated_actions)
+        object_buttons_ids = self.portal.portal_actions.object_buttons.objectIds()
+        self.assertEquals(len([actId for actId in object_buttons_ids if actId.startswith(ACTION_SUFFIX)]),
+                          number_actions_to_generated)
+        # and it is correctly configured
+        setRoles(self.portal, TEST_USER_ID, ('Member',))
+        # plone.app.testing does not manage request/URL and request/ACTUAL_URL
+        # and request/ACTUAL_URL is necessary for listFilteredActionsFor
+        self.request.set('URL', self.portal.absolute_url())
+        self.request.set('ACTUAL_URL', self.portal.absolute_url())
+        object_buttons = self.portal.portal_actions.listFilteredActionsFor(self.portal)['object_buttons']
+        # 2 of the generated actions are not available to non 'Managers'
+        self.assertEquals(len([act for act in object_buttons if act['id'].startswith(ACTION_SUFFIX)]),
+                          number_actions_to_generated - 2)
+
+    def test__getUserIdToCreateInTheNameOfWith(self):
+        """Returns the userId that will actually create the item.
+           Returns None if we found out that it is the defined settings.pm_username
+           that will create the item : either it is the currently connected user,
+           or there is an existing user_mapping between currently connected user
+           and settings.pm_username user. """
+        setRoles(self.portal, TEST_USER_ID, ('Manager',))
+        login(self.portal, TEST_USER_NAME)
+        ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
+        # this method is taking care of values in settings.pm_username
+        # and settings.user_mappings
+        # first define no user_mappings and no pm_username,
+        # the currently logged in user will be the creator
+        self.assertEquals(ws4pmSettings._getUserIdToCreateInTheNameOfWith(), TEST_USER_ID)
+        # check that if current member is settings.pm_username, None is returned
+        settings = ws4pmSettings.settings()
+        settings.pm_username = unicode(TEST_USER_ID, 'utf-8')
+        self.assertEquals(ws4pmSettings._getUserIdToCreateInTheNameOfWith(), None)
+        # now define user_mappings
+        # add a lamba user to be able to test
+        self.portal.acl_users.userFolderAddUser('lambda', 'lambda', ['Member'], [])
+        # if the found user_mappings leads to a user that is not
+        # settings.pm_username, this user mapping is returned
+        settings.user_mappings = u'localUserId|pmCreator1\r\nlambda|aUserInPloneMeeting\r\nadmin|pmCreator1'
+        login(self.portal, 'lambda')
+        self.assertEquals(ws4pmSettings._getUserIdToCreateInTheNameOfWith(), u'aUserInPloneMeeting')
+        # not the user_mappings is linking to the settings.pm_username
+        settings.user_mappings = u'localUserId|pmCreator1\r\nlambda|%s\r\nadmin|pmCreator1' % TEST_USER_ID
+        self.assertEquals(ws4pmSettings._getUserIdToCreateInTheNameOfWith(), None)
+        # if the user is not the settings.pm_username and not found in the mappings
+        # it is his own userId that will be used
+        settings.user_mappings = u'localUserId|pmCreator1\r\notherUser|otherUserInPloneMeeting\r\nadmin|pmCreator1'
+        self.assertEquals(ws4pmSettings._getUserIdToCreateInTheNameOfWith(), 'lambda')
 
 
 def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
-    # add a prefix because we heritate from testMeeting and we do not want every tests of testMeeting to be run here...
-    suite.addTest(makeSuite(testSettings, prefix='test_'))
+    suite.addTest(makeSuite(testSettings))
     return suite
