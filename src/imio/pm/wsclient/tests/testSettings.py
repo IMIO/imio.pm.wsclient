@@ -74,7 +74,7 @@ class testSettings(unittest2.TestCase):
         # for now, there are no relative plonemeeting actions in portal_actions/object_buttons
         object_buttons_ids = self.portal.portal_actions.object_buttons.objectIds()
         self.failIf([actId for actId in object_buttons_ids if actId.startswith(ACTION_SUFFIX)])
-        setCorrectSettingsConfig(settings, withValidation=False)
+        setCorrectSettingsConfig(self.portal, settings, withValidation=False)
         # now relevant actions exist
         number_actions_to_generated = len(settings.generated_actions)
         object_buttons_ids = self.portal.portal_actions.object_buttons.objectIds()

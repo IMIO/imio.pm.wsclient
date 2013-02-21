@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<metadata>
+ <version>testing</version>
+ <dependencies>
+  <dependency>profile-imio.pm.wsclient:default</dependency>
+  <dependency>profile-imio.pm.ws:default</dependency>
+ </dependencies>
+</metadata>

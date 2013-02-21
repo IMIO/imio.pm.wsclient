@@ -34,7 +34,7 @@ class WS4PMCLIENTTestCase(PloneMeetingTestCase):
         PloneMeetingTestCase.setUp(self)
 
 
-def setCorrectSettingsConfig(settings, minimal=False, withValidation=True):
+def setCorrectSettingsConfig(portal, settings, minimal=False, withValidation=True):
     """Set a workable set of settings for tests.
        If p_withValidation is False, remove validation because we want
        to force to set some values and relevant vocabularies for example do not contain that value.
@@ -47,7 +47,7 @@ def setCorrectSettingsConfig(settings, minimal=False, withValidation=True):
         def _validate(self, value):
             return
         AbstractCollection._validate = _validate
-    settings.pm_url = u'http://nohost/plone/ws4pm.wsdl'
+    settings.pm_url = u'%s/ws4pm.wsdl' % portal.absolute_url()
     settings.pm_username = u'pmManager'
     settings.pm_password = u'meeting'
     settings.user_mappings = u'localUserId|pmCreator1\r\nlocalUserId2|pmCreator2\r\nadmin|pmCreator1'
@@ -83,4 +83,3 @@ def setCorrectSettingsConfig(settings, minimal=False, withValidation=True):
             ]
     if not withValidation:
         AbstractCollection._validate = old_validate
-

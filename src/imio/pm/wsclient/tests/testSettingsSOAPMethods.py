@@ -23,6 +23,8 @@
 #
 
 from zope.component import getMultiAdapter
+from zope.annotation.interfaces import IAnnotations
+
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, setCorrectSettingsConfig
 
 
@@ -35,9 +37,24 @@ class testSettingsSOAPMethods(WS4PMCLIENTTestCase):
         """Check that we can actually connect to PloneMeeting with given parameters."""
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         settings = ws4pmSettings.settings()
-        setCorrectSettingsConfig(settings, minimal=True)
-        ws4pmSettings._soap_connectToPloneMeeting()
-        import ipdb; ipdb.set_trace()
+        setCorrectSettingsConfig(self.portal, settings, minimal=True)
+        # with valid informations, we can connect to PloneMeeting SOAP webservices
+        self.failUnless(ws4pmSettings._soap_connectToPloneMeeting())
+        # if either url or username/password is not valid, we can not connect...
+        settings.pm_url = settings.pm_url + 'invalidEndOfURL'
+        self._cleanMemoizeOnSOAPMethods()
+        self.failIf(ws4pmSettings._soap_connectToPloneMeeting())
+        settings.pm_url = settings.pm_url.rstrip('invalidEndOfURL')
+        settings.pm_password = u'wrongPassword'
+        self._cleanMemoizeOnSOAPMethods()
+        self.failIf(ws4pmSettings._soap_connectToPloneMeeting())
+
+    def _cleanMemoizeOnSOAPMethods(self):
+        """SOAP methods are memoized, making it impossible to test twice...
+           So clean memoized informations so the called
+           SOAP method is really rendered again..."""
+        annotations = IAnnotations(self.request)
+        annotations['plone.memoize'].clear()
 
 
 def test_suite():

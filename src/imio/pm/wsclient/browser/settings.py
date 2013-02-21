@@ -212,7 +212,6 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         imp = Import('http://schemas.xmlsoap.org/soap/encoding/')
         d = ImportDoctor(imp)
         t = HttpAuthenticated(username=username, password=password)
-        import ipdb; ipdb.set_trace()
         try:
             client = Client(url, doctor=d, transport=t)
             # call a SOAP server test method to check that everything is fine with given parameters
@@ -231,12 +230,14 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         if client is not None:
             return client.service.getConfigInfos('')
 
+    @memoize
     def _soap_searchItems(self, **data):
         """Query the searchItems SOAP server method."""
         client = self._soap_connectToPloneMeeting()
         if client is not None:
             return client.service.searchItems(**data)
 
+    @memoize
     def _soap_getItemInfos(self, **data):
         """Query the getItemInfos SOAP server method."""
         client = self._soap_connectToPloneMeeting()
