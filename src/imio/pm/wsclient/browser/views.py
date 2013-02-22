@@ -82,15 +82,11 @@ class SendToPloneMeetingView(BrowserView):
             creation_data[elt] = data[elt]
         # initialize the externalIdentifier to the context UID
         creation_data['externalIdentifier'] = self.context.UID()
-        # we create an item inTheNameOf the currently connected member
-        # _getUserIdToCreateWith returns None if the settings defined username creates the item
-        userId = ws4pmSettings._getUserIdToCreateInTheNameOfWith()
 
         # call the SOAP method actually creating the item
         res = ws4pmSettings._soap_createItem(self.meetingConfigId,
                                              self.proposingGroupId,
-                                             creation_data,
-                                             inTheNameOf=userId)
+                                             creation_data)
         if res:
             uid, warnings = res
             IStatusMessage(self.request).addStatusMessage(_(u"The item has been correctly sent to PloneMeeting."),

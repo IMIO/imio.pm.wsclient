@@ -91,7 +91,7 @@ class testSettings(unittest2.TestCase):
         self.assertEquals(len([act for act in object_buttons if act['id'].startswith(ACTION_SUFFIX)]),
                           number_actions_to_generated - 2)
 
-    def test__getUserIdToCreateInTheNameOfWith(self):
+    def test_getUserIdToUseInTheNameOfWith(self):
         """Returns the userId that will actually create the item.
            Returns None if we found out that it is the defined settings.pm_username
            that will create the item : either it is the currently connected user,
@@ -104,11 +104,11 @@ class testSettings(unittest2.TestCase):
         # and settings.user_mappings
         # first define no user_mappings and no pm_username,
         # the currently logged in user will be the creator
-        self.assertEquals(ws4pmSettings._getUserIdToCreateInTheNameOfWith(), TEST_USER_ID)
+        self.assertEquals(ws4pmSettings._getUserIdToUseInTheNameOfWith(), TEST_USER_ID)
         # check that if current member is settings.pm_username, None is returned
         settings = ws4pmSettings.settings()
         settings.pm_username = unicode(TEST_USER_ID, 'utf-8')
-        self.assertEquals(ws4pmSettings._getUserIdToCreateInTheNameOfWith(), None)
+        self.assertEquals(ws4pmSettings._getUserIdToUseInTheNameOfWith(), None)
         # now define user_mappings
         # add a lamba user to be able to test
         self.portal.acl_users.userFolderAddUser('lambda', 'lambda', ['Member'], [])
@@ -116,14 +116,14 @@ class testSettings(unittest2.TestCase):
         # settings.pm_username, this user mapping is returned
         settings.user_mappings = u'localUserId|pmCreator1\r\nlambda|aUserInPloneMeeting\r\nadmin|pmCreator1'
         login(self.portal, 'lambda')
-        self.assertEquals(ws4pmSettings._getUserIdToCreateInTheNameOfWith(), u'aUserInPloneMeeting')
+        self.assertEquals(ws4pmSettings._getUserIdToUseInTheNameOfWith(), u'aUserInPloneMeeting')
         # not the user_mappings is linking to the settings.pm_username
         settings.user_mappings = u'localUserId|pmCreator1\r\nlambda|%s\r\nadmin|pmCreator1' % TEST_USER_ID
-        self.assertEquals(ws4pmSettings._getUserIdToCreateInTheNameOfWith(), None)
+        self.assertEquals(ws4pmSettings._getUserIdToUseInTheNameOfWith(), None)
         # if the user is not the settings.pm_username and not found in the mappings
         # it is his own userId that will be used
         settings.user_mappings = u'localUserId|pmCreator1\r\notherUser|otherUserInPloneMeeting\r\nadmin|pmCreator1'
-        self.assertEquals(ws4pmSettings._getUserIdToCreateInTheNameOfWith(), 'lambda')
+        self.assertEquals(ws4pmSettings._getUserIdToUseInTheNameOfWith(), 'lambda')
 
 
 def test_suite():

@@ -230,18 +230,20 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         if client is not None:
             return client.service.getConfigInfos('')
 
-    @memoize
-    def _soap_searchItems(self, **data):
+    def _soap_searchItems(self, data):
         """Query the searchItems SOAP server method."""
         client = self._soap_connectToPloneMeeting()
         if client is not None:
+            # get the inTheNameOf userid
+            data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
             return client.service.searchItems(**data)
 
-    @memoize
-    def _soap_getItemInfos(self, **data):
+    def _soap_getItemInfos(self, data):
         """Query the getItemInfos SOAP server method."""
         client = self._soap_connectToPloneMeeting()
         if client is not None:
+            # get the inTheNameOf userid
+            data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
             return client.service.getItemInfos(**data)
 
     @memoize
@@ -251,15 +253,17 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         if client is not None:
             # extract data from the CreationData ComplexType that is used to create an item
             namespace = str(client.wsdl.tns[1])
-            return [data.name for data in \
+            return [str(data.name) for data in \
                     client.factory.wsdl.build_schema().types['CreationData', namespace].rawchildren[0].rawchildren]
 
-    @memoize
-    def _soap_createItem(self, meetingConfigId, proposingGroupId, creationData, inTheNameOf=None):
+    def _soap_createItem(self, meetingConfigId, proposingGroupId, creationData):
         """Query the createItem SOAP server method."""
         client = self._soap_connectToPloneMeeting()
         if client is not None:
             try:
+                # we create an item inTheNameOf the currently connected member
+                # _getUserIdToCreateWith returns None if the settings defined username creates the item
+                inTheNameOf = self._getUserIdToUseInTheNameOfWith()
                 uid, warnings = client.service.createItem(meetingConfigId, proposingGroupId, creationData, inTheNameOf)
                 return uid, warnings
             except Exception, exc:
@@ -267,7 +271,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                                                                 "PloneMeeting!  The error message was : %s" % exc),
                                                               "error")
 
-    def _getUserIdToCreateInTheNameOfWith(self):
+    def _getUserIdToUseInTheNameOfWith(self):
         """Returns the userId that will actually create the item.
            Returns None if we found out that it is the defined settings.pm_username
            that will create the item : either it is the currently connected user,
