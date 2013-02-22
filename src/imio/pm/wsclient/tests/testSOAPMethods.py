@@ -136,7 +136,7 @@ class testSettingsSOAPMethods(WS4PMCLIENTTestCase):
         setCorrectSettingsConfig(self.portal, settings, minimal=True)
         self.changeUser('pmCreator1')
         # create the 'pmCreator1' member area to be able to create an item
-        pmFolder = self.tool.getPloneMeetingFolder(self.meetingConfig.id, 'pmCreator1')
+        pmFolder = self.tool.getPloneMeetingFolder('plonegov-assembly', 'pmCreator1')
         # we have to commit() here or portal used behing the SOAP call
         # does not have the freshly created item...
         import transaction

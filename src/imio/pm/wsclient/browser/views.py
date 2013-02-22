@@ -30,15 +30,15 @@ class SendToPloneMeetingView(BrowserView):
         client = ws4pmSettings._soap_connectToPloneMeeting(addPortalMessage=False)
         if client is None:
             IStatusMessage(self.request).addStatusMessage(
-                _(u"Unable to connect to PloneMeeting, check the 'WS4PM Client settings'! \
-                    Please contact system administrator!"), "warning")
+                _(u"Unable to connect to PloneMeeting, check the 'WS4PM Client settings'! "\
+                   "Please contact system administrator!"), "warning")
             return self.request.RESPONSE.redirect(self.context.absolute_url())
         # now that we can connect to the webservice, check that the user can actually trigger that action
         # indeed paramters are sent thru the request, and so someone could do nasty things...
         # check that the real currentUrl is on available in object_buttons actions for the user
         availableActions = self.portal.portal_actions.listFilteredActionsFor(self.context)['object_buttons']
         # rebuild real url called by the action
-        currentUrl = self.request['ACTUAL_URL'] + '?' + self.request['QUERY_STRING']
+        currentUrl = unicode(self.request['ACTUAL_URL'] + '?' + self.request['QUERY_STRING'], 'utf-8')
         # now check if this url is available in the actions for the user
         mayDoAction = False
         for action in availableActions:
@@ -51,11 +51,11 @@ class SendToPloneMeetingView(BrowserView):
         # if we can connect and the user is allowed to trigger the action, proceed !
         settings = ws4pmSettings.settings()
         # check if not already sent to PloneMeeting...
-        res = ws4pmSettings._soap_searchItems(**{'externalIdentifier': self.context.UID(),
-                                                 'meetingConfigId': self.meetingConfigId})
+        res = ws4pmSettings._soap_searchItems({'externalIdentifier': self.context.UID(),
+                                               'meetingConfigId': self.meetingConfigId})
         if res:
             IStatusMessage(self.request).addStatusMessage(
-                _("This element has already been sent to PloneMeeting!"),
+                _(u"This element has already been sent to PloneMeeting!"),
                 "error")
             return self.request.RESPONSE.redirect(self.context.absolute_url())
 

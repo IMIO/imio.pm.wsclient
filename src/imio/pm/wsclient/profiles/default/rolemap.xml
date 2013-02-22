@@ -5,7 +5,7 @@
     <role name="Member"/>
   </roles>
   <permissions>
-    <permission name="SOAP Access"
+    <permission name="SOAP Client Access"
                 acquire="True">
       <role name="Member"/>
       <role name="Manager"/>

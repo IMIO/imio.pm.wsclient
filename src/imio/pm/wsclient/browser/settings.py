@@ -323,7 +323,11 @@ def notify_configuration_changed(event):
                                                 context=portal.REQUEST),
                            description='', i18n_domain='imio.pm.wsclient',
                            url_expr='string:${object_url}/@@send_to_plonemeeting?meetingConfigId=%s&proposingGroupId=%s'
-                                    % (actToGen['pm_meeting_config_id'], actToGen['pm_proposing_group_id']),
-                           icon_expr='', available_expr=actToGen['condition'], permissions=(actToGen['permissions'], ), visible=True)
+                                    % (actToGen['pm_meeting_config_id'],
+                                       actToGen['pm_proposing_group_id']),
+                           icon_expr='',
+                           available_expr=actToGen['condition'],
+                           permissions=(actToGen['permissions'], ),
+                           visible=True)
                 object_buttons._setObject(actionId, action)
                 i = i + 1
