@@ -3,12 +3,12 @@ logger = logging.getLogger('imio.pm.wsclient')
 
 from AccessControl import Unauthorized
 from zope.component import getMultiAdapter
+from zope.annotation import IAnnotations
 from Products.Five import BrowserView
-from Products.CMFCore.Expression import Expression, createExprContext
 from Products.statusmessages.interfaces import IStatusMessage
 
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
-from imio.pm.wsclient.config import DEFAULT_NO_WARNING_MESSAGE
+from imio.pm.wsclient.config import DEFAULT_NO_WARNING_MESSAGE, WS4PMCLIENT_ANNOTATION_KEY
 
 
 class SendToPloneMeetingView(BrowserView):
@@ -22,16 +22,16 @@ class SendToPloneMeetingView(BrowserView):
         self.proposingGroupId = self.request.get('proposingGroupId', '')
         self.portal_state = getMultiAdapter((self.context, self.request), name=u'plone_portal_state')
         self.portal = self.portal_state.portal()
+        self.ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
 
     def __call__(self):
         """ """
         # first check that we can connect to the PloneMeeting webservices
-        ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
-        client = ws4pmSettings._soap_connectToPloneMeeting(addPortalMessage=False)
+        client = self.ws4pmSettings._soap_connectToPloneMeeting()
         if client is None:
             IStatusMessage(self.request).addStatusMessage(
                 _(u"Unable to connect to PloneMeeting, check the 'WS4PM Client settings'! "\
-                   "Please contact system administrator!"), "warning")
+                   "Please contact system administrator!"), "error")
             return self.request.RESPONSE.redirect(self.context.absolute_url())
         # now that we can connect to the webservice, check that the user can actually trigger that action
         # indeed paramters are sent thru the request, and so someone could do nasty things...
@@ -49,42 +49,18 @@ class SendToPloneMeetingView(BrowserView):
             raise Unauthorized
 
         # if we can connect and the user is allowed to trigger the action, proceed !
-        settings = ws4pmSettings.settings()
         # check if not already sent to PloneMeeting...
-        res = ws4pmSettings._soap_searchItems({'externalIdentifier': self.context.UID(),
-                                               'meetingConfigId': self.meetingConfigId})
-        if res:
+        if self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context, (self.meetingConfigId,)):
             IStatusMessage(self.request).addStatusMessage(
                 _(u"This element has already been sent to PloneMeeting!"),
                 "error")
             return self.request.RESPONSE.redirect(self.context.absolute_url())
 
         # build the creationData
-        data = {}
-        for availableData in settings.field_mappings:
-            field_name = availableData['field_name']
-            expression = availableData['expression'].strip()
-            if expression.strip():
-                ctx = createExprContext(self.context.aq_inner.aq_parent, self.portal, self.context)
-                try:
-                    res = Expression(expression)(ctx)
-                    data[field_name] = res
-                except Exception, e:
-                    IStatusMessage(self.request).addStatusMessage(
-                        _(u"There was an error evaluating the TAL expression '%s' for the field '%s'!  " \
-                           "The error was : '%s'.  Please contact system administrator." % (expression, field_name, e)),
-                        "error")
-                    return self.request.RESPONSE.redirect(self.context.absolute_url())
-
-        # now that every values are evaluated, build the CreationData
-        creation_data = client.factory.create('CreationData')
-        for elt in data:
-            creation_data[elt] = data[elt]
-        # initialize the externalIdentifier to the context UID
-        creation_data['externalIdentifier'] = self.context.UID()
+        creation_data = self._buildCreationData(client)
 
         # call the SOAP method actually creating the item
-        res = ws4pmSettings._soap_createItem(self.meetingConfigId,
+        res = self.ws4pmSettings._soap_createItem(self.meetingConfigId,
                                              self.proposingGroupId,
                                              creation_data)
         if res:
@@ -102,4 +78,29 @@ class SendToPloneMeetingView(BrowserView):
                         logger.warning(warning)
                     if self.portal_state.member().has_role('Manager'):
                         IStatusMessage(self.request).addStatusMessage(_(warning), type)
+            # finally save in the self.context annotation that the item has been sent
+            annotations = IAnnotations(self.context)
+            if not WS4PMCLIENT_ANNOTATION_KEY in annotations:
+                annotations[WS4PMCLIENT_ANNOTATION_KEY] = [self.meetingConfigId, ]
+            else:
+                annotations[WS4PMCLIENT_ANNOTATION_KEY].append(self.meetingConfigId)
         return self.request.RESPONSE.redirect(self.context.absolute_url())
+
+    def _buildCreationData(self, client):
+        """
+          Build creationData dict that will be used to actually create
+          the item in PloneMeeting thru SOAP createItem call
+        """
+        data = {}
+        settings = self.ws4pmSettings.settings()
+        for availableData in settings.field_mappings:
+            field_name = availableData['field_name']
+            expression = availableData['expression']
+            data[field_name] = self.ws4pmSettings.renderTALExpression(self.context, self.portal, expression, field_name)
+        # now that every values are evaluated, build the CreationData
+        creation_data = client.factory.create('CreationData')
+        for elt in data:
+            creation_data[elt] = data[elt]
+        # initialize the externalIdentifier to the context UID
+        creation_data['externalIdentifier'] = self.context.UID()
+        return creation_data

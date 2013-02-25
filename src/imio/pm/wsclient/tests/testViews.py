@@ -23,10 +23,12 @@
 #
 
 from AccessControl import Unauthorized
+from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
 
 from Products.statusmessages.interfaces import IStatusMessage
 
+from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, setCorrectSettingsConfig
 
 
@@ -111,8 +113,9 @@ class testViews(WS4PMCLIENTTestCase):
         # now that the element has been sent, an item is linked to the document
         self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 1)
 
-    def test_alreadySentToPloneMeeting(self):
-        """Test in case we sent the element again to PloneMeeting, that should not happen..."""
+    def test_checkAlreadySentToPloneMeeting(self):
+        """Test in case we sent the element again to PloneMeeting, that should not happen...
+           It check also that relevant annotation wipe out works correctly."""
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         settings = ws4pmSettings.settings()
         setCorrectSettingsConfig(self.portal, settings)
@@ -136,9 +139,19 @@ class testViews(WS4PMCLIENTTestCase):
         # does not have the freshly created member area...
         import transaction
         transaction.commit()
+        # before sending, the element is not linked
+        annotations = IAnnotations(document)
+        self.assertFalse(WS4PMCLIENT_ANNOTATION_KEY in annotations)
+        self.assertFalse(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
+                                                                            self.request.get('meetingConfigId')))
         # send the document
         view()
+        import transaction
+        transaction.commit()
         # is linked to one item
+        self.assertTrue(annotations[WS4PMCLIENT_ANNOTATION_KEY] == [self.request.get('meetingConfigId'), ])
+        self.assertTrue(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
+                                                                            (self.request.get('meetingConfigId'),)))
         self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 1)
         messages = IStatusMessage(self.request)
         # there is one message saying that the item was correctly sent
@@ -148,10 +161,31 @@ class testViews(WS4PMCLIENTTestCase):
         view()
         # the item is not created again
         # is still linked to one item
+        self.assertTrue(annotations[WS4PMCLIENT_ANNOTATION_KEY] == [self.request.get('meetingConfigId'), ])
         self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 1)
         # a warning is displayed to the user
         self.assertTrue(len(messages.show()) == 2)
         self.assertEquals(messages.show()[1].message, u"This element has already been sent to PloneMeeting!")
+        # if we remove the item in PloneMeeting, the view is aware of it
+        itemUID = ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})[0]['UID']
+        item = self.portal.uid_catalog(UID=itemUID)[0].getObject()
+        # remove the item
+        item.aq_inner.aq_parent.manage_delObjects(ids=[item.getId(), ])
+        import transaction
+        transaction.commit()
+        # checkAlreadySentToPloneMeeting will wipe out inconsistent annotations
+        # for now, annotations are inconsistent
+        self.assertTrue(annotations[WS4PMCLIENT_ANNOTATION_KEY] == [self.request.get('meetingConfigId'), ])
+        self.assertFalse(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
+                                                                            (self.request.get('meetingConfigId'),)))
+        # now it is consistent
+        self.assertFalse(WS4PMCLIENT_ANNOTATION_KEY in annotations)
+        self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 0)
+        # the item can be sent again and will be linked to a new created item
+        view()
+        self.assertTrue(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
+                                                                            (self.request.get('meetingConfigId'),)))
+        self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 1)
 
 
 def test_suite():

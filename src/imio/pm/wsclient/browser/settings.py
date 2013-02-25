@@ -2,6 +2,8 @@ from suds.client import Client
 from suds.xsd.doctor import ImportDoctor, Import
 from suds.transport.http import HttpAuthenticated
 
+from zope.annotation import IAnnotations
+
 from zope.component import getMultiAdapter, queryUtility
 from zope.component.hooks import getSite
 
@@ -12,6 +14,8 @@ from zope.i18n import translate
 
 from z3c.form import button
 from z3c.form import field
+
+from Products.CMFCore.Expression import Expression, createExprContext
 
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 
@@ -29,7 +33,7 @@ from Products.CMFCore.ActionInformation import Action
 from Products.statusmessages.interfaces import IStatusMessage
 
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
-from imio.pm.wsclient.config import ACTION_SUFFIX
+from imio.pm.wsclient.config import ACTION_SUFFIX, WS4PMCLIENT_ANNOTATION_KEY
 
 
 class IGeneratedActionsSchema(Interface):
@@ -84,6 +88,15 @@ class IWS4PMClientSettings(Interface):
         title=_("PloneMeeting password to use"),
         required=True
         )
+    viewlet_display_condition = schema.TextLine(
+        title=_("Viewlet display condition"),
+        description=_("Enter a TAL expression that will be evaluated to check if the viewlet displaying " \
+                      "informations about the created items in PloneMeeting should be displayed.  " \
+                      "If empty, the viewlet will only be displayed if an item is actually linked to it.  " \
+                      "The element 'isLinked' representing this default behaviour is available in the TAL expression."),
+        required=True
+        )
+
     field_mappings = schema.List(
         title=_("Field accessor mappings"),
         description=_("For every available data you can send, define in the mapping a TAL expression that will be " \
@@ -192,6 +205,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
     form = WS4PMClientSettingsEditForm
     index = ViewPageTemplateFile('settings.pt')
 
+    @memoize
     def settings(self):
         """ """
         registry = queryUtility(IRegistry)
@@ -199,11 +213,9 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         return settings
 
     @memoize
-    def _soap_connectToPloneMeeting(self, addPortalMessage=True):
+    def _soap_connectToPloneMeeting(self):
         """Connect to distant PloneMeeting.
            Either return None or the connected client.
-           If given p_addPortalMessage is True, portal_messages will be added if necessary.
-           This is useful if we want to call this method and add another portal_message than the one added here under.
         """
         settings = self.settings()
         url = self.request.form.get('form.widgets.pm_url') or settings.pm_url
@@ -217,11 +229,18 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             # call a SOAP server test method to check that everything is fine with given parameters
             client.service.testConnection('')
         except:
-            if addPortalMessage:
+            # if we are really on the configuration panel, display relevant message
+            if self.request.get('PATH_INFO', '').endswith('@@ws4pmclient-settings'):
                 IStatusMessage(self.request).addStatusMessage(_(u"Unable to connect with given url/username/password!"),
                                                               "warning")
             return None
         return client
+
+    def _soap_checkIsLinked(self, data):
+        """Query the checkIsLinked SOAP server method."""
+        client = self._soap_connectToPloneMeeting()
+        if client is not None:
+            return client.service.checkIsLinked(**data)
 
     @memoize
     def _soap_getConfigInfos(self):
@@ -234,16 +253,18 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         """Query the searchItems SOAP server method."""
         client = self._soap_connectToPloneMeeting()
         if client is not None:
-            # get the inTheNameOf userid
-            data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
+            # get the inTheNameOf userid if it was not already set
+            if not 'inTheNameOf' in data:
+                data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
             return client.service.searchItems(**data)
 
     def _soap_getItemInfos(self, data):
         """Query the getItemInfos SOAP server method."""
         client = self._soap_connectToPloneMeeting()
         if client is not None:
-            # get the inTheNameOf userid
-            data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
+            # get the inTheNameOf userid if it was not already set
+            if not 'inTheNameOf' in data:
+                data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
             return client.service.getItemInfos(**data)
 
     @memoize
@@ -297,6 +318,56 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                     else:
                         return None
         return memberId
+
+    def checkAlreadySentToPloneMeeting(self, context, meetingConfigIds=[]):
+        """
+          Check if the element as already been sent to PloneMeeting to avoid double sents
+          If an item need to be doubled in PloneMeeting, it is PloneMeeting's duty
+          If p_meetingConfigIds is empty (), then it checks every available meetingConfigId it was sent to...
+          This script also wipe out every meetingConfigIds for wich the item does not exist anymore in PloneMeeting
+        """
+        annotations = IAnnotations(context)
+        if WS4PMCLIENT_ANNOTATION_KEY in annotations:
+            # the item seems to have been sent, but double check in case it was
+            # deleted in PloneMeeting after having been sent
+            # warning, here searchItems inTheNameOf the super user to be sure
+            # that we can access it in PloneMeeting
+            if not meetingConfigIds:
+                # evaluate the meetingConfigIds in the annotation
+                # this will wipe out the entire annotation
+                meetingConfigIds = annotations[WS4PMCLIENT_ANNOTATION_KEY]
+            for meetingConfigId in meetingConfigIds:
+                res = self._soap_checkIsLinked({'externalIdentifier': context.UID(),
+                                                'meetingConfigId': meetingConfigId, })
+                if res:
+                    return True
+                else:
+                    # here, as it seems clear that the item has been deleted
+                    # in PloneMeeting, remove the annotation
+                    annotations[WS4PMCLIENT_ANNOTATION_KEY].remove(meetingConfigId)
+                    if not annotations[WS4PMCLIENT_ANNOTATION_KEY]:
+                        # remove the entire annotation key if empty
+                        del annotations[WS4PMCLIENT_ANNOTATION_KEY]
+        return False
+
+    def renderTALExpression(self, context, portal, expression, field_name, data={}):
+        """
+          Renders given TAL expression in p_expression.
+        """
+        res = None
+        if expression:
+            expression = expression.strip()
+            ctx = createExprContext(context.aq_inner.aq_parent, portal, context)
+            ctx.vars.update(data)
+            try:
+                res = Expression(expression)(ctx)
+            except Exception, e:
+                IStatusMessage(self.request).addStatusMessage(
+                    _(u"There was an error evaluating the TAL expression '%s' for the field '%s'!  " \
+                       "The error was : '%s'.  Please contact system administrator." % (expression, field_name, e)),
+                    "error")
+                return self.request.RESPONSE.redirect(self.context.absolute_url())
+        return res
 
 
 def notify_configuration_changed(event):
