@@ -342,32 +342,28 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 if res:
                     return True
                 else:
-                    # here, as it seems clear that the item has been deleted
-                    # in PloneMeeting, remove the annotation
-                    annotations[WS4PMCLIENT_ANNOTATION_KEY].remove(meetingConfigId)
+                    # either the item was deleted in PloneMeeting
+                    # or it was never send, wipe out if it was deleted in PloneMeeting
+                    if meetingConfigId in annotations[WS4PMCLIENT_ANNOTATION_KEY]:
+                        annotations[WS4PMCLIENT_ANNOTATION_KEY].remove(meetingConfigId)
                     if not annotations[WS4PMCLIENT_ANNOTATION_KEY]:
                         # remove the entire annotation key if empty
                         del annotations[WS4PMCLIENT_ANNOTATION_KEY]
         return False
 
-    def renderTALExpression(self, context, portal, expression, field_name, data={}):
+    def renderTALExpression(self, context, portal, expression, data={}):
         """
           Renders given TAL expression in p_expression.
+          p_data contains extra data that will be done available in the TAL expression to render
         """
-        res = None
+        res = ''
         if expression:
             expression = expression.strip()
             ctx = createExprContext(context.aq_inner.aq_parent, portal, context)
             ctx.vars.update(data)
-            try:
-                res = Expression(expression)(ctx)
-            except Exception, e:
-                IStatusMessage(self.request).addStatusMessage(
-                    _(u"There was an error evaluating the TAL expression '%s' for the field '%s'!  " \
-                       "The error was : '%s'.  Please contact system administrator." % (expression, field_name, e)),
-                    "error")
-                return self.request.RESPONSE.redirect(self.context.absolute_url())
-        return res
+            res = Expression(expression)(ctx)
+        # make sure we do not return None because it breaks SOAP call
+        return res or u''
 
 
 def notify_configuration_changed(event):

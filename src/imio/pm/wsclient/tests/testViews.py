@@ -143,7 +143,7 @@ class testViews(WS4PMCLIENTTestCase):
         annotations = IAnnotations(document)
         self.assertFalse(WS4PMCLIENT_ANNOTATION_KEY in annotations)
         self.assertFalse(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
-                                                                            self.request.get('meetingConfigId')))
+                                                                           self.request.get('meetingConfigId')))
         # send the document
         view()
         import transaction
@@ -186,6 +186,16 @@ class testViews(WS4PMCLIENTTestCase):
         self.assertTrue(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
                                                                             (self.request.get('meetingConfigId'),)))
         self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 1)
+        # the item can also been send to another meetingConfig
+        self.request.set('meetingConfigId', 'plonegov-assembly')
+        view = document.restrictedTraverse('@@send_to_plonemeeting')
+        self.assertFalse(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
+                                                                            (self.request.get('meetingConfigId'),)))
+        view()
+        self.assertTrue(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
+                                                                            (self.request.get('meetingConfigId'),)))
+        self.assertTrue(annotations[WS4PMCLIENT_ANNOTATION_KEY] == ['plonemeeting-assembly',
+                                                                    self.request.get('meetingConfigId'), ])
 
 
 def test_suite():

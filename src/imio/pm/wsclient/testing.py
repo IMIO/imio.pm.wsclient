@@ -5,8 +5,6 @@ from plone.app.testing import IntegrationTesting, FunctionalTesting
 import imio.pm.ws
 
 
-
-
 WS4PMCLIENT_ZCML = zca.ZCMLSandbox(filename="testing.zcml",
                              package=imio.pm.wsclient,
                              name='WS4PMCLIENT_ZCML')

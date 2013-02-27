@@ -1,9 +1,12 @@
 from zope.component import getMultiAdapter
 
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
+from Products.statusmessages.interfaces import IStatusMessage
 
 from plone.memoize.instance import memoize
 from plone.app.layout.viewlets.common import ViewletBase
+
+from imio.pm.wsclient import WS4PMClientMessageFactory as _
 
 
 class PloneMeetingInfosViewlet(ViewletBase):
@@ -30,11 +33,19 @@ class PloneMeetingInfosViewlet(ViewletBase):
         # add 'isLinked' to data available in the TAL expression
         data = {}
         data['isLinked'] = isLinked
-        res = self.ws4pmSettings.renderTALExpression(self.context,
-                                                     self.portal_state.portal(),
-                                                     settings.viewlet_display_condition,
-                                                     'viewlet_display_condition',
-                                                     data)
+        try:
+            res = self.ws4pmSettings.renderTALExpression(self.context,
+                                                         self.portal_state.portal(),
+                                                         settings.viewlet_display_condition,
+                                                         data)
+        except Exception, e:
+            IStatusMessage(self.request).addStatusMessage(
+                _(u"Unable to display informations about the potentially linked item in PloneMeeting because "
+                   "there was an error evaluating the TAL expression '%s' for the field '%s'!  " \
+                   "The error was : '%s'.  Please contact system administrator." % (settings.viewlet_display_condition,
+                                                                                    'viewlet_display_condition', e)),
+                "error")
+            res = False
         return bool(res)
 
     @memoize

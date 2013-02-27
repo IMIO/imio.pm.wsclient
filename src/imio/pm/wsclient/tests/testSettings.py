@@ -126,6 +126,31 @@ class testSettings(unittest2.TestCase):
         settings.user_mappings = u'localUserId|pmCreator1\r\notherUser|otherUserInPloneMeeting\r\nadmin|pmCreator1'
         self.assertEquals(ws4pmSettings._getUserIdToUseInTheNameOfWith(), 'lambda')
 
+    def test_renderTALExpression(self):
+        """
+          Test the method that will render a TAL expression
+        """
+        setRoles(self.portal, TEST_USER_ID, ('Manager',))
+        login(self.portal, TEST_USER_NAME)
+        # create an element to use in the TAL expression...
+        data = {'title': 'Document title',
+                'description': 'Document description',
+                'text': '<p>Document rich text</p>'}
+        documentId = self.portal.invokeFactory('Document', id='document', **data)
+        document = getattr(self.portal, documentId)
+        document.reindexObject()
+        ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
+        expr = u'python: None'
+        # make sure None is never returned by the renderer as it breaks SOAP calls
+        self.assertTrue(ws4pmSettings.renderTALExpression(document, self.portal, expr, '') == u'')
+        expr = u'object/Title'
+        self.assertTrue(ws4pmSettings.renderTALExpression(document, self.portal, expr, '') == u'Document title')
+        expr = u'string:"My expr result"'
+        self.assertTrue(ws4pmSettings.renderTALExpression(document, self.portal, expr, '') == u'"My expr result"')
+        import ipdb; ipdb.set_trace()
+        # with a wrong expression, we raise
+        expr = 'u '
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite

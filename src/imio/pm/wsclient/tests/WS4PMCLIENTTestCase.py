@@ -55,11 +55,19 @@ def setCorrectSettingsConfig(portal, settings, minimal=False, withValidation=Tru
         # these parameters are only available while correctly connected
         # to PloneMeeting webservices, either use withValidation=False
         # these fields mappings make it work if classic Document content_type
-        settings.field_mappings = [{'field_name': u'title', 'expression': u'object/Title'},
-            {'field_name': u'description', 'expression': u'object/Description'},
-            {'field_name': u'category', 'expression': u'string:"deployment"'},
-            {'field_name': u'decision', 'expression': u'object/getText'},
-            {'field_name': u'externalIdentifier', 'expression': u'object/UID'}]
+        settings.field_mappings = [
+            {'field_name': u'title',
+             'expression': u'object/Title'},
+            {'field_name': u'description',
+             'expression': u'object/Description'},
+            # 'plonemeeting-assembly' does not use categories but 'plonegov-assembly' does
+            {'field_name': u'category',
+             'expression':
+                u'python: object.REQUEST.get("meetingConfigId") != "plonemeeting-assembly" and "deployment" or ""'},
+            {'field_name': u'decision',
+             'expression': u'object/getText'},
+            {'field_name': u'externalIdentifier',
+             'expression': u'object/UID'}]
         settings.generated_actions = [
             {'pm_proposing_group_id': u'developers',
              'pm_meeting_config_id': 'plonegov-assembly',

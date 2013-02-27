@@ -95,8 +95,19 @@ class SendToPloneMeetingView(BrowserView):
         settings = self.ws4pmSettings.settings()
         for availableData in settings.field_mappings:
             field_name = availableData['field_name']
-            expression = availableData['expression']
-            data[field_name] = self.ws4pmSettings.renderTALExpression(self.context, self.portal, expression, field_name)
+            expr = availableData['expression']
+            # evaluate the expression
+            try:
+                data[field_name] = self.ws4pmSettings.renderTALExpression(self.context,
+                                                                          self.portal,
+                                                                          expr, {})
+            except Exception, e:
+                IStatusMessage(self.request).addStatusMessage(
+                    _(u"There was an error evaluating the TAL expression '%s' for the field '%s'!  " \
+                       "The error was : '%s'.  Please contact system administrator." % (settings.viewlet_display_condition,
+                                                                                        'viewlet_display_condition', e)),
+                    "error")
+                return self.request.RESPONSE.redirect(self.context.absolute_url())
         # now that every values are evaluated, build the CreationData
         creation_data = client.factory.create('CreationData')
         for elt in data:

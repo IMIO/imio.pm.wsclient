@@ -25,6 +25,8 @@
 from zope.component import getMultiAdapter
 from zope.annotation.interfaces import IAnnotations
 
+from Products.statusmessages.interfaces import IStatusMessage
+
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, setCorrectSettingsConfig
 
 
@@ -157,6 +159,20 @@ class testSettingsSOAPMethods(WS4PMCLIENTTestCase):
         # created in the 'pmCreator1' member area
         self.assertTrue(item.aq_inner.aq_parent.UID(), pmFolder.UID())
         self.assertTrue(item.owner_info()['id'] == 'pmCreator1')
+        # if we try to create with wrong data, the SOAP ws returns a response
+        # that is displayed to the user creating the item
+        data['category'] = 'unexisting-category-id'
+        messages = IStatusMessage(self.request)
+        self.assertTrue(len(messages.show()) == 0)
+        result = ws4pmSettings._soap_createItem('plonegov-assembly', 'developers', data)
+        self.assertTrue(result == None)
+        # a message is displayed
+        messages = messages.show()
+        self.assertTrue(len(messages) == 1)
+        self.assertEquals(messages[0].message,
+                          u"An error occured during the item creation in PloneMeeting!  "
+                          "The error message was : Server raised fault: ''unexisting-category-id' "
+                          "is not available for the 'developers' group!'")
 
     def _cleanMemoize(self):
         """SOAP methods are memoized, making it impossible to test twice...
