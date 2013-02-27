@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# File: testItemMethods.py
+# File: testSOAPMethods.py
 #
-# Copyright (c) 2012 by CommunesPlone
+# Copyright (c) 2013 by Imio
 #
 # GNU General Public License (GPL)
 #
@@ -30,7 +30,7 @@ from Products.statusmessages.interfaces import IStatusMessage
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, setCorrectSettingsConfig
 
 
-class testSettingsSOAPMethods(WS4PMCLIENTTestCase):
+class testSOAPMethods(WS4PMCLIENTTestCase):
     """
         Tests the browser.settings SOAP client methods
     """
@@ -187,5 +187,5 @@ def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
     # add a prefix because we heritate from testMeeting and we do not want every tests of testMeeting to be run here...
-    suite.addTest(makeSuite(testSettingsSOAPMethods, prefix='test_'))
+    suite.addTest(makeSuite(testSOAPMethods, prefix='test_'))
     return suite

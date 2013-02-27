@@ -51,6 +51,7 @@ def setCorrectSettingsConfig(portal, settings, minimal=False, withValidation=Tru
     settings.pm_username = u'pmManager'
     settings.pm_password = u'meeting'
     settings.user_mappings = u'localUserId|pmCreator1\r\nlocalUserId2|pmCreator2\r\nadmin|pmCreator1'
+    settings.viewlet_display_condition = u''
     if not minimal:
         # these parameters are only available while correctly connected
         # to PloneMeeting webservices, either use withValidation=False

@@ -28,6 +28,7 @@ from plone.app.testing import login, setRoles
 
 from AccessControl import Unauthorized
 from zope.component import getMultiAdapter
+from zope.tales.tales import CompilerError
 
 from imio.pm.wsclient.config import ACTION_SUFFIX
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
@@ -147,9 +148,9 @@ class testSettings(unittest2.TestCase):
         self.assertTrue(ws4pmSettings.renderTALExpression(document, self.portal, expr, '') == u'Document title')
         expr = u'string:"My expr result"'
         self.assertTrue(ws4pmSettings.renderTALExpression(document, self.portal, expr, '') == u'"My expr result"')
-        import ipdb; ipdb.set_trace()
         # with a wrong expression, we raise
-        expr = 'u '
+        expr = 'u object/wrongMethodCall'
+        self.assertRaises(CompilerError, ws4pmSettings.renderTALExpression, document, self.portal, expr, '')
 
 
 def test_suite():
