@@ -31,7 +31,8 @@ from zope.component import getMultiAdapter
 from zope.tales.tales import CompilerError
 
 from imio.pm.wsclient.config import ACTION_SUFFIX
-from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig, \
+                                                       createDocument
 from imio.pm.wsclient.testing import WS4PMCLIENT_PROFILE_FUNCTIONAL
 
 
@@ -76,12 +77,10 @@ class testSettings(unittest2.TestCase):
         # for now, there are no relative plonemeeting actions in portal_actions/object_buttons
         object_buttons_ids = self.portal.portal_actions.object_buttons.objectIds()
         self.failIf([actId for actId in object_buttons_ids if actId.startswith(ACTION_SUFFIX)])
-        setCorrectSettingsConfig(self.portal, settings, withValidation=False)
+        setCorrectSettingsConfig(self.portal, withValidation=False)
         # now relevant actions exist
-        number_actions_to_generated = len(settings.generated_actions)
         object_buttons_ids = self.portal.portal_actions.object_buttons.objectIds()
-        self.assertEquals(len([actId for actId in object_buttons_ids if actId.startswith(ACTION_SUFFIX)]),
-                          number_actions_to_generated)
+        self.assertEquals(len([actId for actId in object_buttons_ids if actId.startswith(ACTION_SUFFIX)]), 5)
         # and it is correctly configured
         setRoles(self.portal, TEST_USER_ID, ('Member',))
         # plone.app.testing does not manage request/URL and request/ACTUAL_URL
@@ -90,8 +89,28 @@ class testSettings(unittest2.TestCase):
         self.request.set('ACTUAL_URL', self.portal.absolute_url())
         object_buttons = self.portal.portal_actions.listFilteredActionsFor(self.portal)['object_buttons']
         # 2 of the generated actions are not available to non 'Managers'
-        self.assertEquals(len([act for act in object_buttons if act['id'].startswith(ACTION_SUFFIX)]),
-                          number_actions_to_generated - 2)
+        self.assertEquals(len([act for act in object_buttons if act['id'].startswith(ACTION_SUFFIX)]), 5 - 2)
+        # now save again with just 2 actions to generate
+        generated_actions = [
+            {'pm_proposing_group_id': u'developers',
+             'pm_meeting_config_id': 'plonegov-assembly',
+             'condition': u'python:True',
+             'permissions': u'View'},
+            {'pm_proposing_group_id': u'vendors',
+             'pm_meeting_config_id': 'plonemeeting-assembly',
+             'condition': u'python:True',
+             'permissions': u'View'},
+            ]
+        setCorrectSettingsConfig(self.portal,
+                                 withValidation=False,
+                                 **{'generated_actions': generated_actions})
+        object_buttons = self.portal.portal_actions.listFilteredActionsFor(self.portal)['object_buttons']
+        pm_object_buttons = [act for act in object_buttons if act['id'].startswith(ACTION_SUFFIX)]
+        # only 2 actions exist now
+        self.assertEquals(len(pm_object_buttons), 2)
+        # and it is valid ones
+        self.assertTrue('proposingGroupId=developers' in pm_object_buttons[0]['url'])
+        self.assertTrue('meetingConfigId=plonemeeting-assembly' in pm_object_buttons[1]['url'])
 
     def test_getUserIdToUseInTheNameOfWith(self):
         """Returns the userId that will actually create the item.
@@ -134,12 +153,7 @@ class testSettings(unittest2.TestCase):
         setRoles(self.portal, TEST_USER_ID, ('Manager',))
         login(self.portal, TEST_USER_NAME)
         # create an element to use in the TAL expression...
-        data = {'title': 'Document title',
-                'description': 'Document description',
-                'text': '<p>Document rich text</p>'}
-        documentId = self.portal.invokeFactory('Document', id='document', **data)
-        document = getattr(self.portal, documentId)
-        document.reindexObject()
+        document = createDocument(self.portal)
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         expr = u'python: None'
         # make sure None is never returned by the renderer as it breaks SOAP calls

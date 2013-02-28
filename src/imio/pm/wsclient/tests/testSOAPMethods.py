@@ -22,12 +22,14 @@
 # 02110-1301, USA.
 #
 
+import transaction
 from zope.component import getMultiAdapter
-from zope.annotation.interfaces import IAnnotations
 
 from Products.statusmessages.interfaces import IStatusMessage
 
-from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, setCorrectSettingsConfig
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, \
+                                                       setCorrectSettingsConfig, \
+                                                       cleanMemoize
 
 
 class testSOAPMethods(WS4PMCLIENTTestCase):
@@ -39,26 +41,25 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         """Check that we can actually connect to PloneMeeting with given parameters."""
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         settings = ws4pmSettings.settings()
-        setCorrectSettingsConfig(self.portal, settings, minimal=True)
+        setCorrectSettingsConfig(self.portal, minimal=True)
         # with valid informations, we can connect to PloneMeeting SOAP webservices
         self.failUnless(ws4pmSettings._soap_connectToPloneMeeting())
         # if either url or username/password is not valid, we can not connect...
         valid_url = settings.pm_url
         settings.pm_url = settings.pm_url + 'invalidEndOfURL'
-        self._cleanMemoize()
+        cleanMemoize(self.request)
         # with invalid url, it fails...
         self.failIf(ws4pmSettings._soap_connectToPloneMeeting())
         settings.pm_url = valid_url
         # with valid url but wrong password, it fails...
         settings.pm_password = u'wrongPassword'
-        self._cleanMemoize()
+        cleanMemoize(self.request)
         self.failIf(ws4pmSettings._soap_connectToPloneMeeting())
 
     def test_soap_getConfigInfos(self):
         """Check that we receive valid infos about the PloneMeeting's configuration."""
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
-        settings = ws4pmSettings.settings()
-        setCorrectSettingsConfig(self.portal, settings, minimal=True)
+        setCorrectSettingsConfig(self.portal, minimal=True)
         configInfos = ws4pmSettings._soap_getConfigInfos()
         # check taht we received elements like MeetingConfig and MeetingGroups
         self.assertTrue('MeetingConfig' in [configInfo.type for configInfo in configInfos])
@@ -67,8 +68,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
     def test_soap_getItemCreationAvailableData(self):
         """Check that we receive the list of available data for creating an item."""
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
-        settings = ws4pmSettings.settings()
-        setCorrectSettingsConfig(self.portal, settings, minimal=True)
+        setCorrectSettingsConfig(self.portal, minimal=True)
         availableData = ws4pmSettings._soap_getItemCreationAvailableData()
         availableData.sort()
         self.assertEquals(availableData, ['annexes',
@@ -81,14 +81,12 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
     def test_soap_getItemInfos(self):
         """Check the fact of getting informations about an existing item."""
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
-        settings = ws4pmSettings.settings()
-        setCorrectSettingsConfig(self.portal, settings, minimal=True)
+        setCorrectSettingsConfig(self.portal, minimal=True)
         # by default no item exist in the portal...  So create one!
         self.changeUser('pmManager')
         item = self.create('MeetingItem')
         # we have to commit() here or portal used behing the SOAP call
         # does not have the freshly created item...
-        import transaction
         transaction.commit()
         self.assertTrue(len(ws4pmSettings._soap_getItemInfos({'UID': item.UID()})) == 1)
         # getItemInfos is called inTheNameOf the currently connected user
@@ -103,8 +101,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         """Check the fact of searching items informations about existing items."""
         SAME_TITLE = 'sameTitleForBothItems'
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
-        settings = ws4pmSettings.settings()
-        setCorrectSettingsConfig(self.portal, settings, minimal=True)
+        setCorrectSettingsConfig(self.portal, minimal=True)
         # Create 2 items, one for 'pmCreator1' and one for 'pmCreator2'
         # items are only viewable by their creator as 'pmCreatorx' not in the same proposingGroup
         self.changeUser('pmCreator1')
@@ -117,7 +114,6 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         item2.reindexObject(idxs=['Title', ])
         # we have to commit() here or portal used behing the SOAP call
         # does not have the freshly created item...
-        import transaction
         transaction.commit()
         # searchItems will automatically restrict searches to the connected user
         self.changeUser('pmCreator1')
@@ -134,14 +130,12 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
            Item creation will automatically use currently connected user
            to create the item regarding the _getUserIdToUseInTheNameOfWith."""
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
-        settings = ws4pmSettings.settings()
-        setCorrectSettingsConfig(self.portal, settings, minimal=True)
+        setCorrectSettingsConfig(self.portal, minimal=True)
         self.changeUser('pmCreator1')
         # create the 'pmCreator1' member area to be able to create an item
         pmFolder = self.tool.getPloneMeetingFolder('plonegov-assembly', 'pmCreator1')
         # we have to commit() here or portal used behing the SOAP call
         # does not have the freshly created item...
-        import transaction
         transaction.commit()
         # create an item for 'pmCreator1'
         data = {'title': 'My sample item',
@@ -173,14 +167,6 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
                           u"An error occured during the item creation in PloneMeeting!  "
                           "The error message was : Server raised fault: ''unexisting-category-id' "
                           "is not available for the 'developers' group!'")
-
-    def _cleanMemoize(self):
-        """SOAP methods are memoized, making it impossible to test twice...
-           So clean memoized informations so the called
-           SOAP method is really rendered again..."""
-        annotations = IAnnotations(self.request)
-        if 'plone.memoize' in annotations:
-            annotations['plone.memoize'].clear()
 
 
 def test_suite():

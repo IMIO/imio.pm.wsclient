@@ -22,6 +22,7 @@
 # 02110-1301, USA.
 #
 
+import transaction
 from AccessControl import Unauthorized
 from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
@@ -29,7 +30,9 @@ from zope.component import getMultiAdapter
 from Products.statusmessages.interfaces import IStatusMessage
 
 from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY
-from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, setCorrectSettingsConfig
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, \
+                                                       setCorrectSettingsConfig, \
+                                                       createDocument
 
 
 class testViews(WS4PMCLIENTTestCase):
@@ -57,17 +60,10 @@ class testViews(WS4PMCLIENTTestCase):
     def test_canNotExecuteWrongAction(self):
         """While calling the view to execute an action, we check if the user can actually
            execute the action regarding the parameters defined in settings.generated_actions."""
-        ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
-        settings = ws4pmSettings.settings()
-        setCorrectSettingsConfig(self.portal, settings)
+        setCorrectSettingsConfig(self.portal)
         self.changeUser('pmCreator1')
         # create an element to send...
-        data = {'title': 'Document title',
-                'description': 'Document description',
-                'text': '<p>Document rich text</p>'}
-        documentId = self.portal.Members.pmCreator1.invokeFactory('Document', id='document', **data)
-        document = getattr(self.portal.Members.pmCreator1, documentId)
-        document.reindexObject()
+        document = createDocument(self.portal.Members.pmCreator1)
         # build an url that should not be accessible by the user
         # if the url does not correspond to an available wsclient linked action,
         # an Unauthorized is raised.  This make sure the triggered action is
@@ -84,16 +80,10 @@ class testViews(WS4PMCLIENTTestCase):
     def test_sendItemToPloneMeeting(self):
         """Test that the item is actually sent to PloneMeeting."""
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
-        settings = ws4pmSettings.settings()
-        setCorrectSettingsConfig(self.portal, settings)
+        setCorrectSettingsConfig(self.portal)
         self.changeUser('pmCreator1')
         # create an element to send...
-        data = {'title': 'Document title',
-                'description': 'Document description',
-                'text': '<p>Document rich text</p>'}
-        documentId = self.portal.Members.pmCreator1.invokeFactory('Document', id='document', **data)
-        document = getattr(self.portal.Members.pmCreator1, documentId)
-        document.reindexObject()
+        document = createDocument(self.portal.Members.pmCreator1)
         self.request.set('URL', document.absolute_url())
         self.request.set('ACTUAL_URL', document.absolute_url() + '/@@send_to_plonemeeting')
         self.request.set('QUERY_STRING', 'meetingConfigId=plonemeeting-assembly&proposingGroupId=developers')
@@ -106,7 +96,6 @@ class testViews(WS4PMCLIENTTestCase):
         self.tool.getPloneMeetingFolder('plonemeeting-assembly', 'pmCreator1')
         # we have to commit() here or portal used behing the SOAP call
         # does not have the freshly created member area...
-        import transaction
         transaction.commit()
         # send to PloneMeeting
         view()
@@ -117,16 +106,10 @@ class testViews(WS4PMCLIENTTestCase):
         """Test in case we sent the element again to PloneMeeting, that should not happen...
            It check also that relevant annotation wipe out works correctly."""
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
-        settings = ws4pmSettings.settings()
-        setCorrectSettingsConfig(self.portal, settings)
+        setCorrectSettingsConfig(self.portal)
         self.changeUser('pmCreator1')
         # create an element to send...
-        data = {'title': 'Document title',
-                'description': 'Document description',
-                'text': '<p>Document rich text</p>'}
-        documentId = self.portal.Members.pmCreator1.invokeFactory('Document', id='document', **data)
-        document = getattr(self.portal.Members.pmCreator1, documentId)
-        document.reindexObject()
+        document = createDocument(self.portal.Members.pmCreator1)
         self.request.set('URL', document.absolute_url())
         self.request.set('ACTUAL_URL', document.absolute_url() + '/@@send_to_plonemeeting')
         self.request.set('QUERY_STRING', 'meetingConfigId=plonemeeting-assembly&proposingGroupId=developers')
@@ -137,7 +120,6 @@ class testViews(WS4PMCLIENTTestCase):
         self.tool.getPloneMeetingFolder('plonemeeting-assembly', 'pmCreator1')
         # we have to commit() here or portal used behing the SOAP call
         # does not have the freshly created member area...
-        import transaction
         transaction.commit()
         # before sending, the element is not linked
         annotations = IAnnotations(document)
@@ -146,7 +128,6 @@ class testViews(WS4PMCLIENTTestCase):
                                                                            self.request.get('meetingConfigId')))
         # send the document
         view()
-        import transaction
         transaction.commit()
         # is linked to one item
         self.assertTrue(annotations[WS4PMCLIENT_ANNOTATION_KEY] == [self.request.get('meetingConfigId'), ])
@@ -171,7 +152,6 @@ class testViews(WS4PMCLIENTTestCase):
         item = self.portal.uid_catalog(UID=itemUID)[0].getObject()
         # remove the item
         item.aq_inner.aq_parent.manage_delObjects(ids=[item.getId(), ])
-        import transaction
         transaction.commit()
         # checkAlreadySentToPloneMeeting will wipe out inconsistent annotations
         # for now, annotations are inconsistent
@@ -196,6 +176,22 @@ class testViews(WS4PMCLIENTTestCase):
                                                                             (self.request.get('meetingConfigId'),)))
         self.assertTrue(annotations[WS4PMCLIENT_ANNOTATION_KEY] == ['plonemeeting-assembly',
                                                                     self.request.get('meetingConfigId'), ])
+        # if we remove the 2 items, a call to checkAlreadySentToPloneMeeting
+        # without meetingConfigs will wipeout the annotations
+        transaction.commit()
+        itemUIDs = [str(elt['UID']) for elt in ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})]
+
+        item1 = self.portal.uid_catalog(UID=itemUIDs[0])[0].getObject()
+        item2 = self.portal.uid_catalog(UID=itemUIDs[1])[0].getObject()
+        item1.aq_inner.aq_parent.manage_delObjects(ids=[item1.getId(), ])
+        item2.aq_inner.aq_parent.manage_delObjects(ids=[item2.getId(), ])
+        transaction.commit()
+        # annotations are still messed up
+        self.assertTrue(annotations[WS4PMCLIENT_ANNOTATION_KEY] == ['plonemeeting-assembly',
+                                                                    self.request.get('meetingConfigId'), ])
+        # wipe out annotations
+        view.ws4pmSettings.checkAlreadySentToPloneMeeting(document)
+        self.assertFalse(WS4PMCLIENT_ANNOTATION_KEY in annotations)
 
 
 def test_suite():

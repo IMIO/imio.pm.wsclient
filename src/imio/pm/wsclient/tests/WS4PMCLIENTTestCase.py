@@ -20,6 +20,11 @@
 # 02110-1301, USA.
 #
 
+from Acquisition import aq_base
+
+from zope.annotation.interfaces import IAnnotations
+from zope.component import getMultiAdapter
+
 from Products.PloneMeeting.tests.PloneMeetingTestCase import PloneMeetingTestCase
 from imio.pm.wsclient.testing import WS4PMCLIENT_PM_TEST_PROFILE_FUNCTIONAL
 
@@ -34,7 +39,7 @@ class WS4PMCLIENTTestCase(PloneMeetingTestCase):
         PloneMeetingTestCase.setUp(self)
 
 
-def setCorrectSettingsConfig(portal, settings, minimal=False, withValidation=True):
+def setCorrectSettingsConfig(portal, minimal=False, withValidation=True, **kwargs):
     """Set a workable set of settings for tests.
        If p_withValidation is False, remove validation because we want
        to force to set some values and relevant vocabularies for example do not contain that value.
@@ -47,16 +52,18 @@ def setCorrectSettingsConfig(portal, settings, minimal=False, withValidation=Tru
         def _validate(self, value):
             return
         AbstractCollection._validate = _validate
-    settings.pm_url = u'%s/ws4pm.wsdl' % portal.absolute_url()
-    settings.pm_username = u'pmManager'
-    settings.pm_password = u'meeting'
-    settings.user_mappings = u'localUserId|pmCreator1\r\nlocalUserId2|pmCreator2\r\nadmin|pmCreator1'
-    settings.viewlet_display_condition = u''
+    ws4pmSettings = getMultiAdapter((portal, portal.REQUEST), name='ws4pmclient-settings')
+    settings = ws4pmSettings.settings()
+    settings.pm_url = kwargs.get('pm_url', None) or u'%s/ws4pm.wsdl' % portal.absolute_url()
+    settings.pm_username = kwargs.get('pm_username', None) or u'pmManager'
+    settings.pm_password = kwargs.get('pm_password', None) or u'meeting'
+    settings.user_mappings = kwargs.get('user_mappings', None) or u'localUserId|pmCreator1\r\nlocalUserId2|pmCreator2\r\nadmin|pmCreator1'
+    settings.viewlet_display_condition = kwargs.get('viewlet_display_condition', None) or u''
     if not minimal:
         # these parameters are only available while correctly connected
         # to PloneMeeting webservices, either use withValidation=False
         # these fields mappings make it work if classic Document content_type
-        settings.field_mappings = [
+        settings.field_mappings = kwargs.get('field_mappings', None) or [
             {'field_name': u'title',
              'expression': u'object/Title'},
             {'field_name': u'description',
@@ -69,7 +76,7 @@ def setCorrectSettingsConfig(portal, settings, minimal=False, withValidation=Tru
              'expression': u'object/getText'},
             {'field_name': u'externalIdentifier',
              'expression': u'object/UID'}]
-        settings.generated_actions = [
+        settings.generated_actions = kwargs.get('generated_actions', None) or  [
             {'pm_proposing_group_id': u'developers',
              'pm_meeting_config_id': 'plonegov-assembly',
              'condition': u'python:True',
@@ -93,3 +100,27 @@ def setCorrectSettingsConfig(portal, settings, minimal=False, withValidation=Tru
             ]
     if not withValidation:
         AbstractCollection._validate = old_validate
+
+
+def createDocument(placeToCreate):
+    """
+      Helper method for creating a document object
+    """
+    data = {'title': 'Document title',
+            'description': 'Document description',
+            'text': '<p>Document rich text</p>'}
+    documentId = placeToCreate.invokeFactory('Document', id='document', **data)
+    document = getattr(placeToCreate, documentId)
+    document.reindexObject()
+    return document
+
+
+def cleanMemoize(request, obj=None):
+    """
+      Remove every memoized informations : memoize on the REQUEST and on the object
+    """
+    annotations = IAnnotations(request)
+    if 'plone.memoize' in annotations:
+        annotations['plone.memoize'].clear()
+    if obj and hasattr(aq_base(obj), '_memojito_'):
+        delattr(obj, '_memojito_')

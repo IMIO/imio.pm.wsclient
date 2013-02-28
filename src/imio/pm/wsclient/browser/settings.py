@@ -335,7 +335,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             if not meetingConfigIds:
                 # evaluate the meetingConfigIds in the annotation
                 # this will wipe out the entire annotation
-                meetingConfigIds = annotations[WS4PMCLIENT_ANNOTATION_KEY]
+                meetingConfigIds = list(annotations[WS4PMCLIENT_ANNOTATION_KEY])
             for meetingConfigId in meetingConfigIds:
                 res = self._soap_checkIsLinked({'externalIdentifier': context.UID(),
                                                 'meetingConfigId': meetingConfigId, })

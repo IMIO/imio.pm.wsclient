@@ -40,7 +40,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
                                                          data)
         except Exception, e:
             IStatusMessage(self.request).addStatusMessage(
-                _(u"Unable to display informations about the potentially linked item in PloneMeeting because "
+                _(u"Unable to display informations about the potentially linked item in PloneMeeting because " \
                    "there was an error evaluating the TAL expression '%s' for the field '%s'!  " \
                    "The error was : '%s'.  Please contact system administrator." % (settings.viewlet_display_condition,
                                                                                     'viewlet_display_condition', e)),
@@ -60,7 +60,6 @@ class PloneMeetingInfosViewlet(ViewletBase):
             return {}
         res = []
         for item in items:
-            # here we are sure that getItemInfos returns one and only one result
             res.append(self.ws4pmSettings._soap_getItemInfos({'UID': item['UID'], 'showExtraInfos': True})[0])
         return res
 
