@@ -1,4 +1,11 @@
-<tal:available condition="view/available">
+<tal:comment replace="nothing">If available returns a tuple, we display it, it is an information message</tal:comment>
+<tal:showInfos condition="python: isinstance(view.available(), tuple)">
+<dl tal:define="infos view/available" class="portalMessage info" tal:attributes="class python: 'portalMessage %s' % infos[1]">
+    <dt i18n:translate="" tal:content="python: infos[1]">Level</dt>
+    <dd tal:content="python: infos[0]">Message</dd>
+</dl>
+</tal:showInfos>
+<tal:available condition="python: view.available() == True">
 <tal:block define="items view/getPloneMeetingLinkedInfos;
                    DateTime python:modules['DateTime'].DateTime;
                    toLocalizedTime nocall:context/@@plone/toLocalizedTime;"

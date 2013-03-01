@@ -1,7 +1,6 @@
 from zope.component import getMultiAdapter
 
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
-from Products.statusmessages.interfaces import IStatusMessage
 
 from plone.memoize.instance import memoize
 from plone.app.layout.viewlets.common import ViewletBase
@@ -22,10 +21,19 @@ class PloneMeetingInfosViewlet(ViewletBase):
 
     @memoize
     def available(self):
-        """Check if the viewlet is available and needs to be shown."""
+        """
+          Check if the viewlet is available and needs to be shown.
+          This method returns either True or False, or a tuple of str
+          that contains an information message (str1 is the translated message
+          and str2 is the message type : info, error, warning).
+        """
         # if we have an annotation specifying that the item was sent, we show the viewlet
         settings = self.ws4pmSettings.settings()
         isLinked = self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context)
+        # in case it could not connect to PloneMeeting, checkAlreadySentToPloneMeeting returns None
+        if isLinked == None:
+            return (_(u"Unable to connect to PloneMeeting, check the 'WS4PM Client settings'! "\
+                   "Please contact system administrator!"), "error")
         viewlet_display_condition = settings.viewlet_display_condition
         # if we have no defined viewlet_display_condition, use the isLinked value
         if not viewlet_display_condition or not viewlet_display_condition.strip():
@@ -39,13 +47,11 @@ class PloneMeetingInfosViewlet(ViewletBase):
                                                          settings.viewlet_display_condition,
                                                          vars)
         except Exception, e:
-            IStatusMessage(self.request).addStatusMessage(
-                _(u"Unable to display informations about the potentially linked item in PloneMeeting because " \
+            return (_(u"Unable to display informations about the potentially linked item in PloneMeeting because " \
                    "there was an error evaluating the TAL expression '%s' for the field '%s'!  " \
                    "The error was : '%s'.  Please contact system administrator." % (settings.viewlet_display_condition,
                                                                                     'viewlet_display_condition', e)),
-                "error")
-            res = False
+                    'error')
         return bool(res)
 
     @memoize

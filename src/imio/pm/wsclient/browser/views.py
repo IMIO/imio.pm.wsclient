@@ -26,17 +26,32 @@ class SendToPloneMeetingView(BrowserView):
 
     def __call__(self):
         """ """
-        # first check that we can connect to the PloneMeeting webservices
-        client = self.ws4pmSettings._soap_connectToPloneMeeting()
-        if client is None:
+        # use checkAlreadySentToPloneMeeting that will return :
+        # None if could not connect
+        # True if already sent
+        # False if not already sent, in this case we can proceed...
+        alreadySent = self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context, (self.meetingConfigId,))
+        if alreadySent:
             IStatusMessage(self.request).addStatusMessage(
-                _(u"Unable to connect to PloneMeeting, check the 'WS4PM Client settings'! "\
-                   "Please contact system administrator!"), "error")
+                _(u"This element has already been sent to PloneMeeting!"),
+                "error")
             return self.request.RESPONSE.redirect(self.context.absolute_url())
+        elif alreadySent in (None, False):
+            # None means that it was already sent but that it could not connect to PloneMeeting
+            # False means that is was not sent, so no connection test is made to PloneMeeting for performance reason
+            if alreadySent == False:
+                # now connect to PloneMeeting
+                client = self.ws4pmSettings._soap_connectToPloneMeeting()
+            if not client or alreadySent == None:
+                IStatusMessage(self.request).addStatusMessage(
+                    _(u"Unable to connect to PloneMeeting, check the 'WS4PM Client settings'! "\
+                       "Please contact system administrator!"), "error")
+                return self.request.RESPONSE.redirect(self.context.absolute_url())
+
         # now that we can connect to the webservice, check that the user can actually trigger that action
-        # indeed paramters are sent thru the request, and so someone could do nasty things...
+        # indeed parameters are sent thru the request, and so someone could do nasty things...
         # check that the real currentUrl is on available in object_buttons actions for the user
-        availableActions = self.portal.portal_actions.listFilteredActionsFor(self.context)['object_buttons']
+        availableActions = self.portal.portal_actions.listFilteredActionsFor(self.context).get('object_buttons', [])
         # rebuild real url called by the action
         currentUrl = unicode(self.request['ACTUAL_URL'] + '?' + self.request['QUERY_STRING'], 'utf-8')
         # now check if this url is available in the actions for the user
@@ -48,15 +63,8 @@ class SendToPloneMeetingView(BrowserView):
         if not mayDoAction:
             raise Unauthorized
 
-        # if we can connect and the user is allowed to trigger the action, proceed !
-        # check if not already sent to PloneMeeting...
-        if self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context, (self.meetingConfigId,)):
-            IStatusMessage(self.request).addStatusMessage(
-                _(u"This element has already been sent to PloneMeeting!"),
-                "error")
-            return self.request.RESPONSE.redirect(self.context.absolute_url())
-
         # build the creationData
+
         creation_data = self._buildCreationData(client)
 
         # call the SOAP method actually creating the item

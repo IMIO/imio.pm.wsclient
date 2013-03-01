@@ -214,8 +214,9 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
 
     @memoize
     def _soap_connectToPloneMeeting(self):
-        """Connect to distant PloneMeeting.
-           Either return None or the connected client.
+        """
+          Connect to distant PloneMeeting.
+          Either return None or the connected client.
         """
         settings = self.settings()
         url = self.request.form.get('form.widgets.pm_url') or settings.pm_url
@@ -321,12 +322,19 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
 
     def checkAlreadySentToPloneMeeting(self, context, meetingConfigIds=[]):
         """
-          Check if the element as already been sent to PloneMeeting to avoid double sents
-          If an item need to be doubled in PloneMeeting, it is PloneMeeting's duty
+          Check if the element has already been sent to PloneMeeting to avoid double sents
+          If an item needs to be doubled in PloneMeeting, it is PloneMeeting's duty
           If p_meetingConfigIds is empty (), then it checks every available meetingConfigId it was sent to...
+          The script will return :
+          - 'None' if could not connect to PloneMeeting
+          - True if the p_context is linked to an item of p_meetingConfigIds
+          - False if p_context is not linked to an item of p_meetingConfigIds
           This script also wipe out every meetingConfigIds for wich the item does not exist anymore in PloneMeeting
         """
         annotations = IAnnotations(context)
+        # for performance reason (avoid to connect to SOAP if no annotations)
+        # if there are no relevant annotations, it means that the p_context
+        # is not linked and we return False
         if WS4PMCLIENT_ANNOTATION_KEY in annotations:
             # the item seems to have been sent, but double check in case it was
             # deleted in PloneMeeting after having been sent
@@ -339,9 +347,14 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             for meetingConfigId in meetingConfigIds:
                 res = self._soap_checkIsLinked({'externalIdentifier': context.UID(),
                                                 'meetingConfigId': meetingConfigId, })
-                if res:
+                # if res is None, it means that it could not connect to PloneMeeting
+                if res == None:
+                    return None
+                # could connect to PM and found a result
+                if res == True:
                     return True
-                else:
+                # could connect to PM but did not find a result
+                elif res == False:
                     # either the item was deleted in PloneMeeting
                     # or it was never send, wipe out if it was deleted in PloneMeeting
                     if meetingConfigId in annotations[WS4PMCLIENT_ANNOTATION_KEY]:

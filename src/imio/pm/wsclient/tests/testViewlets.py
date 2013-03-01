@@ -24,9 +24,11 @@
 
 from datetime import datetime
 import transaction
+from zope.annotation import IAnnotations
 from Products.statusmessages.interfaces import IStatusMessage
 
 from imio.pm.wsclient.browser.viewlets import PloneMeetingInfosViewlet
+from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, \
                                                        createDocument, \
                                                        cleanMemoize, \
@@ -83,14 +85,9 @@ class testViewlets(WS4PMCLIENTTestCase):
         self.assertTrue(messages.show()[0].message, u'The item has been correctly sent to PloneMeeting.')
         self.assertTrue(messages.show()[1].message, u'There was NO WARNING message during item creation.')
         settings.viewlet_display_condition = u'python: object.getUnexistingAttribute()'
-        self.assertFalse(viewlet.available())
+        # in case there is a problem, a message is displayed in a tuple (msg, error_level)
+        self.assertTrue(isinstance(viewlet.available(), tuple))
         cleanMemoize(self.request, viewlet)
-        # one supplementary message
-        self.assertEquals(messages.show()[2].message,
-                    u'Unable to display informations about the potentially linked item in PloneMeeting because ' \
-                    'there was an error evaluating the TAL expression \'python: object.getUnexistingAttribute()\' ' \
-                    'for the field \'viewlet_display_condition\'!  The error was : \'getUnexistingAttribute\'.  ' \
-                    'Please contact system administrator.')
         # now check when the linked item is removed
         settings.viewlet_display_condition = u''
         self.assertTrue(viewlet.available())
@@ -115,6 +112,34 @@ class testViewlets(WS4PMCLIENTTestCase):
         item = self._sendToPloneMeeting(document, viewlet)
         # we received informations about the created item
         self.assertTrue(viewlet.getPloneMeetingLinkedInfos()[0]['UID'] == item.UID())
+
+    def test_canNotConnectTemporarily(self):
+        """
+          Test a connection problem in PloneMeeting after an item has already been sent
+          - connect to PM successfully
+          - send the item successfully
+          - break settings
+          - check what is going on while not being able to show PM related informations
+        """
+        self.changeUser('admin')
+        document = createDocument(self.portal)
+        viewlet = PloneMeetingInfosViewlet(document, self.request, None, None)
+        viewlet.update()
+        # send an element to PloneMeeting
+        item = self._sendToPloneMeeting(document, viewlet)
+        # correctly sent
+        self.assertTrue(viewlet.available() == True)
+        self.assertTrue(viewlet.getPloneMeetingLinkedInfos()[0]['UID'] == item.UID())
+        setCorrectSettingsConfig(self.portal, **{'pm_url': u'http://wrong/url'})
+        cleanMemoize(self.request, viewlet)
+        # no more linked infos
+        self.assertTrue(viewlet.getPloneMeetingLinkedInfos() == {})
+        # a message is returned in the viewlet by the viewlet.available method
+        self.assertTrue(viewlet.available() ==
+                        (u"Unable to connect to PloneMeeting, check the 'WS4PM Client settings'! "
+                          "Please contact system administrator!", 'error'))
+        # the annotations on the document are still correct
+        self.assertTrue(IAnnotations(document)[WS4PMCLIENT_ANNOTATION_KEY] == ['plonemeeting-assembly'])
 
     def test_displayMeetingDate(self):
         """
