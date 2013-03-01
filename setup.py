@@ -27,9 +27,9 @@ setup(name='imio.pm.wsclient',
       install_requires=[
           'setuptools',
           'collective.z3cform.datagridfield',
+          'imio.pm.locales',
           # -*- Extra requirements: -*-
           # -*- optional SOAP clients for tests (see docs/README.txt) -*-
-          'SOAPpy',
           'suds',
       ],
       extras_require={'test': ['plone.app.testing', 'unittest2', 'imio.pm.ws']},

@@ -8,16 +8,20 @@
     <p class="discreet" i18n:translate="pm_informations_help">You see these informations because the current element has been sent to PloneMeeting.</p>
         <table class="listing">
             <thead i18n:domain="PloneMeeting">
-               <th i18n:translate="pm_listing_th_title">Title</th>
+               <th i18n:translate="listingheader_title">Title</th>
+               <th i18n:translate="pm_creator">Creator</th>
                <th i18n:translate="search_config_label">Meeting config</th>
-               <th i18n:translate="pm_listing_th_state">Review state</th>
-               <th i18n:translate="pm_listing_th_relatedMeeting">Related meeting date</th>
+               <th i18n:translate="State">Review state</th>
+               <th i18n:translate="category_or_proposing_group">Category or proposing group</th>
+               <th i18n:translate="Meeting" i18n:domain="plone">Related meeting date</th>
             </thead>
             <tbody>
                 <tr tal:repeat="item items">
                    <td><a href="#" tal:attributes="href item/absolute_url" tal:content="item/title" target="_blank">Item title</a></td>
+                   <td tal:content="item/extraInfos/creator_fullname">Creator fullname</td>
                    <td tal:content="item/extraInfos/meeting_config_title">Meeting config title</td>
-                   <td tal:content="item/review_state" i18n:domain="plone" i18n:translate="">Review state</td>
+                   <td tal:content="item/extraInfos/review_state_translated" i18n:domain="plone" i18n:translate="">Review state</td>
+                   <td tal:content="item/extraInfos/category_title" i18n:domain="plone" i18n:translate="">Category title</td>
                    <td tal:content="python: view.displayMeetingDate(item['meeting_date'])">Related meeting date</td>
                 </tr>
             </tbody>
