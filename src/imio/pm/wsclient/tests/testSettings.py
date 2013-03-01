@@ -72,8 +72,6 @@ class testSettings(unittest2.TestCase):
         """While settings are saved, some actions are added to portal_actions/object_buttons."""
         setRoles(self.portal, TEST_USER_ID, ('Manager',))
         login(self.portal, TEST_USER_NAME)
-        ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
-        settings = ws4pmSettings.settings()
         # for now, there are no relative plonemeeting actions in portal_actions/object_buttons
         object_buttons_ids = self.portal.portal_actions.object_buttons.objectIds()
         self.failIf([actId for actId in object_buttons_ids if actId.startswith(ACTION_SUFFIX)])

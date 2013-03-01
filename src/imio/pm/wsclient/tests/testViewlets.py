@@ -82,16 +82,15 @@ class testViewlets(WS4PMCLIENTTestCase):
         self.assertTrue(len(messages.show()) == 2)
         self.assertTrue(messages.show()[0].message, u'The item has been correctly sent to PloneMeeting.')
         self.assertTrue(messages.show()[1].message, u'There was NO WARNING message during item creation.')
-        settings.viewlet_display_condition = u'python: object.getUnexistingAttribute() and object.portal_type == "Document"'
+        settings.viewlet_display_condition = u'python: object.getUnexistingAttribute()'
         self.assertFalse(viewlet.available())
         cleanMemoize(self.request, viewlet)
         # one supplementary message
-        self.maxDiff=None
         self.assertEquals(messages.show()[2].message,
                     u'Unable to display informations about the potentially linked item in PloneMeeting because ' \
-                    'there was an error evaluating the TAL expression \'python: object.getUnexistingAttribute() ' \
-                    'and object.portal_type == "Document"\' for the field \'viewlet_display_condition\'!  ' \
-                    'The error was : \'getUnexistingAttribute\'.  Please contact system administrator.')
+                    'there was an error evaluating the TAL expression \'python: object.getUnexistingAttribute()\' ' \
+                    'for the field \'viewlet_display_condition\'!  The error was : \'getUnexistingAttribute\'.  ' \
+                    'Please contact system administrator.')
         # now check when the linked item is removed
         settings.viewlet_display_condition = u''
         self.assertTrue(viewlet.available())

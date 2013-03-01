@@ -104,8 +104,8 @@ class SendToPloneMeetingView(BrowserView):
             except Exception, e:
                 IStatusMessage(self.request).addStatusMessage(
                     _(u"There was an error evaluating the TAL expression '%s' for the field '%s'!  " \
-                       "The error was : '%s'.  Please contact system administrator." % (settings.viewlet_display_condition,
-                                                                                        'viewlet_display_condition', e)),
+                       "The error was : '%s'.  Please contact system administrator." %
+                    (settings.viewlet_display_condition, 'viewlet_display_condition', e)),
                     "error")
                 return self.request.RESPONSE.redirect(self.context.absolute_url())
         # now that every values are evaluated, build the CreationData

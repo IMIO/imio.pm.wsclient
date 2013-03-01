@@ -57,7 +57,8 @@ def setCorrectSettingsConfig(portal, minimal=False, withValidation=True, **kwarg
     settings.pm_url = kwargs.get('pm_url', None) or u'%s/ws4pm.wsdl' % portal.absolute_url()
     settings.pm_username = kwargs.get('pm_username', None) or u'pmManager'
     settings.pm_password = kwargs.get('pm_password', None) or u'meeting'
-    settings.user_mappings = kwargs.get('user_mappings', None) or u'localUserId|pmCreator1\r\nlocalUserId2|pmCreator2\r\nadmin|pmCreator1'
+    settings.user_mappings = kwargs.get('user_mappings', None) or \
+                             u'localUserId|pmCreator1\r\nlocalUserId2|pmCreator2\r\nadmin|pmCreator1'
     settings.viewlet_display_condition = kwargs.get('viewlet_display_condition', None) or u''
     if not minimal:
         # these parameters are only available while correctly connected
