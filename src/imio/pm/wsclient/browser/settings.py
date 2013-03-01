@@ -94,13 +94,13 @@ class IWS4PMClientSettings(Interface):
                       "informations about the created items in PloneMeeting should be displayed.  " \
                       "If empty, the viewlet will only be displayed if an item is actually linked to it.  " \
                       "The element 'isLinked' representing this default behaviour is available in the TAL expression."),
-        required=True
+        required=False
         )
-
     field_mappings = schema.List(
         title=_("Field accessor mappings"),
         description=_("For every available data you can send, define in the mapping a TAL expression that will be " \
-                      "executed to obtain the correct value to send"),
+                      "executed to obtain the correct value to send.  The 'meetingConfigId' and 'proposingGroupId' " \
+                      "variables are also available for the expression."),
         value_type=DictRow(title=_("Actions"),
                            schema=IFieldMappingsSchema,
                            required=False),
@@ -351,16 +351,16 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                         del annotations[WS4PMCLIENT_ANNOTATION_KEY]
         return False
 
-    def renderTALExpression(self, context, portal, expression, data={}):
+    def renderTALExpression(self, context, portal, expression, vars={}):
         """
           Renders given TAL expression in p_expression.
-          p_data contains extra data that will be done available in the TAL expression to render
+          p_vars contains extra variables that will be done available in the TAL expression to render
         """
         res = ''
         if expression:
             expression = expression.strip()
             ctx = createExprContext(context.aq_inner.aq_parent, portal, context)
-            ctx.vars.update(data)
+            ctx.vars.update(vars)
             res = Expression(expression)(ctx)
         # make sure we do not return None because it breaks SOAP call
         return res or u''

@@ -96,11 +96,15 @@ class SendToPloneMeetingView(BrowserView):
         for availableData in settings.field_mappings:
             field_name = availableData['field_name']
             expr = availableData['expression']
+            # make the meetingConfigId available in the expression
+            vars = {}
+            vars['meetingConfigId'] = self.meetingConfigId
+            vars['proposingGroupId'] = self.proposingGroupId
             # evaluate the expression
             try:
                 data[field_name] = self.ws4pmSettings.renderTALExpression(self.context,
                                                                           self.portal,
-                                                                          expr, {})
+                                                                          expr, vars)
             except Exception, e:
                 IStatusMessage(self.request).addStatusMessage(
                     _(u"There was an error evaluating the TAL expression '%s' for the field '%s'!  " \

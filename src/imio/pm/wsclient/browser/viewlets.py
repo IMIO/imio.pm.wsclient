@@ -31,13 +31,13 @@ class PloneMeetingInfosViewlet(ViewletBase):
         if not viewlet_display_condition or not viewlet_display_condition.strip():
             return isLinked
         # add 'isLinked' to data available in the TAL expression
-        data = {}
-        data['isLinked'] = isLinked
+        vars = {}
+        vars['isLinked'] = isLinked
         try:
             res = self.ws4pmSettings.renderTALExpression(self.context,
                                                          self.portal_state.portal(),
                                                          settings.viewlet_display_condition,
-                                                         data)
+                                                         vars)
         except Exception, e:
             IStatusMessage(self.request).addStatusMessage(
                 _(u"Unable to display informations about the potentially linked item in PloneMeeting because " \
