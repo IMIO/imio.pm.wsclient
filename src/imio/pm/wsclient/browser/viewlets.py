@@ -1,4 +1,5 @@
 from zope.component import getMultiAdapter
+from zope.annotation import IAnnotations
 
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 
@@ -6,6 +7,7 @@ from plone.memoize.instance import memoize
 from plone.app.layout.viewlets.common import ViewletBase
 
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
+from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY
 
 
 class PloneMeetingInfosViewlet(ViewletBase):
@@ -67,6 +69,15 @@ class PloneMeetingInfosViewlet(ViewletBase):
         res = []
         for item in items:
             res.append(self.ws4pmSettings._soap_getItemInfos({'UID': item['UID'], 'showExtraInfos': True})[0])
+
+        # sort res to comply with sent order, for example sent first to college then council
+        annotations = IAnnotations(self.context)
+        sent_to = annotations[WS4PMCLIENT_ANNOTATION_KEY]
+
+        def sortByMeetingConfigId(x, y):
+            return cmp(sent_to.index(x['extraInfos']['meeting_config_id']),
+                       sent_to.index(y['extraInfos']['meeting_config_id']))
+        res.sort(sortByMeetingConfigId)
         return res
 
     def displayMeetingDate(self, meeting_date):
