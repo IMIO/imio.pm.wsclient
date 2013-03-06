@@ -1,3 +1,4 @@
+import base64
 import logging
 logger = logging.getLogger('imio.pm.wsclient')
 
@@ -9,6 +10,9 @@ from Products.statusmessages.interfaces import IStatusMessage
 
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import DEFAULT_NO_WARNING_MESSAGE, WS4PMCLIENT_ANNOTATION_KEY
+
+UNABLE_TO_CONNECT_ERROR = u"Unable to connect to PloneMeeting, check the 'WS4PM Client settings'! "\
+                          "Please contact system administrator!"
 
 
 class SendToPloneMeetingView(BrowserView):
@@ -43,9 +47,7 @@ class SendToPloneMeetingView(BrowserView):
                 # now connect to PloneMeeting
                 client = self.ws4pmSettings._soap_connectToPloneMeeting()
             if not client or alreadySent == None:
-                IStatusMessage(self.request).addStatusMessage(
-                    _(u"Unable to connect to PloneMeeting, check the 'WS4PM Client settings'! "\
-                       "Please contact system administrator!"), "error")
+                IStatusMessage(self.request).addStatusMessage(_(UNABLE_TO_CONNECT_ERROR), "error")
                 return self.request.RESPONSE.redirect(self.context.absolute_url())
 
         # now that we can connect to the webservice, check that the user can actually trigger that action
@@ -131,3 +133,40 @@ class SendToPloneMeetingView(BrowserView):
         # initialize the externalIdentifier to the context UID
         creation_data['externalIdentifier'] = self.context.UID()
         return creation_data
+
+
+class GenerateItemTemplateView(BrowserView):
+    """
+      This view manage the document generation on an item
+    """
+    def __init__(self, context, request):
+        super(BrowserView, self).__init__(context, request)
+        self.context = context
+        self.request = request
+        portal_state = getMultiAdapter((self.context, self.request), name=u'plone_portal_state')
+        self.portal = portal_state.portal()
+        self.ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
+        self.itemUID = self.request.get('itemUID', '')
+        self.templateId = self.request.get('templateId', '')
+        self.templateFilename = self.request.get('templateFilename', '')
+        self.templateFormat = self.request.get('templateFormat', '')
+
+    def __call__(self):
+        # now connect to PloneMeeting
+        client = self.ws4pmSettings._soap_connectToPloneMeeting()
+        if not client:
+            IStatusMessage(self.request).addStatusMessage(_(UNABLE_TO_CONNECT_ERROR), "error")
+            return self.request.RESPONSE.redirect(self.context.absolute_url())
+
+        # if we can connect, proceed!
+        res = self.ws4pmSettings._soap_getItemTemplate({'itemUID': self.itemUID,
+                                                        'templateId': self.templateId, })
+        if not res:
+            # an error occured, redirect to user to the context, a statusMessage will be displayed
+            return self.request.RESPONSE.redirect(self.context.absolute_url())
+        mimetype = self.portal.mimetypes_registry.lookupExtension(self.templateFormat)
+        response = self.request.RESPONSE
+        response.setHeader('Content-Type', mimetype.normalized())
+        response.setHeader('Content-Disposition', 'inline;filename="%s.%s"' % (self.templateFilename,
+                                                                               self.templateFormat))
+        return base64.b64decode(res)

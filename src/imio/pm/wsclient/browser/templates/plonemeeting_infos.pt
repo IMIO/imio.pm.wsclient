@@ -8,7 +8,8 @@
 <tal:available condition="python: view.available() == True">
 <tal:block define="items view/getPloneMeetingLinkedInfos;
                    DateTime python:modules['DateTime'].DateTime;
-                   toLocalizedTime nocall:context/@@plone/toLocalizedTime;"
+                   toLocalizedTime nocall:context/@@plone/toLocalizedTime;
+                   portal_url context/@@plone_portal_state/portal_url;"
            i18n:domain="imio.pm.wsclient">
 
     <fieldset><legend>PloneMeeting informations</legend>
@@ -21,6 +22,7 @@
                <th i18n:translate="State">Review state</th>
                <th i18n:translate="category_or_proposing_group">Category or proposing group</th>
                <th i18n:translate="Meeting" i18n:domain="plone">Related meeting date</th>
+               <th i18n:translate="doc">Documents</th>
             </thead>
             <tbody>
                 <tr tal:repeat="item items">
@@ -30,6 +32,16 @@
                    <td tal:content="item/extraInfos/review_state_translated" i18n:domain="plone" i18n:translate="">Review state</td>
                    <td tal:content="item/extraInfos/category_title" i18n:domain="plone" i18n:translate="">Category title</td>
                    <td tal:content="python: view.displayMeetingDate(item['meeting_date'])">Related meeting date</td>
+                   <td>
+                     <span class="discreet" style="position: relative;"
+                           tal:attributes="title podTemplate/title;"
+                           tal:repeat="podTemplate item/templates">
+                       <a href="#" tal:attributes="href string:${context/absolute_url}/@@generate_document?itemUID=${item/UID}&templateId=${podTemplate/templateId}&templateFilename=${podTemplate/templateFilename}&templateFormat=${podTemplate/templateFormat}">
+                         <img src="#" tal:attributes="src string:${portal_url}/++resource++imio.pm.wsclient.images/${podTemplate/templateFormat}.png">
+                         <span tal:content="podTemplate/title"/>
+                       </a>&nbsp;
+                     </span>
+                   </td>
                 </tr>
             </tbody>
         </table>

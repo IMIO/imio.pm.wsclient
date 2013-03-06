@@ -68,8 +68,9 @@ class PloneMeetingInfosViewlet(ViewletBase):
             return {}
         res = []
         for item in items:
-            res.append(self.ws4pmSettings._soap_getItemInfos({'UID': item['UID'], 'showExtraInfos': True})[0])
-
+            res.append(self.ws4pmSettings._soap_getItemInfos({'UID': item['UID'],
+                                                              'showExtraInfos': True,
+                                                              'showTemplates': True})[0])
         # sort res to comply with sent order, for example sent first to college then council
         annotations = IAnnotations(self.context)
         sent_to = annotations[WS4PMCLIENT_ANNOTATION_KEY]

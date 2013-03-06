@@ -22,6 +22,14 @@
         permission="zope2.SOAPClientAccess"
       />
 
+    <!-- View that generates a document of an item -->
+    <browser:page
+        for="*"
+        name="generate_document"
+        class=".views.GenerateItemTemplateView"
+        permission="zope2.SOAPClientAccess"
+      />
+
     <!-- Viewlets -->
     <browser:viewlet
         name="imio.pm.ws.pminfos"
@@ -53,6 +61,12 @@
       provides="zope.schema.interfaces.IVocabularyFactory"
       component=".vocabularies.pm_item_data_vocabularyFactory"
       name="imio.pm.wsclient.pm_item_data_vocabulary"
+    />
+
+    <!-- Resource directory for images -->
+    <browser:resourceDirectory
+        name="imio.pm.wsclient.images"
+        directory="images"
     />
 
 </configure>

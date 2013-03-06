@@ -168,6 +168,27 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
                           "The error message was : Server raised fault: ''unexisting-category-id' "
                           "is not available for the 'developers' group!'")
 
+    def test_soap_getItemTemplate(self):
+        """Check while getting rendered template for an item.
+           getItemTemplate will automatically use currently connected user
+           to render item template regarding the _getUserIdToUseInTheNameOfWith."""
+        ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
+        setCorrectSettingsConfig(self.portal, minimal=True)
+        # by default no item exist in the portal...  So create one!
+        self.changeUser('pmManager')
+        item = self.create('MeetingItem')
+        # we have to commit() here or portal used behing the SOAP call
+        # does not have the freshly created item...
+        transaction.commit()
+        self.assertTrue(ws4pmSettings._soap_getItemTemplate({'itemUID': item.UID(), 'templateId': 'itemTemplate'}))
+        # getItemTemplate is called inTheNameOf the currently connected user
+        # if the user (like 'pmCreator1') can see the item, he gets the rendered template
+        # either (like for 'pmCreator2') nothing is returned
+        self.changeUser('pmCreator1')
+        self.assertTrue(ws4pmSettings._soap_getItemTemplate({'itemUID': item.UID(), 'templateId': 'itemTemplate'}))
+        self.changeUser('pmCreator2')
+        self.assertFalse(ws4pmSettings._soap_getItemTemplate({'itemUID': item.UID(), 'templateId': 'itemTemplate'}))
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite

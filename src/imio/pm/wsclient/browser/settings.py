@@ -268,6 +268,19 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
             return client.service.getItemInfos(**data)
 
+    def _soap_getItemTemplate(self, data):
+        """Query the getItemTemplate SOAP server method."""
+        client = self._soap_connectToPloneMeeting()
+        if client is not None:
+            if not 'inTheNameOf' in data:
+                data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
+        try:
+            return client.service.getItemTemplate(**data)
+        except Exception, exc:
+                IStatusMessage(self.request).addStatusMessage(
+                    _(u"An error occured while generating the document in PloneMeeting!  " \
+                      "The error message was : %s" % exc), "error")
+
     @memoize
     def _soap_getItemCreationAvailableData(self):
         """Query SOAP WSDL to obtain the list of available fields useable while creating an item."""
@@ -294,11 +307,13 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                                                               "error")
 
     def _getUserIdToUseInTheNameOfWith(self):
-        """Returns the userId that will actually create the item.
-           Returns None if we found out that it is the defined settings.pm_username
-           that will create the item : either it is the currently connected user,
-           or there is an existing user_mapping between currently connected user
-           and settings.pm_username user."""
+        """
+          Returns the userId that will actually create the item.
+          Returns None if we found out that it is the defined settings.pm_username
+          that will create the item : either it is the currently connected user,
+          or there is an existing user_mapping between currently connected user
+          and settings.pm_username user.
+        """
         member = self.context.portal_membership.getAuthenticatedMember()
         memberId = member.getId()
         # get username specified to connect to the SOAP distant site
@@ -358,7 +373,11 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                     # either the item was deleted in PloneMeeting
                     # or it was never send, wipe out if it was deleted in PloneMeeting
                     if meetingConfigId in annotations[WS4PMCLIENT_ANNOTATION_KEY]:
-                        annotations[WS4PMCLIENT_ANNOTATION_KEY].remove(meetingConfigId)
+                        # do not use .remove directly on the annotations or it does not save
+                        # correctly and when Zope restarts, the removed annotation is still there???
+                        existingAnnotations = list(annotations[WS4PMCLIENT_ANNOTATION_KEY])
+                        existingAnnotations.remove(meetingConfigId)
+                        annotations[WS4PMCLIENT_ANNOTATION_KEY] = existingAnnotations
                     if not annotations[WS4PMCLIENT_ANNOTATION_KEY]:
                         # remove the entire annotation key if empty
                         del annotations[WS4PMCLIENT_ANNOTATION_KEY]
