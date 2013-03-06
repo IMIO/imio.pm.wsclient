@@ -91,7 +91,11 @@ class SendToPloneMeetingView(BrowserView):
             if not WS4PMCLIENT_ANNOTATION_KEY in annotations:
                 annotations[WS4PMCLIENT_ANNOTATION_KEY] = [self.meetingConfigId, ]
             else:
-                annotations[WS4PMCLIENT_ANNOTATION_KEY].append(self.meetingConfigId)
+                # do not use .append directly on the annotations or it does not save
+                # correctly and when Zope restarts, the added annotation is lost???
+                existingAnnotations = list(annotations[WS4PMCLIENT_ANNOTATION_KEY])
+                existingAnnotations.append(self.meetingConfigId)
+                annotations[WS4PMCLIENT_ANNOTATION_KEY] = existingAnnotations
         return self.request.RESPONSE.redirect(self.context.absolute_url())
 
     def _buildCreationData(self, client):
