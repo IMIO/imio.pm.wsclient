@@ -56,7 +56,11 @@ class SendToPloneMeetingView(BrowserView):
             # check that the real currentUrl is on available in object_buttons actions for the user
             availableActions = self.portal.portal_actions.listFilteredActionsFor(self.context).get('object_buttons', [])
             # rebuild real url called by the action
-            currentUrl = unicode(self.request['ACTUAL_URL'] + '?' + self.request['referer_query_string'], 'utf-8')
+            # if we come from the intermediate form, we have a 'referer_query_string' in the REQUEST
+            # if we are here directly because a proposingGroupId was already given in the REQUEST, we have 'QUERY_STRING'
+            currentUrl = unicode(self.request['ACTUAL_URL'] + '?' +
+                                 (self.request['QUERY_STRING'] or self.request['referer_query_string']),
+                                 'utf-8')
             # remove eventual ajax_load parameter...  this is automatically added to the QUERY_STRING
             # if the view is called thru a jQuery overlay...
             try:

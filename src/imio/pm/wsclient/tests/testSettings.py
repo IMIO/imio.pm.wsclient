@@ -90,12 +90,10 @@ class testSettings(unittest2.TestCase):
         self.assertEquals(len([act for act in object_buttons if act['id'].startswith(ACTION_SUFFIX)]), 5 - 2)
         # now save again with just 2 actions to generate
         generated_actions = [
-            {'pm_proposing_group_id': u'developers',
-             'pm_meeting_config_id': 'plonegov-assembly',
+            {'pm_meeting_config_id': 'plonegov-assembly',
              'condition': u'python:True',
              'permissions': u'View'},
-            {'pm_proposing_group_id': u'vendors',
-             'pm_meeting_config_id': 'plonemeeting-assembly',
+            {'pm_meeting_config_id': 'plonemeeting-assembly',
              'condition': u'python:True',
              'permissions': u'View'},
             ]
@@ -107,7 +105,7 @@ class testSettings(unittest2.TestCase):
         # only 2 actions exist now
         self.assertEquals(len(pm_object_buttons), 2)
         # and it is valid ones
-        self.assertTrue('proposingGroupId=developers' in pm_object_buttons[0]['url'])
+        self.assertTrue('meetingConfigId=plonegov-assembly' in pm_object_buttons[0]['url'])
         self.assertTrue('meetingConfigId=plonemeeting-assembly' in pm_object_buttons[1]['url'])
 
     def test_getUserIdToUseInTheNameOfWith(self):

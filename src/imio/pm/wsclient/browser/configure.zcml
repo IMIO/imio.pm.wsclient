@@ -19,7 +19,7 @@
         for="*"
         name="send_to_plonemeeting"
         class=".views.SendToPloneMeetingView"
-        permission="zope2.SOAPClientAccess"
+        permission="zope2.SOAPClientSend"
         template="templates/send_to_plonemeeting.pt"
       />
 
@@ -40,12 +40,6 @@
         />
 
     <!-- Vocabularies -->
-    <utility
-      provides="zope.schema.interfaces.IVocabularyFactory"
-      component=".vocabularies.pm_proposing_group_id_vocabularyFactory"
-      name="imio.pm.wsclient.pm_proposing_group_id_vocabulary"
-    />
-
     <utility
       provides="zope.schema.interfaces.IVocabularyFactory"
       component=".vocabularies.pm_meeting_config_id_vocabularyFactory"

@@ -53,7 +53,7 @@ class WS4PMCLIENTTestCase(PloneMeetingTestCase):
         # use the 'send_to_plonemeeting' view
         self.request.set('URL', obj.absolute_url())
         self.request.set('ACTUAL_URL', obj.absolute_url() + '/@@send_to_plonemeeting')
-        self.request.set('referer_query_string', 'meetingConfigId=plonemeeting-assembly&proposingGroupId=developers')
+        self.request.set('referer_query_string', 'meetingConfigId=plonemeeting-assembly')
         self.request.set('meetingConfigId', 'plonemeeting-assembly')
         self.request.set('proposingGroupId', 'developers')
         self.request.form['form.submitted'] = True
@@ -101,24 +101,19 @@ def setCorrectSettingsConfig(portal, minimal=False, withValidation=True, **kwarg
             {'field_name': u'externalIdentifier',
              'expression': u'object/UID'}]
         settings.generated_actions = kwargs.get('generated_actions', None) or  [
-            {'pm_proposing_group_id': u'developers',
-             'pm_meeting_config_id': 'plonegov-assembly',
+            {'pm_meeting_config_id': 'plonegov-assembly',
              'condition': u'python:True',
              'permissions': u'View'},
-            {'pm_proposing_group_id': u'vendors',
-             'pm_meeting_config_id': 'plonegov-assembly',
+            {'pm_meeting_config_id': 'plonegov-assembly',
              'condition': u'python:True',
              'permissions': u'View'},
-            {'pm_proposing_group_id': u'developers',
-             'pm_meeting_config_id': 'plonemeeting-assembly',
+            {'pm_meeting_config_id': 'plonemeeting-assembly',
              'condition': u'python:True',
              'permissions': u'View'},
-            {'pm_proposing_group_id': u'vendors',
-             'pm_meeting_config_id': 'plonemeeting-assembly',
+            {'pm_meeting_config_id': 'plonemeeting-assembly',
              'condition': u'python:False',
              'permissions': u'View'},
-            {'pm_proposing_group_id': u'vendors',
-             'pm_meeting_config_id': 'plonemeeting-assembly',
+            {'pm_meeting_config_id': 'plonemeeting-assembly',
              'condition': u'python:True',
              'permissions': u'Manage portal'},
             ]

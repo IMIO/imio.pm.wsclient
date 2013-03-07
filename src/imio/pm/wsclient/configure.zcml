@@ -9,10 +9,14 @@
     <i18n:registerTranslations directory="locales" />
     <five:registerPackage package="." initialize=".initialize" />
 
-    <!-- borrowed from z3c.soap -->
     <permission
       id="zope2.SOAPClientAccess"
       title="SOAP Client Access"/>
+
+    <permission
+      id="zope2.SOAPClientSend"
+      title="SOAP Client Send"/>
+
 
     <include package="plone.app.registry" />
     <include package=".browser" />

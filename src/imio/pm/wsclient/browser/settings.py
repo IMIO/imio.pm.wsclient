@@ -48,11 +48,6 @@ class IGeneratedActionsSchema(Interface):
         required=False,
         vocabulary=u'imio.pm.wsclient.possible_permissions_vocabulary'
         )
-    pm_proposing_group_id = schema.Choice(
-        title=_("PloneMeeting proposing group id"),
-        required=False,
-        vocabulary=u'imio.pm.wsclient.pm_proposing_group_id_vocabulary'
-        )
     pm_meeting_config_id = schema.Choice(
         title=_("PloneMeeting meetingConfig id"),
         required=False,
@@ -420,9 +415,8 @@ def notify_configuration_changed(event):
                                                 mapping={'meetingConfigTitle': actToGen['pm_meeting_config_id']},
                                                 context=portal.REQUEST),
                            description='', i18n_domain='imio.pm.wsclient',
-                           url_expr='string:${object_url}/@@send_to_plonemeeting?meetingConfigId=%s&proposingGroupId=%s'
-                                    % (actToGen['pm_meeting_config_id'],
-                                       actToGen['pm_proposing_group_id']),
+                           url_expr='string:${object_url}/@@send_to_plonemeeting?meetingConfigId=%s' \
+                                                        % actToGen['pm_meeting_config_id'],
                            icon_expr='',
                            available_expr=actToGen['condition'],
                            permissions=(actToGen['permissions'], ),

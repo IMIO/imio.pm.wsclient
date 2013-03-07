@@ -4,11 +4,12 @@
 initializeActionsOverlays = function () {
 jQuery('a.[id^=plone-contentmenu-actions-plonemeeting_wsclient_action_]').each(function(){
     // send an item to PloneMeeting
+    // apply if no proposingGroupId is passed in the request
+    if ($(this).attr('href').indexOf('&proposingGroupId=') == -1) {
     $(this).prepOverlay({
        subtype: 'ajax',
-   });
+   });}
 });
 };
 
 jQuery(document).ready(initializeActionsOverlays);
-

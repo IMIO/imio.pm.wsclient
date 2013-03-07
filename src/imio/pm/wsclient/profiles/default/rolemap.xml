@@ -10,5 +10,10 @@
       <role name="Member"/>
       <role name="Manager"/>
     </permission>
+    <permission name="SOAP Client Send"
+                acquire="True">
+      <role name="Member"/>
+      <role name="Manager"/>
+    </permission>
   </permissions>
 </rolemap>
