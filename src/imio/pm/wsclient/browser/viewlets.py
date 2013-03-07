@@ -7,7 +7,9 @@ from plone.memoize.instance import memoize
 from plone.app.layout.viewlets.common import ViewletBase
 
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
-from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY
+from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY, \
+                                    UNABLE_TO_CONNECT_ERROR, \
+                                    UNABLE_TO_DISPLAY_VIEWLET_ERROR
 
 
 class PloneMeetingInfosViewlet(ViewletBase):
@@ -34,8 +36,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
         isLinked = self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context)
         # in case it could not connect to PloneMeeting, checkAlreadySentToPloneMeeting returns None
         if isLinked == None:
-            return (_(u"Unable to connect to PloneMeeting, check the 'WS4PM Client settings'! "\
-                   "Please contact system administrator!"), "error")
+            return (_(UNABLE_TO_CONNECT_ERROR), "error")
         viewlet_display_condition = settings.viewlet_display_condition
         # if we have no defined viewlet_display_condition, use the isLinked value
         if not viewlet_display_condition or not viewlet_display_condition.strip():
@@ -49,11 +50,9 @@ class PloneMeetingInfosViewlet(ViewletBase):
                                                          settings.viewlet_display_condition,
                                                          vars)
         except Exception, e:
-            return (_(u"Unable to display informations about the potentially linked item in PloneMeeting because " \
-                   "there was an error evaluating the TAL expression '%s' for the field '%s'!  " \
-                   "The error was : '%s'.  Please contact system administrator." % (settings.viewlet_display_condition,
-                                                                                    'viewlet_display_condition', e)),
-                    'error')
+            return (_(UNABLE_TO_DISPLAY_VIEWLET_ERROR % (settings.viewlet_display_condition,
+                                                         'viewlet_display_condition',
+                                                         e)), 'error')
         return bool(res)
 
     @memoize

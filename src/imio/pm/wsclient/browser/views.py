@@ -9,10 +9,10 @@ from Products.Five import BrowserView
 from Products.statusmessages.interfaces import IStatusMessage
 
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
-from imio.pm.wsclient.config import DEFAULT_NO_WARNING_MESSAGE, WS4PMCLIENT_ANNOTATION_KEY
-
-UNABLE_TO_CONNECT_ERROR = u"Unable to connect to PloneMeeting, check the 'WS4PM Client settings'! "\
-                          "Please contact system administrator!"
+from imio.pm.wsclient.config import DEFAULT_NO_WARNING_MESSAGE, WS4PMCLIENT_ANNOTATION_KEY, \
+                                    UNABLE_TO_CONNECT_ERROR, ALREADY_SENT_TO_PM_ERROR, \
+                                    CORRECTLY_SENT_TO_PM_INFO, UNABLE_TO_DETECT_MIMETYPE_ERROR, \
+                                    FILENAME_MANDATORY_ERROR, TAL_EVAL_FIELD_ERROR
 
 
 class SendToPloneMeetingView(BrowserView):
@@ -37,7 +37,7 @@ class SendToPloneMeetingView(BrowserView):
         alreadySent = self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context, (self.meetingConfigId,))
         if alreadySent:
             IStatusMessage(self.request).addStatusMessage(
-                _(u"This element has already been sent to PloneMeeting!"),
+                _(ALREADY_SENT_TO_PM_ERROR),
                 "error")
             return self.request.RESPONSE.redirect(self.context.absolute_url())
         elif alreadySent in (None, False):
@@ -75,18 +75,17 @@ class SendToPloneMeetingView(BrowserView):
                                              creation_data)
         if res:
             uid, warnings = res
-            IStatusMessage(self.request).addStatusMessage(_(u"The item has been correctly sent to PloneMeeting."),
+            IStatusMessage(self.request).addStatusMessage(_(CORRECTLY_SENT_TO_PM_INFO),
                                                           "info")
             if warnings:
                 for warning in warnings[1]:
-                    # show warnings in the web interface for Managers and add it to the Zope log
+                    # show warnings in the web interface and add it to the Zope log
+                    # do not show the DEFAULT_NO_WARNING_MESSAGE
                     if warning == DEFAULT_NO_WARNING_MESSAGE:
-                        type = "info"
-                        logger.info(warning)
+                        continue
                     else:
                         type = "warning"
                         logger.warning(warning)
-                    if self.portal_state.member().has_role('Manager'):
                         IStatusMessage(self.request).addStatusMessage(_(warning), type)
             # finally save in the self.context annotation that the item has been sent
             annotations = IAnnotations(self.context)
@@ -121,8 +120,7 @@ class SendToPloneMeetingView(BrowserView):
                                                                           expr, vars)
             except Exception, e:
                 IStatusMessage(self.request).addStatusMessage(
-                    _(u"There was an error evaluating the TAL expression '%s' for the field '%s'!  " \
-                       "The error was : '%s'.  Please contact system administrator." %
+                    _(TAL_EVAL_FIELD_ERROR %
                     (settings.viewlet_display_condition, 'viewlet_display_condition', e)),
                     "error")
                 return self.request.RESPONSE.redirect(self.context.absolute_url())
@@ -159,14 +157,25 @@ class GenerateItemTemplateView(BrowserView):
             return self.request.RESPONSE.redirect(self.context.absolute_url())
 
         # if we can connect, proceed!
+        response = self.request.RESPONSE
+        mimetype = self.portal.mimetypes_registry.lookupExtension(self.templateFormat)
+        if not mimetype:
+            IStatusMessage(self.request).addStatusMessage(_(UNABLE_TO_DETECT_MIMETYPE_ERROR), "error")
+            return response.redirect(self.context.absolute_url())
+
+        if not self.templateFilename:
+            IStatusMessage(self.request).addStatusMessage(_(FILENAME_MANDATORY_ERROR), "error")
+            return response.redirect(self.context.absolute_url())
+
+        # set relevant header for response so the browser behave normally with returned file type
+        response.setHeader('Content-Type', mimetype.normalized())
+        response.setHeader('Content-Disposition', 'inline;filename="%s.%s"' % (self.templateFilename,
+                                                                               self.templateFormat))
+
         res = self.ws4pmSettings._soap_getItemTemplate({'itemUID': self.itemUID,
                                                         'templateId': self.templateId, })
         if not res:
             # an error occured, redirect to user to the context, a statusMessage will be displayed
             return self.request.RESPONSE.redirect(self.context.absolute_url())
-        mimetype = self.portal.mimetypes_registry.lookupExtension(self.templateFormat)
-        response = self.request.RESPONSE
-        response.setHeader('Content-Type', mimetype.normalized())
-        response.setHeader('Content-Disposition', 'inline;filename="%s.%s"' % (self.templateFilename,
-                                                                               self.templateFormat))
+
         return base64.b64decode(res)

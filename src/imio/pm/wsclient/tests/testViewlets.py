@@ -28,7 +28,8 @@ from zope.annotation import IAnnotations
 from Products.statusmessages.interfaces import IStatusMessage
 
 from imio.pm.wsclient.browser.viewlets import PloneMeetingInfosViewlet
-from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY
+from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY, CORRECTLY_SENT_TO_PM_INFO, \
+                                    UNABLE_TO_CONNECT_ERROR
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, \
                                                        createDocument, \
                                                        cleanMemoize, \
@@ -41,7 +42,7 @@ class testViewlets(WS4PMCLIENTTestCase):
     """
 
     def test_available(self):
-        """"""
+        """ """
         self.changeUser('admin')
         document = createDocument(self.portal)
         # by default, no viewlet_display_condition TAL expression
@@ -67,7 +68,7 @@ class testViewlets(WS4PMCLIENTTestCase):
         settings.viewlet_display_condition = u''
         self.assertFalse(viewlet.available())
         cleanMemoize(self.request, viewlet)
-        item = self._sendToPloneMeeting(document, viewlet)
+        item = self._sendToPloneMeeting(document)
         # now that the element has been sent, the viewlet is available
         self.assertTrue(viewlet.available())
         cleanMemoize(self.request, viewlet)
@@ -81,9 +82,8 @@ class testViewlets(WS4PMCLIENTTestCase):
         # if the TAL expression has errors, available is False and a message is displayed
         messages = IStatusMessage(self.request)
         # by default, 2 messages already exist, these are item creation related messages
-        self.assertTrue(len(messages.show()) == 2)
-        self.assertTrue(messages.show()[0].message, u'The item has been correctly sent to PloneMeeting.')
-        self.assertTrue(messages.show()[1].message, u'There was NO WARNING message during item creation.')
+        self.assertTrue(len(messages.show()) == 1)
+        self.assertTrue(messages.show()[0].message, CORRECTLY_SENT_TO_PM_INFO)
         settings.viewlet_display_condition = u'python: object.getUnexistingAttribute()'
         # in case there is a problem, a message is displayed in a tuple (msg, error_level)
         self.assertTrue(isinstance(viewlet.available(), tuple))
@@ -109,7 +109,7 @@ class testViewlets(WS4PMCLIENTTestCase):
         self.assertTrue(viewlet.getPloneMeetingLinkedInfos() == {})
         # now send an element to PloneMeeting and check again
         cleanMemoize(self.request, viewlet)
-        item = self._sendToPloneMeeting(document, viewlet)
+        item = self._sendToPloneMeeting(document)
         # we received informations about the created item
         self.assertTrue(viewlet.getPloneMeetingLinkedInfos()[0]['UID'] == item.UID())
 
@@ -126,7 +126,7 @@ class testViewlets(WS4PMCLIENTTestCase):
         viewlet = PloneMeetingInfosViewlet(document, self.request, None, None)
         viewlet.update()
         # send an element to PloneMeeting
-        item = self._sendToPloneMeeting(document, viewlet)
+        item = self._sendToPloneMeeting(document)
         # correctly sent
         self.assertTrue(viewlet.available() == True)
         self.assertTrue(viewlet.getPloneMeetingLinkedInfos()[0]['UID'] == item.UID())
@@ -135,9 +135,7 @@ class testViewlets(WS4PMCLIENTTestCase):
         # no more linked infos
         self.assertTrue(viewlet.getPloneMeetingLinkedInfos() == {})
         # a message is returned in the viewlet by the viewlet.available method
-        self.assertTrue(viewlet.available() ==
-                        (u"Unable to connect to PloneMeeting, check the 'WS4PM Client settings'! "
-                          "Please contact system administrator!", 'error'))
+        self.assertTrue(viewlet.available() == (UNABLE_TO_CONNECT_ERROR, 'error'))
         # the annotations on the document are still correct
         self.assertTrue(IAnnotations(document)[WS4PMCLIENT_ANNOTATION_KEY] == ['plonemeeting-assembly'])
 
@@ -156,27 +154,6 @@ class testViewlets(WS4PMCLIENTTestCase):
         self.assertTrue(viewlet.displayMeetingDate(datetime(2013, 6, 10)) == u'Jun 10, 2013')
         # If hours, then a long format is used
         self.assertTrue(viewlet.displayMeetingDate(datetime(2013, 6, 10, 15, 30)) == u'Jun 10, 2013 03:30 PM')
-
-    def _sendToPloneMeeting(self, obj, viewlet):
-        """
-          Helper method for sending an element to PloneMeeting
-        """
-        # set correct config
-        setCorrectSettingsConfig(self.portal)
-        # create the 'pmCreator1' member area to be able to create an item
-        self.tool.getPloneMeetingFolder('plonemeeting-assembly', 'pmCreator1')
-        # we have to commit() here or portal used behing the SOAP call
-        # does not have the freshly created item...
-        transaction.commit()
-        # use the 'send_to_plonemeeting' view
-        self.request.set('URL', obj.absolute_url())
-        self.request.set('ACTUAL_URL', obj.absolute_url() + '/@@send_to_plonemeeting')
-        self.request.set('QUERY_STRING', 'meetingConfigId=plonemeeting-assembly&proposingGroupId=developers')
-        self.request.set('meetingConfigId', 'plonemeeting-assembly')
-        self.request.set('proposingGroupId', 'developers')
-        obj.restrictedTraverse('@@send_to_plonemeeting')()
-        transaction.commit()
-        return self.portal.portal_catalog(portal_type='MeetingItemPma', Title=obj.Title())[0].getObject()
 
 
 def test_suite():

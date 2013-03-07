@@ -33,7 +33,8 @@ from Products.CMFCore.ActionInformation import Action
 from Products.statusmessages.interfaces import IStatusMessage
 
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
-from imio.pm.wsclient.config import ACTION_SUFFIX, WS4PMCLIENT_ANNOTATION_KEY
+from imio.pm.wsclient.config import ACTION_SUFFIX, WS4PMCLIENT_ANNOTATION_KEY, \
+                                    CONFIG_UNABLE_TO_CONNECT_TO_PM_ERROR, CONFIG_CREATE_ITEM_PM_ERROR
 
 
 class IGeneratedActionsSchema(Interface):
@@ -232,8 +233,8 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         except:
             # if we are really on the configuration panel, display relevant message
             if self.request.get('PATH_INFO', '').endswith('@@ws4pmclient-settings'):
-                IStatusMessage(self.request).addStatusMessage(_(u"Unable to connect with given url/username/password!"),
-                                                              "warning")
+                IStatusMessage(self.request).addStatusMessage(_(CONFIG_UNABLE_TO_CONNECT_TO_PM_ERROR),
+                                                              "error")
             return None
         return client
 
@@ -302,9 +303,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 uid, warnings = client.service.createItem(meetingConfigId, proposingGroupId, creationData, inTheNameOf)
                 return uid, warnings
             except Exception, exc:
-                IStatusMessage(self.request).addStatusMessage(_(u"An error occured during the item creation in " \
-                                                                "PloneMeeting!  The error message was : %s" % exc),
-                                                              "error")
+                IStatusMessage(self.request).addStatusMessage(_(CONFIG_CREATE_ITEM_PM_ERROR % exc), "error")
 
     def _getUserIdToUseInTheNameOfWith(self):
         """

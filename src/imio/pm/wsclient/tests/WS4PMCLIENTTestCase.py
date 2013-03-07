@@ -20,6 +20,7 @@
 # 02110-1301, USA.
 #
 
+import transaction
 from Acquisition import aq_base
 
 from zope.annotation.interfaces import IAnnotations
@@ -37,6 +38,27 @@ class WS4PMCLIENTTestCase(PloneMeetingTestCase):
     def setUp(self):
         """ """
         PloneMeetingTestCase.setUp(self)
+
+    def _sendToPloneMeeting(self, obj):
+        """
+          Helper method for sending an element to PloneMeeting
+        """
+        # set correct config
+        setCorrectSettingsConfig(self.portal)
+        # create the 'pmCreator1' member area to be able to create an item
+        self.tool.getPloneMeetingFolder('plonemeeting-assembly', 'pmCreator1')
+        # we have to commit() here or portal used behing the SOAP call
+        # does not have the freshly created item...
+        transaction.commit()
+        # use the 'send_to_plonemeeting' view
+        self.request.set('URL', obj.absolute_url())
+        self.request.set('ACTUAL_URL', obj.absolute_url() + '/@@send_to_plonemeeting')
+        self.request.set('QUERY_STRING', 'meetingConfigId=plonemeeting-assembly&proposingGroupId=developers')
+        self.request.set('meetingConfigId', 'plonemeeting-assembly')
+        self.request.set('proposingGroupId', 'developers')
+        obj.restrictedTraverse('@@send_to_plonemeeting')()
+        transaction.commit()
+        return self.portal.portal_catalog(portal_type='MeetingItemPma', Title=obj.Title())[0].getObject()
 
 
 def setCorrectSettingsConfig(portal, minimal=False, withValidation=True, **kwargs):

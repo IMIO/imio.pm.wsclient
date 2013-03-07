@@ -25,7 +25,7 @@
     <!-- View that generates a document of an item -->
     <browser:page
         for="*"
-        name="generate_document"
+        name="generate_document_from_plonemeeting"
         class=".views.GenerateItemTemplateView"
         permission="zope2.SOAPClientAccess"
       />

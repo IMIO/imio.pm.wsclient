@@ -29,10 +29,13 @@ from zope.component import getMultiAdapter
 
 from Products.statusmessages.interfaces import IStatusMessage
 
-from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY
+from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY, UNABLE_TO_CONNECT_ERROR, \
+                                    UNABLE_TO_DETECT_MIMETYPE_ERROR, FILENAME_MANDATORY_ERROR, \
+                                    CORRECTLY_SENT_TO_PM_INFO, ALREADY_SENT_TO_PM_ERROR
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, \
                                                        setCorrectSettingsConfig, \
-                                                       createDocument
+                                                       createDocument, \
+                                                       cleanMemoize
 
 
 class testViews(WS4PMCLIENTTestCase):
@@ -53,9 +56,7 @@ class testViews(WS4PMCLIENTTestCase):
         # call the view
         view()
         self.assertTrue(len(messages.show()) == 1)
-        self.assertEquals(messages.show()[0].message,
-                          "Unable to connect to PloneMeeting, check the 'WS4PM Client settings'! "\
-                          "Please contact system administrator!")
+        self.assertEquals(messages.show()[0].message, UNABLE_TO_CONNECT_ERROR)
 
     def test_canNotExecuteWrongAction(self):
         """While calling the view to execute an action, we check if the user can actually
@@ -137,7 +138,7 @@ class testViews(WS4PMCLIENTTestCase):
         messages = IStatusMessage(self.request)
         # there is one message saying that the item was correctly sent
         self.assertTrue(len(messages.show()) == 1)
-        self.assertEquals(messages.show()[0].message, u"The item has been correctly sent to PloneMeeting.")
+        self.assertEquals(messages.show()[0].message, CORRECTLY_SENT_TO_PM_INFO)
         # send again
         view()
         # the item is not created again
@@ -146,7 +147,7 @@ class testViews(WS4PMCLIENTTestCase):
         self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 1)
         # a warning is displayed to the user
         self.assertTrue(len(messages.show()) == 2)
-        self.assertEquals(messages.show()[1].message, u"This element has already been sent to PloneMeeting!")
+        self.assertEquals(messages.show()[1].message, ALREADY_SENT_TO_PM_ERROR)
         # if we remove the item in PloneMeeting, the view is aware of it
         itemUID = ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})[0]['UID']
         item = self.portal.uid_catalog(UID=itemUID)[0].getObject()
@@ -192,6 +193,68 @@ class testViews(WS4PMCLIENTTestCase):
         # wipe out annotations
         view.ws4pmSettings.checkAlreadySentToPloneMeeting(document)
         self.assertFalse(WS4PMCLIENT_ANNOTATION_KEY in annotations)
+
+    def test_generateItemTemplateView(self):
+        """
+        """
+        self.changeUser('admin')
+        messages = IStatusMessage(self.request)
+        document = createDocument(self.portal)
+        DOCUMENT_ABSOLUTE_URL = document.absolute_url()
+        # we must obviously be connected to PM...
+        view = document.restrictedTraverse('@@generate_document_from_plonemeeting')
+        # nothing is generated, just redirected to the context
+        self.assertFalse(view() != DOCUMENT_ABSOLUTE_URL)
+        self.assertTrue(len(messages.show()) == 1)
+        self.assertTrue(messages.show()[0].message == UNABLE_TO_CONNECT_ERROR)
+        #_soap_connectToPloneMeeting is memoized...
+        cleanMemoize(self.request)
+        item = self._sendToPloneMeeting(document)
+        # a statusmessage for having created the item successfully
+        self.assertTrue(len(messages.show()) == 2)
+        self.assertTrue(messages.show()[1].message == CORRECTLY_SENT_TO_PM_INFO)
+        view = document.restrictedTraverse('@@generate_document_from_plonemeeting')
+        # with no templateFormat defined, the mimetype can not be determined
+        # an error statusmessage is displayed
+        # last added statusmessage
+        # nothing is generated, just redirected to the context
+        self.assertFalse(view() != DOCUMENT_ABSOLUTE_URL)
+        self.assertTrue(len(messages.show()) == 3)
+        self.assertTrue(messages.show()[2].message == UNABLE_TO_DETECT_MIMETYPE_ERROR)
+        self.request.set('templateFormat', 'odt')
+        # if no templateFilename, an error is displayed, nothing is generated
+        view = document.restrictedTraverse('@@generate_document_from_plonemeeting')
+        # nothing is generated, just redirected to the context
+        self.assertFalse(view() != DOCUMENT_ABSOLUTE_URL)
+        self.assertTrue(len(messages.show()) == 4)
+        self.assertTrue(messages.show()[3].message == FILENAME_MANDATORY_ERROR)
+        # if not valid itemUID defined, the item can not be found and so accessed
+        self.request.set('templateFilename', 'filename')
+        view = document.restrictedTraverse('@@generate_document_from_plonemeeting')
+        # nothing is generated, just redirected to the context
+        self.assertFalse(view() != DOCUMENT_ABSOLUTE_URL)
+        self.assertTrue(len(messages.show()) == 5)
+        self.assertTrue(messages.show()[4].message == u"An error occured while generating the document in " \
+                    "PloneMeeting!  The error message was : Server raised fault: 'You can not access this item!'")
+        # now with a valid itemUID but no valid templateId
+        self.request.set('itemUID', item.UID())
+        view = document.restrictedTraverse('@@generate_document_from_plonemeeting')
+        # nothing is generated, just redirected to the context
+        self.assertFalse(view() != DOCUMENT_ABSOLUTE_URL)
+        self.assertTrue(len(messages.show()) == 6)
+        self.assertTrue(messages.show()[5].message == u"An error occured while generating the document in " \
+                    "PloneMeeting!  The error message was : Server raised fault: 'You can not access this template!'")
+        # now with all valid infos
+        self.request.set('templateId', 'itemTemplate')
+        view = document.restrictedTraverse('@@generate_document_from_plonemeeting')
+        res = view()
+        # with have a real result, aka not redirected to the context, a file
+        self.assertTrue(view() != DOCUMENT_ABSOLUTE_URL)
+        self.assertTrue(len(res) > 10000)
+        self.assertEquals(self.request.response.headers,
+                          {'content-type': 'application/vnd.oasis.opendocument.text',
+                           'location': 'http://localhost:55001/plone/document',
+                           'content-disposition': 'inline;filename="filename.odt"'})
 
 
 def test_suite():
