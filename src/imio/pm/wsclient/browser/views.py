@@ -36,10 +36,8 @@ class SendToPloneMeetingView(BrowserView):
         # False if not already sent, in this case we can proceed...
         alreadySent = self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context, (self.meetingConfigId,))
         if alreadySent:
-            IStatusMessage(self.request).addStatusMessage(
-                _(ALREADY_SENT_TO_PM_ERROR),
-                "error")
-            return self.request.RESPONSE.redirect(self.context.absolute_url())
+            IStatusMessage(self.request).addStatusMessage(_(ALREADY_SENT_TO_PM_ERROR), "error")
+            return self._redirectToRightPlace()
         elif alreadySent in (None, False):
             # None means that it was already sent but that it could not connect to PloneMeeting
             # False means that is was not sent, so no connection test is made to PloneMeeting for performance reason
@@ -48,56 +46,68 @@ class SendToPloneMeetingView(BrowserView):
                 client = self.ws4pmSettings._soap_connectToPloneMeeting()
             if not client or alreadySent == None:
                 IStatusMessage(self.request).addStatusMessage(_(UNABLE_TO_CONNECT_ERROR), "error")
-                return self.request.RESPONSE.redirect(self.context.absolute_url())
+                return self._redirectToRightPlace()
 
-        # now that we can connect to the webservice, check that the user can actually trigger that action
-        # indeed parameters are sent thru the request, and so someone could do nasty things...
-        # check that the real currentUrl is on available in object_buttons actions for the user
-        availableActions = self.portal.portal_actions.listFilteredActionsFor(self.context).get('object_buttons', [])
-        # rebuild real url called by the action
-        currentUrl = unicode(self.request['ACTUAL_URL'] + '?' + self.request['QUERY_STRING'], 'utf-8')
-        # now check if this url is available in the actions for the user
-        mayDoAction = False
-        for action in availableActions:
-            if action['url'] == currentUrl:
-                mayDoAction = True
-                break
-        if not mayDoAction:
-            raise Unauthorized
+        form = self.request.form
+        submitted = form.get('form.submitted', False)
+        if submitted:
+            # now that we can connect to the webservice, check that the user can actually trigger that action
+            # indeed parameters are sent thru the request, and so someone could do nasty things...
+            # check that the real currentUrl is on available in object_buttons actions for the user
+            availableActions = self.portal.portal_actions.listFilteredActionsFor(self.context).get('object_buttons', [])
+            # rebuild real url called by the action
+            currentUrl = unicode(self.request['ACTUAL_URL'] + '?' + self.request['referer_query_string'], 'utf-8')
+            # remove eventual ajax_load parameter...  this is automatically added to the QUERY_STRING
+            # if the view is called thru a jQuery overlay...
+            try:
+                ajax_load_index = currentUrl.index('&ajax_load=')
+                currentUrl = currentUrl[:ajax_load_index]
+            except:
+                # if the ajax_load parameter is not found, do nothing...
+                pass
+            # now check if this url is available in the actions for the user
+            mayDoAction = False
+            for action in availableActions:
+                if action['url'] == currentUrl:
+                    mayDoAction = True
+                    break
+            if not mayDoAction:
+                raise Unauthorized
 
-        # build the creationData
+            # build the creationData
+            creation_data = self._buildCreationData(client)
 
-        creation_data = self._buildCreationData(client)
-
-        # call the SOAP method actually creating the item
-        res = self.ws4pmSettings._soap_createItem(self.meetingConfigId,
-                                             self.proposingGroupId,
-                                             creation_data)
-        if res:
-            uid, warnings = res
-            IStatusMessage(self.request).addStatusMessage(_(CORRECTLY_SENT_TO_PM_INFO),
-                                                          "info")
-            if warnings:
-                for warning in warnings[1]:
-                    # show warnings in the web interface and add it to the Zope log
-                    # do not show the DEFAULT_NO_WARNING_MESSAGE
-                    if warning == DEFAULT_NO_WARNING_MESSAGE:
-                        continue
-                    else:
-                        type = "warning"
-                        logger.warning(warning)
-                        IStatusMessage(self.request).addStatusMessage(_(warning), type)
-            # finally save in the self.context annotation that the item has been sent
-            annotations = IAnnotations(self.context)
-            if not WS4PMCLIENT_ANNOTATION_KEY in annotations:
-                annotations[WS4PMCLIENT_ANNOTATION_KEY] = [self.meetingConfigId, ]
-            else:
-                # do not use .append directly on the annotations or it does not save
-                # correctly and when Zope restarts, the added annotation is lost???
-                existingAnnotations = list(annotations[WS4PMCLIENT_ANNOTATION_KEY])
-                existingAnnotations.append(self.meetingConfigId)
-                annotations[WS4PMCLIENT_ANNOTATION_KEY] = existingAnnotations
-        return self.request.RESPONSE.redirect(self.context.absolute_url())
+            # call the SOAP method actually creating the item
+            res = self.ws4pmSettings._soap_createItem(self.meetingConfigId,
+                                                 self.proposingGroupId,
+                                                 creation_data)
+            if res:
+                uid, warnings = res
+                IStatusMessage(self.request).addStatusMessage(_(CORRECTLY_SENT_TO_PM_INFO),
+                                                              "info")
+                if warnings:
+                    for warning in warnings[1]:
+                        # show warnings in the web interface and add it to the Zope log
+                        # do not show the DEFAULT_NO_WARNING_MESSAGE
+                        if warning == DEFAULT_NO_WARNING_MESSAGE:
+                            continue
+                        else:
+                            type = "warning"
+                            logger.warning(warning)
+                            IStatusMessage(self.request).addStatusMessage(_(warning), type)
+                # finally save in the self.context annotation that the item has been sent
+                annotations = IAnnotations(self.context)
+                if not WS4PMCLIENT_ANNOTATION_KEY in annotations:
+                    annotations[WS4PMCLIENT_ANNOTATION_KEY] = [self.meetingConfigId, ]
+                else:
+                    # do not use .append directly on the annotations or it does not save
+                    # correctly and when Zope restarts, the added annotation is lost???
+                    existingAnnotations = list(annotations[WS4PMCLIENT_ANNOTATION_KEY])
+                    existingAnnotations.append(self.meetingConfigId)
+                    annotations[WS4PMCLIENT_ANNOTATION_KEY] = existingAnnotations
+            self._redirectToRightPlace()
+        else:
+            return self.index()
 
     def _buildCreationData(self, client):
         """
@@ -132,6 +142,18 @@ class SendToPloneMeetingView(BrowserView):
         creation_data['externalIdentifier'] = self.context.UID()
         return creation_data
 
+    def _redirectToRightPlace(self):
+        """
+          Depending on the fact that we are using a popup overlay or not,
+          if not in a popupoverlay redirect to context url so the message is displayed
+        """
+        if not 'ajax_load' in self.request:
+            return self.request.RESPONSE.redirect(self.context.absolute_url())
+        else:
+            # tells the overlay popup that there are just messages to display
+            self.request.set('show_send_to_pm_form', False)
+            return self.index()
+
 
 class GenerateItemTemplateView(BrowserView):
     """
@@ -150,7 +172,8 @@ class GenerateItemTemplateView(BrowserView):
         self.templateFormat = self.request.get('templateFormat', '')
 
     def __call__(self):
-        # now connect to PloneMeeting
+        """ """
+        # first check that we can connect to PloneMeeting
         client = self.ws4pmSettings._soap_connectToPloneMeeting()
         if not client:
             IStatusMessage(self.request).addStatusMessage(_(UNABLE_TO_CONNECT_ERROR), "error")

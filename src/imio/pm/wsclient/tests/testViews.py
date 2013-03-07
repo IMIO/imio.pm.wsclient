@@ -71,10 +71,11 @@ class testViews(WS4PMCLIENTTestCase):
         # available to the user
         self.request.set('URL', document.absolute_url())
         self.request.set('ACTUAL_URL', document.absolute_url() + '/@@send_to_plonemeeting')
-        self.request.set('QUERY_STRING',
+        self.request.set('referer_query_string',
                          'meetingConfigId=plonemeeting-assembly&proposingGroupId=anUnexistingProposingGroup')
         self.request.set('meetingConfigId', 'plonemeeting-assembly')
         self.request.set('proposingGroupId', 'anUnexistingProposingGroup')
+        self.request.form['form.submitted'] = True
         view = document.restrictedTraverse('@@send_to_plonemeeting')
         self.assertRaises(Unauthorized, view)
 
@@ -87,9 +88,10 @@ class testViews(WS4PMCLIENTTestCase):
         document = createDocument(self.portal.Members.pmCreator1)
         self.request.set('URL', document.absolute_url())
         self.request.set('ACTUAL_URL', document.absolute_url() + '/@@send_to_plonemeeting')
-        self.request.set('QUERY_STRING', 'meetingConfigId=plonemeeting-assembly&proposingGroupId=developers')
+        self.request.set('referer_query_string', 'meetingConfigId=plonemeeting-assembly&proposingGroupId=developers')
         self.request.set('meetingConfigId', 'plonemeeting-assembly')
         self.request.set('proposingGroupId', 'developers')
+        self.request.form['form.submitted'] = True
         view = document.restrictedTraverse('@@send_to_plonemeeting')
         # before sending, no item is linked to the document
         self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 0)
@@ -113,9 +115,10 @@ class testViews(WS4PMCLIENTTestCase):
         document = createDocument(self.portal.Members.pmCreator1)
         self.request.set('URL', document.absolute_url())
         self.request.set('ACTUAL_URL', document.absolute_url() + '/@@send_to_plonemeeting')
-        self.request.set('QUERY_STRING', 'meetingConfigId=plonemeeting-assembly&proposingGroupId=developers')
+        self.request.set('referer_query_string', 'meetingConfigId=plonemeeting-assembly&proposingGroupId=developers')
         self.request.set('meetingConfigId', 'plonemeeting-assembly')
         self.request.set('proposingGroupId', 'developers')
+        self.request.form['form.submitted'] = True
         view = document.restrictedTraverse('@@send_to_plonemeeting')
         # create the 'pmCreator1' member area to be able to create an item
         self.tool.getPloneMeetingFolder('plonemeeting-assembly', 'pmCreator1')

@@ -20,6 +20,7 @@
         name="send_to_plonemeeting"
         class=".views.SendToPloneMeetingView"
         permission="zope2.SOAPClientAccess"
+        template="templates/send_to_plonemeeting.pt"
       />
 
     <!-- View that generates a document of an item -->
@@ -67,6 +68,12 @@
     <browser:resourceDirectory
         name="imio.pm.wsclient.images"
         directory="images"
+    />
+
+    <!-- Resource directory for js -->
+    <browser:resourceDirectory
+        name="imio.pm.wsclient.javascripts"
+        directory="javascripts"
     />
 
 </configure>
