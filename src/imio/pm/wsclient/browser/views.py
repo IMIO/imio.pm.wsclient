@@ -56,19 +56,7 @@ class SendToPloneMeetingView(BrowserView):
             # check that the real currentUrl is on available in object_buttons actions for the user
             availableActions = self.portal.portal_actions.listFilteredActionsFor(self.context).get('object_buttons', [])
             # rebuild real url called by the action
-            # if we come from the intermediate form, we have a 'referer_query_string' in the REQUEST
-            # if we are here directly because a proposingGroupId was already given in the REQUEST, we have 'QUERY_STRING'
-            currentUrl = unicode(self.request['ACTUAL_URL'] + '?' +
-                                 (self.request['QUERY_STRING'] or self.request['referer_query_string']),
-                                 'utf-8')
-            # remove eventual ajax_load parameter...  this is automatically added to the QUERY_STRING
-            # if the view is called thru a jQuery overlay...
-            try:
-                ajax_load_index = currentUrl.index('&ajax_load=')
-                currentUrl = currentUrl[:ajax_load_index]
-            except:
-                # if the ajax_load parameter is not found, do nothing...
-                pass
+            currentUrl = unicode(self.request['ACTUAL_URL'] + '?meetingConfigId=' + self.meetingConfigId, 'utf-8')
             # now check if this url is available in the actions for the user
             mayDoAction = False
             for action in availableActions:
@@ -149,7 +137,7 @@ class SendToPloneMeetingView(BrowserView):
     def _redirectToRightPlace(self):
         """
           Depending on the fact that we are using a popup overlay or not,
-          if not in a popupoverlay redirect to context url so the message is displayed
+          if not in a popup overlay redirect to context url so the message is displayed
         """
         if not 'ajax_load' in self.request:
             return self.request.RESPONSE.redirect(self.context.absolute_url())
