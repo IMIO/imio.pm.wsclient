@@ -89,7 +89,7 @@ class testViews(WS4PMCLIENTTestCase):
         self.request.set('referer_query_string', 'meetingConfigId=plonemeeting-assembly')
         self.request.set('meetingConfigId', 'plonemeeting-assembly')
         self.request.set('proposingGroupId', 'developers')
-        self.request.form['form.submitted'] = True
+        self.request.form['form.submitted'] = False
         view = document.restrictedTraverse('@@send_to_plonemeeting')
         # before sending, no item is linked to the document
         self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 0)
@@ -99,7 +99,18 @@ class testViews(WS4PMCLIENTTestCase):
         # does not have the freshly created member area...
         transaction.commit()
         # send to PloneMeeting
-        view()
+        # as form.submitted is False, nothing is done but returning the views's index
+        # the form for sending an element is displayed
+        form_action = '<form id="sendToPMForm" method="post" ' \
+                      'action="http://localhost:55001/plone/Members/pmCreator1/document/@@send_to_plonemeeting">'
+        self.assertTrue(form_action in view())
+        self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 0)
+        # not set form.submitted to True so the element is sent to PM
+        self.request.form['form.submitted'] = True
+        view = document.restrictedTraverse('@@send_to_plonemeeting')
+        transaction.commit()
+        # while the element is sent, the view will return nothing...
+        self.assertFalse(view())
         # now that the element has been sent, an item is linked to the document
         self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 1)
 
