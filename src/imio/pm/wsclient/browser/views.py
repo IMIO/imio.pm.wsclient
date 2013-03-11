@@ -12,7 +12,8 @@ from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import DEFAULT_NO_WARNING_MESSAGE, WS4PMCLIENT_ANNOTATION_KEY, \
                                     UNABLE_TO_CONNECT_ERROR, ALREADY_SENT_TO_PM_ERROR, \
                                     CORRECTLY_SENT_TO_PM_INFO, UNABLE_TO_DETECT_MIMETYPE_ERROR, \
-                                    FILENAME_MANDATORY_ERROR, TAL_EVAL_FIELD_ERROR
+                                    FILENAME_MANDATORY_ERROR, TAL_EVAL_FIELD_ERROR, \
+                                    NO_PROPOSING_GROUP_ERROR
 
 
 class SendToPloneMeetingView(BrowserView):
@@ -44,13 +45,21 @@ class SendToPloneMeetingView(BrowserView):
             if alreadySent == False:
                 # now connect to PloneMeeting
                 client = self.ws4pmSettings._soap_connectToPloneMeeting()
-            if not client or alreadySent == None:
+            if alreadySent == None or not client:
                 IStatusMessage(self.request).addStatusMessage(_(UNABLE_TO_CONNECT_ERROR), "error")
                 return self._redirectToRightPlace()
 
+        # do not go further if current user can not create an item in
+        # PloneMeeting with any proposingGroup
+        userInfos = self.ws4pmSettings._soap_getUserInfos(showGroups=True, suffix='creators')
+        if not 'groups' in userInfos:
+            userThatWillCreate = self.ws4pmSettings._getUserIdToUseInTheNameOfWith()
+            IStatusMessage(self.request).addStatusMessage(_(NO_PROPOSING_GROUP_ERROR % userThatWillCreate), "error")
+            return self._redirectToRightPlace()
+
         form = self.request.form
         submitted = form.get('form.submitted', False)
-        if submitted:
+        if submitted and 'form.button.Send' in self.request.form:
             # now that we can connect to the webservice, check that the user can actually trigger that action
             # indeed parameters are sent thru the request, and so someone could do nasty things...
             # check that the real currentUrl is on available in object_buttons actions for the user
@@ -97,6 +106,9 @@ class SendToPloneMeetingView(BrowserView):
                     existingAnnotations = list(annotations[WS4PMCLIENT_ANNOTATION_KEY])
                     existingAnnotations.append(self.meetingConfigId)
                     annotations[WS4PMCLIENT_ANNOTATION_KEY] = existingAnnotations
+            self._redirectToRightPlace()
+        elif 'form.button.Cancel' in self.request.form:
+            # case when not using the overlay popup
             self._redirectToRightPlace()
         else:
             return self.index()
@@ -145,6 +157,19 @@ class SendToPloneMeetingView(BrowserView):
             # tells the overlay popup that there are just messages to display
             self.request.set('show_send_to_pm_form', False)
             return self.index()
+
+    def initProposingGroupId(self):
+        '''
+          Initialize values for the 'proposingGroup' form field
+        '''
+        res = []
+        userInfos = self.ws4pmSettings._soap_getUserInfos(showGroups=True, suffix='creators')
+        if not 'groups' in userInfos:
+            return []
+        res = []
+        for group in userInfos['groups']:
+            res.append((group['id'], group['title'],))
+        return res
 
 
 class GenerateItemTemplateView(BrowserView):

@@ -20,6 +20,7 @@ UNABLE_TO_DISPLAY_VIEWLET_ERROR = u"Unable to display informations about the pot
             "The error was : '%s'.  Please contact system administrator."
 CONFIG_UNABLE_TO_CONNECT_TO_PM_ERROR = u"Unable to connect with given url/username/password!"
 CONFIG_CREATE_ITEM_PM_ERROR = u"An error occured during the item creation in PloneMeeting!  The error message was : %s"
-
+NO_PROPOSING_GROUP_ERROR = u"The configuration specify that user '%s' will create the item in PloneMeeting but this " \
+                           "user can not create item for any proposingGroup in PloneMeeting!"
 # annotations key
 WS4PMCLIENT_ANNOTATION_KEY = "imio.pm.wsclient-sent_to"

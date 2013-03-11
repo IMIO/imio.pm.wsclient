@@ -246,6 +246,15 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         if client is not None:
             return client.service.getConfigInfos('')
 
+    @memoize
+    def _soap_getUserInfos(self, showGroups=False, suffix=''):
+        """Query the getConfigInfos SOAP server method."""
+        client = self._soap_connectToPloneMeeting()
+        if client is not None:
+            # get the inTheNameOf userid if it was not already set
+            userId = self._getUserIdToUseInTheNameOfWith()
+            return client.service.getUserInfos(userId, showGroups, suffix)
+
     def _soap_searchItems(self, data):
         """Query the searchItems SOAP server method."""
         client = self._soap_connectToPloneMeeting()

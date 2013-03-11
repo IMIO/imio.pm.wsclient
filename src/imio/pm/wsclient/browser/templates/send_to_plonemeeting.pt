@@ -10,13 +10,18 @@
   <metal:fill fill-slot="main" tal:condition="request/show_send_to_pm_form|python:True">
     <h1 class="documentFirstHeading" tal:content="context/Title">Title</h1>
     <form id="sendToPMForm" method="post" tal:attributes="action python:context.absolute_url() + '/@@send_to_plonemeeting'">
+    <select id="proposingGroupSelect" name="proposingGroupId" tal:define="proposingGroupIds view/initProposingGroupId">
+      <option tal:repeat="proposingGroupId proposingGroupIds"
+              tal:attributes="value python: proposingGroupId[0]"
+              tal:content="python: proposingGroupId[1]">proposingGroupId Title</option>
+    </select><br/><br/>
     <input type="hidden" name="meetingConfigId" value="#" tal:attributes="value context/REQUEST/meetingConfigId|nothing" />
     <input type="hidden" name="referer_query_string" value="#" tal:attributes="value context/REQUEST/QUERY_STRING|nothing" />
-    <input type="text" name="proposingGroupId" value="personnel" />
 
     <div align="center">
       <input type="hidden" name="form.submitted:boolean" value="True" />
-      <input type="submit" class="context" value="Send" i18n:attributes="value" i18n:domain="plone"/>
+      <input type="submit" name="form.button.Send" class="context" value="Send" i18n:attributes="value" i18n:domain="plone"/>
+      <input type="submit" name="form.button.Cancel" class="standalone" value="Cancel" i18n:attributes="value" i18n:domain="plone"/>
     </div>
     </form>
   </metal:fill>
