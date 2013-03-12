@@ -1,11 +1,5 @@
-<tal:comment replace="nothing">If available returns a tuple, we display it, it is an information message</tal:comment>
-<tal:showInfos condition="python: isinstance(view.available(), tuple)">
-<dl tal:define="infos view/available" class="portalMessage info" tal:attributes="class python: 'portalMessage %s' % infos[1]">
-    <dt i18n:translate="" tal:content="python: infos[1]">Level</dt>
-    <dd tal:content="python: infos[0]">Message</dd>
-</dl>
-</tal:showInfos>
-<tal:available condition="python: view.available() == True">
+<tal:comment replace="nothing">Either show error messages or display relevant informations about PM linked item</tal:comment>
+<tal:available tal:define="available view/available" condition="python: available == True or isinstance(available, tuple)">
 <tal:block define="items view/getPloneMeetingLinkedInfos;
                    DateTime python:modules['DateTime'].DateTime;
                    toLocalizedTime nocall:context/@@plone/toLocalizedTime;
@@ -14,7 +8,13 @@
 
     <fieldset><legend>PloneMeeting informations</legend>
     <p class="discreet" i18n:translate="pm_informations_help">You see these informations because the current element has been sent to PloneMeeting.</p>
-        <table class="listing">
+        <tal:showInfos condition="python: isinstance(available, tuple)">
+        <dl tal:define="infos view/available" class="portalMessage info" tal:attributes="class python: 'portalMessage %s' % infos[1]">
+          <dt i18n:translate="" tal:content="python: infos[1]">Level</dt>
+          <dd tal:content="python: infos[0]">Message</dd>
+        </dl>
+        </tal:showInfos>
+        <table class="listing" tal:condition="python: available == True">
             <thead i18n:domain="PloneMeeting">
                <th i18n:translate="listingheader_title">Title</th>
                <th i18n:translate="pm_creator">Creator</th>
