@@ -8,6 +8,7 @@
       i18n:domain="imio.pm.wsclient">
   <body>
   <metal:fill fill-slot="main" tal:condition="request/show_send_to_pm_form|python:True">
+    <p i18n:translate="send_to_plonemeeting_descr">Here is a resume of what will be send to PloneMeeting :</p>
     <h1 class="documentFirstHeading" tal:content="context/Title">Title</h1>
     <form id="sendToPMForm" method="post" tal:attributes="action python:context.absolute_url() + '/@@send_to_plonemeeting'">
     <select id="proposingGroupSelect" name="proposingGroupId" tal:define="proposingGroupIds view/initProposingGroupId">

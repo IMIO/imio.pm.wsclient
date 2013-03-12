@@ -63,6 +63,7 @@ class testSettings(unittest2.TestCase):
         self.assertEquals(fields, ['field_mappings',
                                    'generated_actions',
                                    'pm_password',
+                                   'pm_timeout',
                                    'pm_url',
                                    'pm_username',
                                    'user_mappings',

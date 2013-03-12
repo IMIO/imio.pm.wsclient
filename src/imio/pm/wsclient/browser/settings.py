@@ -76,6 +76,14 @@ class IWS4PMClientSettings(Interface):
         description=_(u"Enter the PloneMeeting WSDL URL you want to work with."),
         required=True,
         )
+    pm_timeout = schema.Int(
+        title=_(u"PloneMeeting connection timeout"),
+        description=_(u"Enter the timeout while connecting to PloneMeeting.  Do not set a too high timeout because " \
+                      "it will impact the load of the viewlet showing PM infos on an sent element.  " \
+                      "Default is '10' seconds."),
+        default=10,
+        required=True,
+        )
     pm_username = schema.TextLine(
         title=_("PloneMeeting username to use"),
         required=True
@@ -218,11 +226,12 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         url = self.request.form.get('form.widgets.pm_url') or settings.pm_url
         username = self.request.form.get('form.widgets.pm_username') or settings.pm_username
         password = self.request.form.get('form.widgets.pm_password') or settings.pm_password
+        timeout = self.request.form.get('form.widgets.pm_timeout') or settings.pm_timeout
         imp = Import('http://schemas.xmlsoap.org/soap/encoding/')
         d = ImportDoctor(imp)
         t = HttpAuthenticated(username=username, password=password)
         try:
-            client = Client(url, doctor=d, transport=t)
+            client = Client(url, doctor=d, transport=t, timeout=timeout)
             # call a SOAP server test method to check that everything is fine with given parameters
             client.service.testConnection('')
         except Exception, e:
