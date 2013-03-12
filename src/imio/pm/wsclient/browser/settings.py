@@ -34,7 +34,7 @@ from Products.statusmessages.interfaces import IStatusMessage
 
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import ACTION_SUFFIX, WS4PMCLIENT_ANNOTATION_KEY, \
-                                    CONFIG_UNABLE_TO_CONNECT_TO_PM_ERROR, CONFIG_CREATE_ITEM_PM_ERROR
+                                    CONFIG_UNABLE_TO_CONNECT_ERROR, CONFIG_CREATE_ITEM_PM_ERROR
 
 
 class IGeneratedActionsSchema(Interface):
@@ -225,10 +225,10 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             client = Client(url, doctor=d, transport=t)
             # call a SOAP server test method to check that everything is fine with given parameters
             client.service.testConnection('')
-        except:
+        except Exception, e:
             # if we are really on the configuration panel, display relevant message
             if self.request.get('PATH_INFO', '').endswith('@@ws4pmclient-settings'):
-                IStatusMessage(self.request).addStatusMessage(_(CONFIG_UNABLE_TO_CONNECT_TO_PM_ERROR),
+                IStatusMessage(self.request).addStatusMessage(_(CONFIG_UNABLE_TO_CONNECT_ERROR % (e.message or str(e.reason))),
                                                               "error")
             return None
         return client
