@@ -169,6 +169,15 @@ class SendToPloneMeetingView(BrowserView):
             res.append((group['id'], group['title'],))
         return res
 
+    def getGeneratedData(self):
+        """
+        """
+        return (
+                {'name': 'title', 'value': 'My beautiful title'},
+                {'name': 'description', 'value': '<p>My description</p>'},
+                {'name': 'decision', 'value': '<p>My decision</p>'},
+               )
+
 
 class GenerateItemTemplateView(BrowserView):
     """
