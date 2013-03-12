@@ -1,5 +1,5 @@
 <tal:comment replace="nothing">Either show error messages or display relevant informations about PM linked item</tal:comment>
-<tal:available tal:define="available view/available" condition="python: available == True or isinstance(available, tuple)">
+<tal:available tal:define="available view/available" condition="python: available is True or isinstance(available, tuple)">
 <tal:block define="items view/getPloneMeetingLinkedInfos;
                    DateTime python:modules['DateTime'].DateTime;
                    toLocalizedTime nocall:context/@@plone/toLocalizedTime;
@@ -14,7 +14,7 @@
           <dd tal:content="python: infos[0]">Message</dd>
         </dl>
         </tal:showInfos>
-        <table class="listing" tal:condition="python: available == True">
+        <table class="listing" tal:condition="python: available is True">
             <thead i18n:domain="PloneMeeting">
                <th i18n:translate="listingheader_title">Title</th>
                <th i18n:translate="pm_creator">Creator</th>
