@@ -56,7 +56,7 @@ class WS4PMCLIENTTestCase(PloneMeetingTestCase):
         self.request.set('referer_query_string', 'meetingConfigId=plonemeeting-assembly')
         self.request.set('meetingConfigId', 'plonemeeting-assembly')
         self.request.set('proposingGroupId', 'developers')
-        self.request.form['form.submitted'] = True
+        self.request.form['form.button.Send'] = 'Send'
         obj.restrictedTraverse('@@send_to_plonemeeting')()
         transaction.commit()
         return self.portal.portal_catalog(portal_type='MeetingItemPma', Title=obj.Title())[0].getObject()

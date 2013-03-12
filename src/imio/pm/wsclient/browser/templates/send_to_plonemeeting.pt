@@ -19,7 +19,6 @@
     <input type="hidden" name="referer_query_string" value="#" tal:attributes="value context/REQUEST/QUERY_STRING|nothing" />
 
     <div align="center">
-      <input type="hidden" name="form.submitted:boolean" value="True" />
       <input type="submit" name="form.button.Send" class="context" value="Send" i18n:attributes="value" i18n:domain="plone"/>
       <input type="submit" name="form.button.Cancel" class="standalone" value="Cancel" i18n:attributes="value" i18n:domain="plone"/>
     </div>

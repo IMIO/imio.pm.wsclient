@@ -73,7 +73,7 @@ class testViews(WS4PMCLIENTTestCase):
         self.request.set('ACTUAL_URL', document.absolute_url() + '/@@send_to_plonemeeting')
         self.request.set('referer_query_string',
                          'meetingConfigId=wrong-meeting-config-id')
-        self.request.form['form.submitted'] = True
+        self.request.form['form.button.Send'] = 'Send'
         view = document.restrictedTraverse('@@send_to_plonemeeting')
         self.assertRaises(Unauthorized, view)
 
@@ -89,7 +89,6 @@ class testViews(WS4PMCLIENTTestCase):
         self.request.set('referer_query_string', 'meetingConfigId=plonemeeting-assembly')
         self.request.set('meetingConfigId', 'plonemeeting-assembly')
         self.request.set('proposingGroupId', 'developers')
-        self.request.form['form.submitted'] = False
         view = document.restrictedTraverse('@@send_to_plonemeeting')
         # before sending, no item is linked to the document
         self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 0)
@@ -99,14 +98,14 @@ class testViews(WS4PMCLIENTTestCase):
         # does not have the freshly created member area...
         transaction.commit()
         # send to PloneMeeting
-        # as form.submitted is False, nothing is done but returning the views's index
+        # as form.button.Send is not in the form, nothing is done but returning the views's index
         # the form for sending an element is displayed
         form_action = '<form id="sendToPMForm" method="post" ' \
                       'action="http://localhost:55001/plone/Members/pmCreator1/document/@@send_to_plonemeeting">'
         self.assertTrue(form_action in view())
         self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 0)
-        # not set form.submitted to True so the element is sent to PM
-        self.request.form['form.submitted'] = True
+        # now set form.button.Send so the element is sent to PM
+        self.request.form['form.button.Send'] = 'Send'
         view = document.restrictedTraverse('@@send_to_plonemeeting')
         transaction.commit()
         # while the element is sent, the view will return nothing...
@@ -127,7 +126,7 @@ class testViews(WS4PMCLIENTTestCase):
         self.request.set('referer_query_string', 'meetingConfigId=plonemeeting-assembly')
         self.request.set('meetingConfigId', 'plonemeeting-assembly')
         self.request.set('proposingGroupId', 'developers')
-        self.request.form['form.submitted'] = True
+        self.request.form['form.button.Send'] = 'Send'
         view = document.restrictedTraverse('@@send_to_plonemeeting')
         # create the 'pmCreator1' member area to be able to create an item
         self.tool.getPloneMeetingFolder('plonemeeting-assembly', 'pmCreator1')

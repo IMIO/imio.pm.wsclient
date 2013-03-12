@@ -57,9 +57,7 @@ class SendToPloneMeetingView(BrowserView):
             IStatusMessage(self.request).addStatusMessage(_(NO_PROPOSING_GROUP_ERROR % userThatWillCreate), "error")
             return self._redirectToRightPlace()
 
-        form = self.request.form
-        submitted = form.get('form.submitted', False)
-        if submitted and 'form.button.Send' in self.request.form:
+        if 'form.button.Send' in self.request.form:
             # now that we can connect to the webservice, check that the user can actually trigger that action
             # indeed parameters are sent thru the request, and so someone could do nasty things...
             # check that the real currentUrl is on available in object_buttons actions for the user
