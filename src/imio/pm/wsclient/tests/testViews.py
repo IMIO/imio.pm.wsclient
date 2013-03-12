@@ -31,7 +31,8 @@ from Products.statusmessages.interfaces import IStatusMessage
 
 from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY, UNABLE_TO_CONNECT_ERROR, \
                                     UNABLE_TO_DETECT_MIMETYPE_ERROR, FILENAME_MANDATORY_ERROR, \
-                                    CORRECTLY_SENT_TO_PM_INFO, ALREADY_SENT_TO_PM_ERROR
+                                    CORRECTLY_SENT_TO_PM_INFO, ALREADY_SENT_TO_PM_ERROR, \
+                                    NO_PROPOSING_GROUP_ERROR
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, \
                                                        setCorrectSettingsConfig, \
                                                        createDocument, \
@@ -78,7 +79,6 @@ class testViews(WS4PMCLIENTTestCase):
 
     def test_sendItemToPloneMeeting(self):
         """Test that the item is actually sent to PloneMeeting."""
-        ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         setCorrectSettingsConfig(self.portal)
         self.changeUser('pmCreator1')
         # create an element to send...
@@ -86,9 +86,9 @@ class testViews(WS4PMCLIENTTestCase):
         self.request.set('URL', document.absolute_url())
         self.request.set('ACTUAL_URL', document.absolute_url() + '/@@send_to_plonemeeting')
         self.request.set('meetingConfigId', 'plonemeeting-assembly')
-        self.request.set('proposingGroupId', 'developers')
         view = document.restrictedTraverse('@@send_to_plonemeeting')
         # before sending, no item is linked to the document
+        ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 0)
         # create the 'pmCreator1' member area to be able to create an item
         self.tool.getPloneMeetingFolder('plonemeeting-assembly', 'pmCreator1')
@@ -104,12 +104,40 @@ class testViews(WS4PMCLIENTTestCase):
         self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 0)
         # now set form.button.Send so the element is sent to PM
         self.request.form['form.button.Send'] = 'Send'
+        self.request.set('proposingGroupId', 'developers')
         view = document.restrictedTraverse('@@send_to_plonemeeting')
         transaction.commit()
         # while the element is sent, the view will return nothing...
         self.assertFalse(view())
         # now that the element has been sent, an item is linked to the document
         self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 1)
+
+    def test_canNotSendIfInNoPMCreatorGroup(self):
+        """
+          If the user that wants to send the item in PloneMeeting is not a creator in PM,
+          aka is not in a _creators suffixed group, a message is displayed to him.
+        """
+        # remove pmCreator2 from the vendors_creators group
+        # first check that the user is actually in a _creators group
+        pmCreator2 = self.portal.portal_membership.getMemberById('pmCreator2')
+        self.assertTrue([group for group in self.portal.acl_users.source_groups.getGroupsForPrincipal(pmCreator2)
+                         if group.endswith('_creators')])
+        self.portal.portal_groups.removePrincipalFromGroup('pmCreator2', 'vendors_creators')
+        # pmCreator2 is no more in a _creators group
+        self.assertFalse([group for group in self.portal.acl_users.source_groups.getGroupsForPrincipal(pmCreator2)
+                         if group.endswith('_creators')])
+        # try to send the item
+        setCorrectSettingsConfig(self.portal)
+        self.changeUser('pmCreator2')
+        self.tool.getPloneMeetingFolder('plonemeeting-assembly', 'pmCreator2')
+        transaction.commit()
+        # create an element to send...
+        document = createDocument(self.portal.Members.pmCreator2)
+        messages = IStatusMessage(self.request)
+        self.assertFalse(messages.show())
+        # if no item is created, _sendToPloneMeeting returns None
+        self.assertFalse(self._sendToPloneMeeting(document, user='pmCreator2', proposingGroup='vendors'))
+        self.assertTrue(messages.show()[0].message == NO_PROPOSING_GROUP_ERROR % 'pmCreator2')
 
     def test_checkAlreadySentToPloneMeeting(self):
         """Test in case we sent the element again to PloneMeeting, that should not happen...

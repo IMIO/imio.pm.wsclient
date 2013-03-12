@@ -39,14 +39,14 @@ class WS4PMCLIENTTestCase(PloneMeetingTestCase):
         """ """
         PloneMeetingTestCase.setUp(self)
 
-    def _sendToPloneMeeting(self, obj):
+    def _sendToPloneMeeting(self, obj, user='pmCreator1', proposingGroup='developers'):
         """
           Helper method for sending an element to PloneMeeting
         """
         # set correct config
         setCorrectSettingsConfig(self.portal)
         # create the 'pmCreator1' member area to be able to create an item
-        self.tool.getPloneMeetingFolder('plonemeeting-assembly', 'pmCreator1')
+        self.tool.getPloneMeetingFolder('plonemeeting-assembly', user)
         # we have to commit() here or portal used behing the SOAP call
         # does not have the freshly created item...
         transaction.commit()
@@ -54,11 +54,12 @@ class WS4PMCLIENTTestCase(PloneMeetingTestCase):
         self.request.set('URL', obj.absolute_url())
         self.request.set('ACTUAL_URL', obj.absolute_url() + '/@@send_to_plonemeeting')
         self.request.set('meetingConfigId', 'plonemeeting-assembly')
-        self.request.set('proposingGroupId', 'developers')
+        self.request.set('proposingGroupId', proposingGroup)
         self.request.form['form.button.Send'] = 'Send'
         obj.restrictedTraverse('@@send_to_plonemeeting')()
         transaction.commit()
-        return self.portal.portal_catalog(portal_type='MeetingItemPma', Title=obj.Title())[0].getObject()
+        brains = self.portal.portal_catalog(portal_type='MeetingItemPma', Title=obj.Title())
+        return brains and brains[0].getObject() or None
 
 
 def setCorrectSettingsConfig(portal, minimal=False, withValidation=True, **kwargs):
