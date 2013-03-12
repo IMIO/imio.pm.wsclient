@@ -71,8 +71,7 @@ class testViews(WS4PMCLIENTTestCase):
         # available to the user
         self.request.set('URL', document.absolute_url())
         self.request.set('ACTUAL_URL', document.absolute_url() + '/@@send_to_plonemeeting')
-        self.request.set('referer_query_string',
-                         'meetingConfigId=wrong-meeting-config-id')
+        self.request.set('meetingConfigId', 'wrong-meeting-config-id')
         self.request.form['form.button.Send'] = 'Send'
         view = document.restrictedTraverse('@@send_to_plonemeeting')
         self.assertRaises(Unauthorized, view)
@@ -86,7 +85,6 @@ class testViews(WS4PMCLIENTTestCase):
         document = createDocument(self.portal.Members.pmCreator1)
         self.request.set('URL', document.absolute_url())
         self.request.set('ACTUAL_URL', document.absolute_url() + '/@@send_to_plonemeeting')
-        self.request.set('referer_query_string', 'meetingConfigId=plonemeeting-assembly')
         self.request.set('meetingConfigId', 'plonemeeting-assembly')
         self.request.set('proposingGroupId', 'developers')
         view = document.restrictedTraverse('@@send_to_plonemeeting')
@@ -123,7 +121,6 @@ class testViews(WS4PMCLIENTTestCase):
         document = createDocument(self.portal.Members.pmCreator1)
         self.request.set('URL', document.absolute_url())
         self.request.set('ACTUAL_URL', document.absolute_url() + '/@@send_to_plonemeeting')
-        self.request.set('referer_query_string', 'meetingConfigId=plonemeeting-assembly')
         self.request.set('meetingConfigId', 'plonemeeting-assembly')
         self.request.set('proposingGroupId', 'developers')
         self.request.form['form.button.Send'] = 'Send'
@@ -207,6 +204,7 @@ class testViews(WS4PMCLIENTTestCase):
 
     def test_generateItemTemplateView(self):
         """
+          Test the BrowserView that generates a given template of an item
         """
         self.changeUser('admin')
         messages = IStatusMessage(self.request)

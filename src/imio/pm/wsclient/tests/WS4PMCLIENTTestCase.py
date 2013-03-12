@@ -53,7 +53,6 @@ class WS4PMCLIENTTestCase(PloneMeetingTestCase):
         # use the 'send_to_plonemeeting' view
         self.request.set('URL', obj.absolute_url())
         self.request.set('ACTUAL_URL', obj.absolute_url() + '/@@send_to_plonemeeting')
-        self.request.set('referer_query_string', 'meetingConfigId=plonemeeting-assembly')
         self.request.set('meetingConfigId', 'plonemeeting-assembly')
         self.request.set('proposingGroupId', 'developers')
         self.request.form['form.button.Send'] = 'Send'
