@@ -9,6 +9,7 @@ from zope.component.hooks import getSite
 
 from zope.interface import Interface, invariant, Invalid
 from zope import schema
+from zope.schema.interfaces import IVocabularyFactory
 
 from zope.i18n import translate
 
@@ -34,20 +35,18 @@ from Products.statusmessages.interfaces import IStatusMessage
 
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import ACTION_SUFFIX, WS4PMCLIENT_ANNOTATION_KEY, \
-                                    CONFIG_UNABLE_TO_CONNECT_ERROR, CONFIG_CREATE_ITEM_PM_ERROR
+    CONFIG_UNABLE_TO_CONNECT_ERROR, CONFIG_CREATE_ITEM_PM_ERROR
 
 
 class IGeneratedActionsSchema(Interface):
     """Schema used for the datagrid field 'generated_actions' of IWS4PMClientSettings."""
     condition = schema.TextLine(
         title=_("TAL Condition"),
-        required=False
-        )
+        required=False,)
     permissions = schema.Choice(
         title=_("Permissions"),
         required=False,
-        vocabulary=u'imio.pm.wsclient.possible_permissions_vocabulary'
-        )
+        vocabulary=u'imio.pm.wsclient.possible_permissions_vocabulary')
     pm_meeting_config_id = schema.Choice(
         title=_("PloneMeeting meetingConfig id"),
         required=False,
@@ -59,12 +58,10 @@ class IFieldMappingsSchema(Interface):
     field_name = schema.Choice(
         title=_("PloneMeeting field name"),
         required=False,
-        vocabulary=u'imio.pm.wsclient.pm_item_data_vocabulary'
-        )
+        vocabulary=u'imio.pm.wsclient.pm_item_data_vocabulary')
     expression = schema.TextLine(
         title=_("TAL expression to evaluate to get the value to use for the given data"),
-        required=False,
-        )
+        required=False,)
 
 
 class IWS4PMClientSettings(Interface):
@@ -74,68 +71,59 @@ class IWS4PMClientSettings(Interface):
     pm_url = schema.TextLine(
         title=_(u"PloneMeeting WSDL URL"),
         description=_(u"Enter the PloneMeeting WSDL URL you want to work with."),
-        required=True,
-        )
+        required=True,)
     pm_timeout = schema.Int(
         title=_(u"PloneMeeting connection timeout"),
-        description=_(u"Enter the timeout while connecting to PloneMeeting.  Do not set a too high timeout because " \
-                      "it will impact the load of the viewlet showing PM infos on an sent element.  " \
+        description=_(u"Enter the timeout while connecting to PloneMeeting.  Do not set a too high timeout because "
+                      "it will impact the load of the viewlet showing PM infos on an sent element.  "
                       "Default is '10' seconds."),
         default=10,
-        required=True,
-        )
+        required=True,)
     pm_username = schema.TextLine(
         title=_("PloneMeeting username to use"),
-        required=True
-        )
+        required=True,)
     pm_password = schema.Password(
         title=_("PloneMeeting password to use"),
-        required=True
-        )
+        required=True,)
     viewlet_display_condition = schema.TextLine(
         title=_("Viewlet display condition"),
-        description=_("Enter a TAL expression that will be evaluated to check if the viewlet displaying " \
-                      "informations about the created items in PloneMeeting should be displayed.  " \
-                      "If empty, the viewlet will only be displayed if an item is actually linked to it.  " \
+        description=_("Enter a TAL expression that will be evaluated to check if the viewlet displaying "
+                      "informations about the created items in PloneMeeting should be displayed.  "
+                      "If empty, the viewlet will only be displayed if an item is actually linked to it.  "
                       "The element 'isLinked' representing this default behaviour is available in the TAL expression."),
-        required=False
-        )
+        required=False,)
     field_mappings = schema.List(
         title=_("Field accessor mappings"),
-        description=_("For every available data you can send, define in the mapping a TAL expression that will be " \
-                      "executed to obtain the correct value to send.  The 'meetingConfigId' and 'proposingGroupId' " \
+        description=_("For every available data you can send, define in the mapping a TAL expression that will be "
+                      "executed to obtain the correct value to send.  The 'meetingConfigId' and 'proposingGroupId' "
                       "variables are also available for the expression."),
         value_type=DictRow(title=_("Actions"),
                            schema=IFieldMappingsSchema,
                            required=False),
-        required=False
-        )
+        required=False,)
     user_mappings = schema.Text(
         title=_("User ids mappings"),
-        description=_("By default, while sending an element to PloneMeeting, the user id of the logged in user " \
-                      "sending the element is considered and a check is made in PloneMeeting to see" \
-                      "if the same user id also exists.  If it does not, you can define here the user mappings " \
-                      "to use.  For example : 'jdoe' in current application correspond to 'johndoe' " \
-                      "in PloneMeeting.  The format to use is <strong>one mapping by line with userIds separated by " \
-                      "a '|'</strong>, for example : " \
-                      "<br />currentAppUserId|plonemeetingCorrespondingUserId<br />anotherUserId|aUserIdInPloneMeeting"
-                     ),
-        required=False
-        )
+        description=_("By default, while sending an element to PloneMeeting, the user id of the logged in user "
+                      "sending the element is considered and a check is made in PloneMeeting to see"
+                      "if the same user id also exists.  If it does not, you can define here the user mappings "
+                      "to use.  For example : 'jdoe' in current application correspond to 'johndoe' "
+                      "in PloneMeeting.  The format to use is <strong>one mapping by line with userIds separated by "
+                      "a '|'</strong>, for example : "
+                      "<br />localUserId|plonemeetingCorrespondingUserId<br />anotherUserId|aUserIdInPloneMeeting"),
+        required=False,)
     generated_actions = schema.List(
         title=_("Generated actions"),
-        description=_("Enter a 'TAL condition' evaluated to show the action.  " \
-                      "Choose permission(s) the user must have to see the action.  " \
-                      "Enter a PloneMeeting proposingGroup id to force the creation of the item with this " \
-                      "proposingGroup.  Warning, if the user can not create an item for this proposingGroup, " \
-                      "a warning message will appear.  If left empty, if the user is in only one proposingGroup, " \
-                      "it will be used automatically, if the user is in several proposingGroups, a popup will ask " \
+        description=_("Enter a 'TAL condition' evaluated to show the action.  "
+                      "Choose permission(s) the user must have to see the action.  "
+                      "Enter a PloneMeeting proposingGroup id to force the creation of the item with this "
+                      "proposingGroup.  Warning, if the user can not create an item for this proposingGroup, "
+                      "a warning message will appear.  If left empty, if the user is in only one proposingGroup, "
+                      "it will be used automatically, if the user is in several proposingGroups, a popup will ask "
                       "him which proposingGroup to use.  Finally, choose a meetingConfig the item will be created in."),
         value_type=DictRow(title=_("Actions"),
                            schema=IGeneratedActionsSchema,
                            required=False),
-        required=False,
-        )
+        required=False,)
 
     @invariant
     def isUserMappingsCorrectFormat(settings):
@@ -144,8 +132,8 @@ class IWS4PMClientSettings(Interface):
             try:
                 localuser, pmuser = user_mapping.split('|')
             except:
-                raise Invalid("User ids mapping : the format is not correct, it should be one mapping by line " \
-                              "(no blank line!) with user ids separated by a '|', for example : " \
+                raise Invalid("User ids mapping : the format is not correct, it should be one mapping by line "
+                              "(no blank line!) with user ids separated by a '|', for example : "
                               "currentAppUserId|plonemeetingCorrespondingUserId")
 
 
@@ -231,14 +219,14 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         d = ImportDoctor(imp)
         t = HttpAuthenticated(username=username, password=password)
         try:
-            client = Client(url, doctor=d, transport=t, timeout=timeout)
+            client = Client(url, doctor=d, transport=t, timeout=int(timeout))
             # call a SOAP server test method to check that everything is fine with given parameters
             client.service.testConnection('')
         except Exception, e:
             # if we are really on the configuration panel, display relevant message
             if self.request.get('PATH_INFO', '').endswith('@@ws4pmclient-settings'):
-                IStatusMessage(self.request).addStatusMessage(_(CONFIG_UNABLE_TO_CONNECT_ERROR % (e.message or str(e.reason))),
-                                                              "error")
+                IStatusMessage(self.request).addStatusMessage(
+                    _(CONFIG_UNABLE_TO_CONNECT_ERROR % (e.message or str(e.reason))), "error")
             return None
         return client
 
@@ -292,7 +280,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             return client.service.getItemTemplate(**data)
         except Exception, exc:
                 IStatusMessage(self.request).addStatusMessage(
-                    _(u"An error occured while generating the document in PloneMeeting!  " \
+                    _(u"An error occured while generating the document in PloneMeeting!  "
                       "The error message was : %s" % exc), "error")
 
     @memoize
@@ -302,7 +290,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         if client is not None:
             # extract data from the CreationData ComplexType that is used to create an item
             namespace = str(client.wsdl.tns[1])
-            return [str(data.name) for data in \
+            return [str(data.name) for data in
                     client.factory.wsdl.build_schema().types['CreationData', namespace].rawchildren[0].rawchildren]
 
     def _soap_createItem(self, meetingConfigId, proposingGroupId, creationData):
@@ -375,13 +363,13 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 res = self._soap_checkIsLinked({'externalIdentifier': context.UID(),
                                                 'meetingConfigId': meetingConfigId, })
                 # if res is None, it means that it could not connect to PloneMeeting
-                if res == None:
+                if res is None:
                     return None
                 # could connect to PM and found a result
-                if res == True:
+                if res is True:
                     return True
                 # could connect to PM but did not find a result
-                elif res == False:
+                elif res is False:
                     # either the item was deleted in PloneMeeting
                     # or it was never send, wipe out if it was deleted in PloneMeeting
                     if meetingConfigId in annotations[WS4PMCLIENT_ANNOTATION_KEY]:
@@ -425,19 +413,25 @@ def notify_configuration_changed(event):
                     object_buttons.manage_delObjects([object_button.id])
             # then recreate them
             i = 1
+            # get the pm_meeting_config_id_vocabulary so we will be able to displayValue
+            factory = queryUtility(IVocabularyFactory, u'imio.pm.wsclient.pm_meeting_config_id_vocabulary')
+            meetingConfigVocab = factory(portal)
             for actToGen in event.record.value:
                 actionId = "%s%d" % (ACTION_SUFFIX, i)
+                # get value from vocab
                 action = Action(actionId,
-                                title=translate('Send to',
-                                                domain='imio.pm.wsclient',
-                                                mapping={'meetingConfigTitle': actToGen['pm_meeting_config_id']},
-                                                context=portal.REQUEST),
-                           description='', i18n_domain='imio.pm.wsclient',
-                           url_expr='string:${object_url}/@@send_to_plonemeeting?meetingConfigId=%s' \
-                                                        % actToGen['pm_meeting_config_id'],
-                           icon_expr='',
-                           available_expr=actToGen['condition'],
-                           permissions=(actToGen['permissions'], ),
-                           visible=True)
+                                title=translate(
+                                    'Send to',
+                                    domain='imio.pm.wsclient',
+                                    mapping={'meetingConfigTitle':
+                                             meetingConfigVocab.getTerm(actToGen['pm_meeting_config_id']).title},
+                                    context=portal.REQUEST),
+                                description='', i18n_domain='imio.pm.wsclient',
+                                url_expr='string:${object_url}/@@send_to_plonemeeting?meetingConfigId=%s'
+                                         % actToGen['pm_meeting_config_id'],
+                                icon_expr='',
+                                available_expr=actToGen['condition'],
+                                permissions=(actToGen['permissions'], ),
+                                visible=True)
                 object_buttons._setObject(actionId, action)
                 i = i + 1

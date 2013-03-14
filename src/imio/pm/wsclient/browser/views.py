@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import base64
 import logging
 logger = logging.getLogger('imio.pm.wsclient')
@@ -10,10 +11,8 @@ from Products.statusmessages.interfaces import IStatusMessage
 
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import DEFAULT_NO_WARNING_MESSAGE, WS4PMCLIENT_ANNOTATION_KEY, \
-                                    UNABLE_TO_CONNECT_ERROR, ALREADY_SENT_TO_PM_ERROR, \
-                                    CORRECTLY_SENT_TO_PM_INFO, UNABLE_TO_DETECT_MIMETYPE_ERROR, \
-                                    FILENAME_MANDATORY_ERROR, TAL_EVAL_FIELD_ERROR, \
-                                    NO_PROPOSING_GROUP_ERROR
+    UNABLE_TO_CONNECT_ERROR, ALREADY_SENT_TO_PM_ERROR, CORRECTLY_SENT_TO_PM_INFO, UNABLE_TO_DETECT_MIMETYPE_ERROR, \
+    FILENAME_MANDATORY_ERROR, TAL_EVAL_FIELD_ERROR, NO_PROPOSING_GROUP_ERROR
 
 
 class SendToPloneMeetingView(BrowserView):
@@ -42,10 +41,10 @@ class SendToPloneMeetingView(BrowserView):
         elif alreadySent in (None, False):
             # None means that it was already sent but that it could not connect to PloneMeeting
             # False means that is was not sent, so no connection test is made to PloneMeeting for performance reason
-            if alreadySent == False:
+            if alreadySent is False:
                 # now connect to PloneMeeting
                 client = self.ws4pmSettings._soap_connectToPloneMeeting()
-            if alreadySent == None or not client:
+            if alreadySent is None or not client:
                 IStatusMessage(self.request).addStatusMessage(_(UNABLE_TO_CONNECT_ERROR), "error")
                 return self._redirectToRightPlace()
 
@@ -74,12 +73,12 @@ class SendToPloneMeetingView(BrowserView):
                 raise Unauthorized
 
             # build the creationData
-            creation_data = self._buildCreationData(client)
+            creation_data = self._getCreationData(client)
 
             # call the SOAP method actually creating the item
             res = self.ws4pmSettings._soap_createItem(self.meetingConfigId,
-                                                 self.proposingGroupId,
-                                                 creation_data)
+                                                      self.proposingGroupId,
+                                                      creation_data)
             if res:
                 uid, warnings = res
                 IStatusMessage(self.request).addStatusMessage(_(CORRECTLY_SENT_TO_PM_INFO),
@@ -111,12 +110,24 @@ class SendToPloneMeetingView(BrowserView):
         else:
             return self.index()
 
-    def _buildCreationData(self, client):
+    def _getCreationData(self, client):
         """
           Build creationData dict that will be used to actually create
           the item in PloneMeeting thru SOAP createItem call
         """
-        data = {}
+        data = self._buildDataDict()
+        # now that every values are evaluated, build the CreationData
+        creation_data = client.factory.create('CreationData')
+        for elt in data:
+            creation_data[elt] = data[elt]
+        # initialize the externalIdentifier to the context UID
+        creation_data['externalIdentifier'] = self.context.UID()
+        return creation_data
+
+    def _buildDataDict(self):
+        """
+        """
+        data = OrderedDict()
         settings = self.ws4pmSettings.settings()
         for availableData in settings.field_mappings:
             field_name = availableData['field_name']
@@ -133,16 +144,24 @@ class SendToPloneMeetingView(BrowserView):
             except Exception, e:
                 IStatusMessage(self.request).addStatusMessage(
                     _(TAL_EVAL_FIELD_ERROR %
-                    (settings.viewlet_display_condition, 'viewlet_display_condition', e)),
+                      (settings.viewlet_display_condition, 'viewlet_display_condition', e)),
                     "error")
                 return self.request.RESPONSE.redirect(self.context.absolute_url())
-        # now that every values are evaluated, build the CreationData
-        creation_data = client.factory.create('CreationData')
+        return data
+
+    def getDisplayableData(self):
+        """
+          Returns data to be displayed in the resume form
+          Do not display :
+          - externalIdentifier
+          - empty values
+        """
+        data = self._buildDataDict()
+        data.pop('externalIdentifier')
         for elt in data:
-            creation_data[elt] = data[elt]
-        # initialize the externalIdentifier to the context UID
-        creation_data['externalIdentifier'] = self.context.UID()
-        return creation_data
+            if not data[elt].strip():
+                data.pop(elt)
+        return data
 
     def _redirectToRightPlace(self):
         """
@@ -157,9 +176,9 @@ class SendToPloneMeetingView(BrowserView):
             return self.index()
 
     def initProposingGroupId(self):
-        '''
+        """
           Initialize values for the 'proposingGroup' form field
-        '''
+        """
         res = []
         userInfos = self.ws4pmSettings._soap_getUserInfos(showGroups=True, suffix='creators')
         if not 'groups' in userInfos:
@@ -168,15 +187,6 @@ class SendToPloneMeetingView(BrowserView):
         for group in userInfos['groups']:
             res.append((group['id'], group['title'],))
         return res
-
-    def getGeneratedData(self):
-        """
-        """
-        return (
-                {'name': 'title', 'value': 'My beautiful title'},
-                {'name': 'description', 'value': '<p>My description</p>'},
-                {'name': 'decision', 'value': '<p>My decision</p>'},
-               )
 
 
 class GenerateItemTemplateView(BrowserView):

@@ -19,3 +19,10 @@ msgstr ""
 msgid "Send to"
 msgstr ""
 
+#. Default: "Please specify the proposingGroup to use"
+msgid "send_to_plonemeeting_specify_proposing_group"
+msgstr ""
+
+#. Default: "Here is a resume of what will be send to PloneMeeting"
+msgid "send_to_plonemeeting_descr"
+msgstr ""

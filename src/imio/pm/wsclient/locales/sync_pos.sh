@@ -1,5 +1,5 @@
-files="PloneMeeting plone"
-languages="de en es fr nl"
+files="imio.pm.wsclient"
+languages="en fr"
 
 for file in $files; do
     for language in $languages; do

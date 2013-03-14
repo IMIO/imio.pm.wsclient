@@ -8,22 +8,25 @@
       i18n:domain="imio.pm.wsclient">
   <body>
   <metal:fill fill-slot="main" tal:condition="request/show_send_to_pm_form|python:True">
+    <h1><span i18n:translate="send_to_plonemeeting_descr">Here is a resume of what will be send to PloneMeeting</span> :</h1>
     <form id="sendToPMForm" method="post" tal:attributes="action python:context.absolute_url() + '/@@send_to_plonemeeting'">
-    <p i18n:translate="send_to_plonemeeting_specify_proposing_group">Please specify the proposingGroup to use :</p>
-    <select id="proposingGroupSelect" name="proposingGroupId" tal:define="proposingGroupIds view/initProposingGroupId">
+    <p><span i18n:translate="send_to_plonemeeting_specify_proposing_group">Please specify the proposingGroup to use</span> :</p>
+    <select id="proposingGroupSelect"
+            name="proposingGroupId"
+            tal:define="proposingGroupIds view/initProposingGroupId">
       <option tal:repeat="proposingGroupId proposingGroupIds"
               tal:attributes="value python: proposingGroupId[0]"
               tal:content="python: proposingGroupId[1]">proposingGroupId Title</option>
-    </select><br/><br/>
-    <p i18n:translate="send_to_plonemeeting_descr">Here is a resume of what will be send to PloneMeeting :</p>
-    <fieldset tal:repeat="generatedData view/getGeneratedData"><legend tal:content="generatedData/name">Data name</legend>
-    <p tal:replace="structure generatedData/value">Data value</p>
+    </select><br/>
+    <fieldset tal:define="data view/getDisplayableData" tal:repeat="elt data">
+        <legend i18n:domain="PloneMeeting" i18n:translate="" tal:content="string:PloneMeeting_label_${elt}">Data name</legend>
+        <p tal:replace="structure python: data[elt]">Data value</p>
     </fieldset>
 
     <input type="hidden" name="meetingConfigId" value="#" tal:attributes="value context/REQUEST/meetingConfigId|nothing" />
 
     <div align="center">
-      <input type="submit" name="form.button.Send" class="context" value="Send" i18n:attributes="value" i18n:domain="plone"/>
+      <input type="submit" name="form.button.Send" class="context" value="Send" i18n:attributes="value label_send;" i18n:domain="plone"/>
       <input type="submit" name="form.button.Cancel" class="standalone" value="Cancel" i18n:attributes="value" i18n:domain="plone"/>
     </div>
     </form>

@@ -20,16 +20,16 @@ msgstr ""
 
 #. Default: "Send to ${meetingConfigTitle}"
 msgid "Send to"
-msgstr "Envoyer vers ${meetingConfigTitle}"
+msgstr "Send to ${meetingConfigTitle}"
 
 #. Default: "TAL Condition"
 msgid "TAL Condition"
-msgstr "Condition au format TAL"
+msgstr "TAL Condition"
 
 #. Default: "Here is a resume of what will be send to PloneMeeting"
 msgid "send_to_plonemeeting_descr"
-msgstr "Voici un résumé de ce qui va être envoyé"
+msgstr "Here is a resume of what will be send to PloneMeeting"
 
 #. Default: "Please specify the proposingGroup to use"
 msgid "send_to_plonemeeting_specify_proposing_group"
-msgstr "Choisissez le groupe proposant avec lequel le point sera créé"
+msgstr "Please specify the proposingGroup to use"
