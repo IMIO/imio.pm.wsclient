@@ -119,6 +119,8 @@ class SendToPloneMeetingView(BrowserView):
         # now that every values are evaluated, build the CreationData
         creation_data = client.factory.create('CreationData')
         for elt in data:
+            if not isinstance(data[elt], unicode):
+                data[elt] = unicode(data[elt], 'utf-8')
             creation_data[elt] = data[elt]
         # initialize the externalIdentifier to the context UID
         creation_data['externalIdentifier'] = self.context.UID()
