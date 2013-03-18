@@ -28,8 +28,8 @@ from zope.component import getMultiAdapter
 from Products.statusmessages.interfaces import IStatusMessage
 
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, \
-                                                       setCorrectSettingsConfig, \
-                                                       cleanMemoize
+    setCorrectSettingsConfig, \
+    cleanMemoize
 
 
 class testSOAPMethods(WS4PMCLIENTTestCase):
@@ -64,6 +64,11 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         # check taht we received elements like MeetingConfig and MeetingGroups
         self.assertTrue('MeetingConfig' in [configInfo.type for configInfo in configInfos])
         self.assertTrue('MeetingGroup' in [configInfo.type for configInfo in configInfos])
+        # by default, no categories
+        self.assertFalse(hasattr(configInfos[0], 'categories'))
+        # we can ask categories by passing a showCategories=True to _soap_getConfigInfos
+        configInfos = ws4pmSettings._soap_getConfigInfos(showCategories=True)
+        self.assertTrue(hasattr(configInfos[0], 'categories'))
 
     def test_soap_getItemCreationAvailableData(self):
         """Check that we receive the list of available data for creating an item."""
@@ -159,7 +164,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         messages = IStatusMessage(self.request)
         self.assertTrue(len(messages.show()) == 0)
         result = ws4pmSettings._soap_createItem('plonegov-assembly', 'developers', data)
-        self.assertTrue(result == None)
+        self.assertTrue(result is None)
         # a message is displayed
         messages = messages.show()
         self.assertTrue(len(messages) == 1)

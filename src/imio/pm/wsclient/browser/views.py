@@ -190,6 +190,26 @@ class SendToPloneMeetingView(BrowserView):
             res.append((group['id'], group['title'],))
         return res
 
+    def initCategory(self):
+        """
+          Initialize values for the 'category' form field
+          Is something is defined in the configuration, we use this value, otherwise,
+          we let the user select the category he wants to use.
+        """
+        configInfos = self.ws4pmSettings._soap_getConfigInfos(showCategories=True)
+        categories = []
+        for configInfo in configInfos:
+            if configInfo.id == self.meetingConfigId:
+                categories = configInfo.categories
+                break
+        # should not happen...
+        if not categories:
+            return (('', ''))
+        res = []
+        for category in categories:
+            res.append((category.id, category.title))
+        return res
+
 
 class GenerateItemTemplateView(BrowserView):
     """

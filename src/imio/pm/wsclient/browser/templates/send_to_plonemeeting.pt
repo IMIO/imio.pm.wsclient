@@ -20,7 +20,14 @@
     </select><br/>
     <fieldset tal:define="data view/getDisplayableData" tal:repeat="elt data">
         <legend i18n:domain="PloneMeeting" i18n:translate="" tal:content="string:PloneMeeting_label_${elt}">Data name</legend>
-        <p tal:replace="structure python: data[elt]">Data value</p>
+        <p tal:condition="python: not elt == 'category'" tal:replace="structure python: data[elt]">Data value</p>
+            <select tal:condition="python: elt == 'category'" id="categorySelect"
+                    name="category"
+                    tal:define="categories view/initCategory">
+                <option tal:repeat="category categories"
+                        tal:attributes="value python: category[0]"
+                        tal:content="python: category[1]">Category Title</option>
+            </select><br/>
     </fieldset>
 
     <input type="hidden" name="meetingConfigId" value="#" tal:attributes="value context/REQUEST/meetingConfigId|nothing" />

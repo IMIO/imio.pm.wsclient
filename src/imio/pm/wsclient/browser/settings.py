@@ -18,8 +18,6 @@ from z3c.form import field
 
 from Products.CMFCore.Expression import Expression, createExprContext
 
-from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
-
 from plone.memoize.view import memoize
 
 from plone.registry.interfaces import IRegistry, IRecordModifiedEvent

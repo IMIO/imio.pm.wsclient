@@ -81,7 +81,7 @@ def setCorrectSettingsConfig(portal, minimal=False, withValidation=True, **kwarg
     settings.pm_username = kwargs.get('pm_username', None) or u'pmManager'
     settings.pm_password = kwargs.get('pm_password', None) or u'meeting'
     settings.user_mappings = kwargs.get('user_mappings', None) or \
-                             u'localUserId|pmCreator1\r\nlocalUserId2|pmCreator2\r\nadmin|pmCreator1'
+        u'localUserId|pmCreator1\r\nlocalUserId2|pmCreator2\r\nadmin|pmCreator1'
     settings.viewlet_display_condition = kwargs.get('viewlet_display_condition', None) or u''
     if not minimal:
         # these parameters are only available while correctly connected
@@ -100,23 +100,22 @@ def setCorrectSettingsConfig(portal, minimal=False, withValidation=True, **kwarg
              'expression': u'object/getText'},
             {'field_name': u'externalIdentifier',
              'expression': u'object/UID'}]
-        settings.generated_actions = kwargs.get('generated_actions', None) or [
-            {'pm_meeting_config_id': 'plonegov-assembly',
+        settings.generated_actions = kwargs.get('generated_actions', None) or \
+            [{'pm_meeting_config_id': 'plonegov-assembly',
              'condition': u'python:True',
              'permissions': u'View'},
-            {'pm_meeting_config_id': 'plonegov-assembly',
+             {'pm_meeting_config_id': 'plonegov-assembly',
              'condition': u'python:True',
              'permissions': u'View'},
-            {'pm_meeting_config_id': 'plonemeeting-assembly',
+             {'pm_meeting_config_id': 'plonemeeting-assembly',
              'condition': u'python:True',
              'permissions': u'View'},
-            {'pm_meeting_config_id': 'plonemeeting-assembly',
+             {'pm_meeting_config_id': 'plonemeeting-assembly',
              'condition': u'python:False',
              'permissions': u'View'},
-            {'pm_meeting_config_id': 'plonemeeting-assembly',
+             {'pm_meeting_config_id': 'plonemeeting-assembly',
              'condition': u'python:True',
-             'permissions': u'Manage portal'},
-            ]
+             'permissions': u'Manage portal'}, ]
     if not withValidation:
         AbstractCollection._validate = old_validate
 
