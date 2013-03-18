@@ -414,7 +414,6 @@ def notify_configuration_changed(event):
             i = 1
             # get the pm_meeting_config_id_vocabulary so we will be able to displayValue
             factory = queryUtility(IVocabularyFactory, u'imio.pm.wsclient.pm_meeting_config_id_vocabulary')
-            import ipdb; ipdb.set_trace()
             meetingConfigVocab = factory(portal)
             for actToGen in event.record.value:
                 actionId = "%s%d" % (ACTION_SUFFIX, i)

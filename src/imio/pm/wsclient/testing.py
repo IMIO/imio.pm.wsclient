@@ -6,11 +6,11 @@ import imio.pm.ws
 
 
 WS4PMCLIENT_ZCML = zca.ZCMLSandbox(filename="testing.zcml",
-                             package=imio.pm.wsclient,
-                             name='WS4PMCLIENT_ZCML')
+                                   package=imio.pm.wsclient,
+                                   name='WS4PMCLIENT_ZCML')
 
 WS4PMCLIENT_Z2 = z2.IntegrationTesting(bases=(z2.STARTUP, WS4PMCLIENT_ZCML),
-                                 name='WS4PMCLIENT_Z2')
+                                       name='WS4PMCLIENT_Z2')
 
 WS4PMCLIENT = PloneWithPackageLayer(
     zcml_filename="testing-settings.zcml",
