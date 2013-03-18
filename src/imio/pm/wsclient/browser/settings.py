@@ -195,7 +195,6 @@ class WS4PMClientSettingsEditForm(RegistryEditForm):
 
 class WS4PMClientSettings(ControlPanelFormWrapper):
     form = WS4PMClientSettingsEditForm
-    index = ViewPageTemplateFile('settings.pt')
 
     @memoize
     def settings(self):
@@ -237,11 +236,11 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             return client.service.checkIsLinked(**data)
 
     @memoize
-    def _soap_getConfigInfos(self):
+    def _soap_getConfigInfos(self, showCategories=False):
         """Query the getConfigInfos SOAP server method."""
         client = self._soap_connectToPloneMeeting()
         if client is not None:
-            return client.service.getConfigInfos('')
+            return client.service.getConfigInfos(showCategories=showCategories)
 
     @memoize
     def _soap_getUserInfos(self, showGroups=False, suffix=''):
@@ -415,6 +414,7 @@ def notify_configuration_changed(event):
             i = 1
             # get the pm_meeting_config_id_vocabulary so we will be able to displayValue
             factory = queryUtility(IVocabularyFactory, u'imio.pm.wsclient.pm_meeting_config_id_vocabulary')
+            import ipdb; ipdb.set_trace()
             meetingConfigVocab = factory(portal)
             for actToGen in event.record.value:
                 actionId = "%s%d" % (ACTION_SUFFIX, i)

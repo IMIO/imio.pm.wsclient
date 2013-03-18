@@ -13,11 +13,9 @@ WS4PMCLIENT_Z2 = z2.IntegrationTesting(bases=(z2.STARTUP, WS4PMCLIENT_ZCML),
                                  name='WS4PMCLIENT_Z2')
 
 WS4PMCLIENT = PloneWithPackageLayer(
-    zcml_filename="testing.zcml",
+    zcml_filename="testing-settings.zcml",
     zcml_package=imio.pm.wsclient,
-    additional_z2_products=('Products.PloneMeeting',
-                            'Products.CMFPlacefulWorkflow',
-                            'imio.pm.wsclient',
+    additional_z2_products=('imio.pm.wsclient',
                             'imio.pm.ws'),
     gs_profile_id='imio.pm.wsclient:testing',
     name="WS4PMCLIENT")

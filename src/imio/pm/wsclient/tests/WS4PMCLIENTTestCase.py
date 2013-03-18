@@ -100,7 +100,7 @@ def setCorrectSettingsConfig(portal, minimal=False, withValidation=True, **kwarg
              'expression': u'object/getText'},
             {'field_name': u'externalIdentifier',
              'expression': u'object/UID'}]
-        settings.generated_actions = kwargs.get('generated_actions', None) or  [
+        settings.generated_actions = kwargs.get('generated_actions', None) or [
             {'pm_meeting_config_id': 'plonegov-assembly',
              'condition': u'python:True',
              'permissions': u'View'},

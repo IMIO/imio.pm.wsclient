@@ -1,0 +1,14 @@
+<configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+           i18n_domain="imio.pm.ws">
+
+    <include file="testing.zcml"/>
+
+    <!-- overrides the pm_meeting_config_id_vocabulary vocabulary that needs PloneMeeting to work... -->
+    <utility
+      provides="zope.schema.interfaces.IVocabularyFactory"
+      component=".tests.vocabularies.pm_meeting_config_id_vocabularyFactory"
+      name="imio.pm.wsclient.pm_meeting_config_id_vocabulary"
+    />
+
+</configure>
