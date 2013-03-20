@@ -8,11 +8,12 @@ from zope.component import getMultiAdapter
 from zope.annotation import IAnnotations
 from Products.Five import BrowserView
 from Products.statusmessages.interfaces import IStatusMessage
+from plone.memoize.instance import memoize
 
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import DEFAULT_NO_WARNING_MESSAGE, WS4PMCLIENT_ANNOTATION_KEY, \
     UNABLE_TO_CONNECT_ERROR, ALREADY_SENT_TO_PM_ERROR, CORRECTLY_SENT_TO_PM_INFO, UNABLE_TO_DETECT_MIMETYPE_ERROR, \
-    FILENAME_MANDATORY_ERROR, TAL_EVAL_FIELD_ERROR, NO_PROPOSING_GROUP_ERROR
+    FILENAME_MANDATORY_ERROR, TAL_EVAL_FIELD_ERROR, NO_PROPOSING_GROUP_ERROR, NO_USERINFOS_ERROR
 
 
 class SendToPloneMeetingView(BrowserView):
@@ -51,9 +52,12 @@ class SendToPloneMeetingView(BrowserView):
         # do not go further if current user can not create an item in
         # PloneMeeting with any proposingGroup
         userInfos = self.ws4pmSettings._soap_getUserInfos(showGroups=True, suffix='creators')
-        if not 'groups' in userInfos:
+        if not userInfos or not 'groups' in userInfos:
             userThatWillCreate = self.ws4pmSettings._getUserIdToUseInTheNameOfWith()
-            IStatusMessage(self.request).addStatusMessage(_(NO_PROPOSING_GROUP_ERROR % userThatWillCreate), "error")
+            if not userInfos:
+                IStatusMessage(self.request).addStatusMessage(_(NO_USERINFOS_ERROR % userThatWillCreate), "error")
+            else:
+                IStatusMessage(self.request).addStatusMessage(_(NO_PROPOSING_GROUP_ERROR % userThatWillCreate), "error")
             return self._redirectToRightPlace()
 
         if 'form.button.Send' in self.request.form:
@@ -108,7 +112,12 @@ class SendToPloneMeetingView(BrowserView):
             # case when not using the overlay popup
             self._redirectToRightPlace()
         else:
-            return self.index()
+            # check the field inits before showing the form
+            if self.initProposingGroup():
+                return self.index()
+            else:
+                # StatusMessages are added by fields inits methods
+                return self._redirectToRightPlace()
 
     def _getCreationData(self, client):
         """
@@ -118,7 +127,15 @@ class SendToPloneMeetingView(BrowserView):
         data = self._buildDataDict()
         # now that every values are evaluated, build the CreationData
         creation_data = client.factory.create('CreationData')
+        # not using categories?
+        if not 'category' in data:
+            # make sure we do not pass a 'None' !
+            creation_data.category = u''
+
         for elt in data:
+            # proposingGroup is managed apart
+            if elt == 'proposingGroup':
+                continue
             if not isinstance(data[elt], unicode):
                 data[elt] = unicode(data[elt], 'utf-8')
             creation_data[elt] = data[elt]
@@ -133,6 +150,11 @@ class SendToPloneMeetingView(BrowserView):
         settings = self.ws4pmSettings.settings()
         for availableData in settings.field_mappings:
             field_name = availableData['field_name']
+            if field_name == 'category':
+                # check that the meetingConfig we want to send the item to
+                # actually use categories
+                if not self.initCategory():
+                    continue
             expr = availableData['expression']
             # make the meetingConfigId available in the expression
             vars = {}
@@ -142,7 +164,8 @@ class SendToPloneMeetingView(BrowserView):
             try:
                 data[field_name] = self.ws4pmSettings.renderTALExpression(self.context,
                                                                           self.portal,
-                                                                          expr, vars)
+                                                                          expr,
+                                                                          vars)
             except Exception, e:
                 IStatusMessage(self.request).addStatusMessage(
                     _(TAL_EVAL_FIELD_ERROR %
@@ -161,7 +184,8 @@ class SendToPloneMeetingView(BrowserView):
         data = self._buildDataDict()
         data.pop('externalIdentifier')
         for elt in data:
-            if not data[elt].strip():
+            # keep category and proposingGroup even if empty
+            if not data[elt].strip() and not elt in ['category', 'proposingGroup', ]:
                 data.pop(elt)
         return data
 
@@ -177,19 +201,52 @@ class SendToPloneMeetingView(BrowserView):
             self.request.set('show_send_to_pm_form', False)
             return self.index()
 
-    def initProposingGroupId(self):
+    @memoize
+    def initProposingGroup(self):
         """
           Initialize values for the 'proposingGroup' form field
+          If a proposingGroup is defined in the configuration, take it,
+          otherwise, show the user his proposingGroups
         """
         res = []
+        field_mappings = self.ws4pmSettings.settings().field_mappings
+        forcedProposingGroup = None
+        vars = {}
+        vars['meetingConfigId'] = self.meetingConfigId
+        vars['proposingGroupId'] = self.proposingGroupId
+        for field_mapping in field_mappings:
+            if field_mapping[u'field_name'] == 'proposingGroup':
+                try:
+                    forcedProposingGroup = self.ws4pmSettings.renderTALExpression(self.context,
+                                                                                  self.portal,
+                                                                                  field_mapping['expression'],
+                                                                                  vars)
+                    break
+                except Exception, e:
+                    IStatusMessage(self.request).addStatusMessage(
+                        _(TAL_EVAL_FIELD_ERROR %
+                          (field_mapping['expression'], field_mapping['field_name'], e)),
+                        "error")
+                    return
+        # even if we get a forcedProposingGroup, double check that the current user can actually use it
         userInfos = self.ws4pmSettings._soap_getUserInfos(showGroups=True, suffix='creators')
         if not 'groups' in userInfos:
             return []
         res = []
+        forcedProposingGroupExists = not forcedProposingGroup and True or False
         for group in userInfos['groups']:
+            if forcedProposingGroup == group['id']:
+                forcedProposingGroupExists = True
             res.append((group['id'], group['title'],))
+        if not forcedProposingGroupExists:
+            IStatusMessage(self.request).addStatusMessage(
+                _("The current user can not create an item with the proposingGroup forced "
+                  "thru the configuration!  Please contact system administrator!"),
+                "error")
+            return
         return res
 
+    @memoize
     def initCategory(self):
         """
           Initialize values for the 'category' form field
@@ -200,11 +257,12 @@ class SendToPloneMeetingView(BrowserView):
         categories = []
         for configInfo in configInfos:
             if configInfo.id == self.meetingConfigId:
-                categories = configInfo.categories
+                categories = hasattr(configInfo, 'categories') and configInfo.categories or ()
                 break
-        # should not happen...
+        # if not categories is returned, it means that the meetingConfig does
+        # not use categories...
         if not categories:
-            return (('', ''))
+            return None
         res = []
         for category in categories:
             res.append((category.id, category.title))

@@ -8,8 +8,8 @@ from plone.app.layout.viewlets.common import ViewletBase
 
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY, \
-                                    UNABLE_TO_CONNECT_ERROR, \
-                                    UNABLE_TO_DISPLAY_VIEWLET_ERROR
+    UNABLE_TO_CONNECT_ERROR, \
+    UNABLE_TO_DISPLAY_VIEWLET_ERROR
 
 
 class PloneMeetingInfosViewlet(ViewletBase):
@@ -35,7 +35,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
         settings = self.ws4pmSettings.settings()
         isLinked = self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context)
         # in case it could not connect to PloneMeeting, checkAlreadySentToPloneMeeting returns None
-        if isLinked == None:
+        if isLinked is None:
             return (_(UNABLE_TO_CONNECT_ERROR), "error")
         viewlet_display_condition = settings.viewlet_display_condition
         # if we have no defined viewlet_display_condition, use the isLinked value
@@ -49,11 +49,19 @@ class PloneMeetingInfosViewlet(ViewletBase):
                                                          self.portal_state.portal(),
                                                          settings.viewlet_display_condition,
                                                          vars)
+            if not res:
+                return False
         except Exception, e:
             return (_(UNABLE_TO_DISPLAY_VIEWLET_ERROR % (settings.viewlet_display_condition,
                                                          'viewlet_display_condition',
                                                          e)), 'error')
-        return bool(res)
+        # evaluate self.getPloneMeetingLinkedInfos
+        linkedInfos = self.getPloneMeetingLinkedInfos()
+        if isinstance(linkedInfos, tuple):
+            # if self.getPloneMeetingLinkedInfos has errors, it returns
+            # also a tuple with error message
+            return linkedInfos
+        return True
 
     @memoize
     def getPloneMeetingLinkedInfos(self):
@@ -61,10 +69,18 @@ class PloneMeetingInfosViewlet(ViewletBase):
            To get every informations we need, we will use getItemInfos(showExtraInfos=True)
            because we need the meetingConfig id and title...
            So search the items with searchItems then query again each found items
-           with getConfigInfos."""
-        items = self.ws4pmSettings._soap_searchItems({'externalIdentifier': self.context.UID()})
+           with getConfigInfos.
+           If we encounter an error, we return a tuple as 'usual' like in self.available"""
+        try:
+            items = self.ws4pmSettings._soap_searchItems({'externalIdentifier': self.context.UID()})
+        except Exception, exc:
+            return (_(u"An error occured while searching for linked items in PloneMeeting!  "
+                      "The error message was : %s" % exc), "error")
+        # if we are here, it means that the current element is actually linked to item(s)
+        # in PloneMeeting but the current user can not see it!
         if not items:
-            return {}
+            # we return a message in a tuple
+            return (_(u"This element is linked to item(s) in PloneMeeting but your are not allowed to see it."), "info")
         res = []
         for item in items:
             res.append(self.ws4pmSettings._soap_getItemInfos({'UID': item['UID'],

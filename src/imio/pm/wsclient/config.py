@@ -21,5 +21,6 @@ UNABLE_TO_DISPLAY_VIEWLET_ERROR = u"Unable to display informations about the pot
 CONFIG_CREATE_ITEM_PM_ERROR = u"An error occured during the item creation in PloneMeeting!  The error message was : %s"
 NO_PROPOSING_GROUP_ERROR = u"The configuration specify that user '%s' will create the item in PloneMeeting but this " \
                            "user can not create item for any proposingGroup in PloneMeeting!"
+NO_USERINFOS_ERROR = u"Could not get userInfos in PloneMeeting for user '%s'!"
 # annotations key
 WS4PMCLIENT_ANNOTATION_KEY = "imio.pm.wsclient-sent_to"

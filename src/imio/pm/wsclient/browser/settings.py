@@ -246,8 +246,11 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         client = self._soap_connectToPloneMeeting()
         if client is not None:
             # get the inTheNameOf userid if it was not already set
-            userId = self._getUserIdToUseInTheNameOfWith()
-            return client.service.getUserInfos(userId, showGroups, suffix)
+            userId = self._getUserIdToUseInTheNameOfWith(mandatory=True)
+            try:
+                return client.service.getUserInfos(userId, showGroups, suffix)
+            except Exception:
+                return None
 
     def _soap_searchItems(self, data):
         """Query the searchItems SOAP server method."""
@@ -273,12 +276,12 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         if client is not None:
             if not 'inTheNameOf' in data:
                 data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
-        try:
-            return client.service.getItemTemplate(**data)
-        except Exception, exc:
-                IStatusMessage(self.request).addStatusMessage(
-                    _(u"An error occured while generating the document in PloneMeeting!  "
-                      "The error message was : %s" % exc), "error")
+            try:
+                return client.service.getItemTemplate(**data)
+            except Exception, exc:
+                    IStatusMessage(self.request).addStatusMessage(
+                        _(u"An error occured while generating the document in PloneMeeting!  "
+                          "The error message was : %s" % exc), "error")
 
     @memoize
     def _soap_getItemCreationAvailableData(self):
@@ -287,8 +290,10 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         if client is not None:
             # extract data from the CreationData ComplexType that is used to create an item
             namespace = str(client.wsdl.tns[1])
-            return [str(data.name) for data in
+            res = ['proposingGroup']
+            res += [str(data.name) for data in
                     client.factory.wsdl.build_schema().types['CreationData', namespace].rawchildren[0].rawchildren]
+            return res
 
     def _soap_createItem(self, meetingConfigId, proposingGroupId, creationData):
         """Query the createItem SOAP server method."""
@@ -303,13 +308,14 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             except Exception, exc:
                 IStatusMessage(self.request).addStatusMessage(_(CONFIG_CREATE_ITEM_PM_ERROR % exc), "error")
 
-    def _getUserIdToUseInTheNameOfWith(self):
+    def _getUserIdToUseInTheNameOfWith(self, mandatory=False):
         """
           Returns the userId that will actually create the item.
           Returns None if we found out that it is the defined settings.pm_username
           that will create the item : either it is the currently connected user,
           or there is an existing user_mapping between currently connected user
           and settings.pm_username user.
+          If p_mandatory is True, returns mndatorily a userId.
         """
         member = self.context.portal_membership.getAuthenticatedMember()
         memberId = member.getId()
@@ -318,7 +324,10 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         soapUsername = settings.pm_username and settings.pm_username.strip()
         # if current user is the user defined in the settings, return None
         if memberId == soapUsername:
-            return None
+            if mandatory:
+                return soapUsername
+            else:
+                return None
         # check if a user_mapping exists
         if settings.user_mappings and settings.user_mappings.strip():
             for user_mapping in settings.user_mappings.split('\n'):
@@ -329,7 +338,10 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                     if not soapUsername == distantUserId.strip():
                         return distantUserId.strip()
                     else:
-                        return None
+                        if mandatory:
+                            return soapUsername
+                        else:
+                            return None
         return memberId
 
     def checkAlreadySentToPloneMeeting(self, context, meetingConfigIds=[]):
@@ -392,7 +404,10 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             ctx.vars.update(vars)
             res = Expression(expression)(ctx)
         # make sure we do not return None because it breaks SOAP call
-        return res or u''
+        if res is None:
+            return u''
+        else:
+            return res
 
 
 def notify_configuration_changed(event):
