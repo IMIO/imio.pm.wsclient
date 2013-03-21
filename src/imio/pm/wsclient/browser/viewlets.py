@@ -9,7 +9,8 @@ from plone.app.layout.viewlets.common import ViewletBase
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY, \
     UNABLE_TO_CONNECT_ERROR, \
-    UNABLE_TO_DISPLAY_VIEWLET_ERROR
+    UNABLE_TO_DISPLAY_VIEWLET_ERROR, \
+    CAN_NOT_SEE_LINKED_ITEMS_INFO
 
 
 class PloneMeetingInfosViewlet(ViewletBase):
@@ -80,7 +81,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
         # in PloneMeeting but the current user can not see it!
         if not items:
             # we return a message in a tuple
-            return (_(u"This element is linked to item(s) in PloneMeeting but your are not allowed to see it."), "info")
+            return (_(CAN_NOT_SEE_LINKED_ITEMS_INFO), "info")
         res = []
         for item in items:
             res.append(self.ws4pmSettings._soap_getItemInfos({'UID': item['UID'],

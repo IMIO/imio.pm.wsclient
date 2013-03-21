@@ -29,11 +29,11 @@ from Products.statusmessages.interfaces import IStatusMessage
 
 from imio.pm.wsclient.browser.viewlets import PloneMeetingInfosViewlet
 from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY, CORRECTLY_SENT_TO_PM_INFO, \
-                                    UNABLE_TO_CONNECT_ERROR
+    UNABLE_TO_CONNECT_ERROR, CAN_NOT_SEE_LINKED_ITEMS_INFO
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, \
-                                                       createDocument, \
-                                                       cleanMemoize, \
-                                                       setCorrectSettingsConfig
+    createDocument, \
+    cleanMemoize, \
+    setCorrectSettingsConfig
 
 
 class testViewlets(WS4PMCLIENTTestCase):
@@ -106,12 +106,33 @@ class testViewlets(WS4PMCLIENTTestCase):
         document = createDocument(self.portal)
         viewlet = PloneMeetingInfosViewlet(document, self.request, None, None)
         viewlet.update()
-        self.assertTrue(viewlet.getPloneMeetingLinkedInfos() == {})
+        self.assertTrue(viewlet.available() is False)
         # now send an element to PloneMeeting and check again
         cleanMemoize(self.request, viewlet)
         item = self._sendToPloneMeeting(document)
         # we received informations about the created item
         self.assertTrue(viewlet.getPloneMeetingLinkedInfos()[0]['UID'] == item.UID())
+
+    def test_canNotSeeLinkedInfos(self):
+        """
+          If the element has been sent to PloneMeeting but current user can not see these
+          items in PloneMeeting, a message is displayed
+        """
+        self.changeUser('admin')
+        document = createDocument(self.portal)
+        viewlet = PloneMeetingInfosViewlet(document, self.request, None, None)
+        viewlet.update()
+        item = self._sendToPloneMeeting(document)
+        # we received informations about the created item
+        self.assertTrue(viewlet.getPloneMeetingLinkedInfos()[0]['UID'] == item.UID())
+        # admin will create the element inTheNameOf 'pmCreator1'
+        self.changeUser('pmCreator1')
+        cleanMemoize(self.request, viewlet)
+        self.assertTrue(viewlet.getPloneMeetingLinkedInfos()[0]['UID'] == item.UID())
+        # 'pmCreator2' will not see the infos about items, just a message
+        self.changeUser('pmCreator2')
+        cleanMemoize(self.request, viewlet)
+        self.assertTrue(viewlet.getPloneMeetingLinkedInfos() == (CAN_NOT_SEE_LINKED_ITEMS_INFO, 'info'))
 
     def test_canNotConnectTemporarily(self):
         """
@@ -128,12 +149,11 @@ class testViewlets(WS4PMCLIENTTestCase):
         # send an element to PloneMeeting
         item = self._sendToPloneMeeting(document)
         # correctly sent
-        self.assertTrue(viewlet.available() == True)
+        self.assertTrue(viewlet.available() is True)
         self.assertTrue(viewlet.getPloneMeetingLinkedInfos()[0]['UID'] == item.UID())
         setCorrectSettingsConfig(self.portal, **{'pm_url': u'http://wrong/url'})
         cleanMemoize(self.request, viewlet)
-        # no more linked infos
-        self.assertTrue(viewlet.getPloneMeetingLinkedInfos() == {})
+        # no available
         # a message is returned in the viewlet by the viewlet.available method
         self.assertTrue(viewlet.available() == (UNABLE_TO_CONNECT_ERROR, 'error'))
         # the annotations on the document are still correct

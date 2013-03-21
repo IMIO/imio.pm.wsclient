@@ -81,6 +81,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
                                           'decision',
                                           'description',
                                           'externalIdentifier',
+                                          'proposingGroup',
                                           'title'])
 
     def test_soap_getItemInfos(self):
