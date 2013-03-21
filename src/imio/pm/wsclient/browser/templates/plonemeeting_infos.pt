@@ -9,9 +9,9 @@
     <fieldset><legend>PloneMeeting informations</legend>
     <p class="discreet" i18n:translate="pm_informations_help">You see these informations because the current element has been sent to PloneMeeting.</p>
         <tal:showInfos condition="python: isinstance(available, tuple)">
-        <dl tal:define="infos view/available" class="portalMessage info" tal:attributes="class python: 'portalMessage %s' % infos[1]">
-          <dt i18n:translate="" tal:content="python: infos[1]">Level</dt>
-          <dd tal:content="python: infos[0]">Message</dd>
+        <dl class="portalMessage info" tal:attributes="class python: 'portalMessage %s' % available[1]">
+          <dt i18n:translate="" tal:content="python: available[1]">Level</dt>
+          <dd tal:content="python: available[0]">Message</dd>
         </dl>
         </tal:showInfos>
         <table class="listing" tal:condition="python: available is True and items">
@@ -26,6 +26,7 @@
             </thead>
             <tbody>
                 <tr tal:repeat="item items">
+                   <tal:showInfos condition="item/UID|nothing">
                    <td><a href="#" tal:attributes="href item/absolute_url" tal:content="item/title" target="_blank">Item title</a></td>
                    <td tal:content="item/extraInfos/creator_fullname">Creator fullname</td>
                    <td tal:content="item/extraInfos/meeting_config_title">Meeting config title</td>
@@ -42,6 +43,10 @@
                        </a>&nbsp;
                      </span>
                    </td>
+                   </tal:showInfos>
+                   <tal:warnHiddenInfos condition="not: item/UID|nothing">
+                   <td colspan="7"><span style="color: red;">The item has already been sent to meeting config "<span tal:content="item/extraInfos/meeting_config_title" />" but you are not allowed to see it!</span></td>
+                   </tal:warnHiddenInfos>
                 </tr>
             </tbody>
         </table>
