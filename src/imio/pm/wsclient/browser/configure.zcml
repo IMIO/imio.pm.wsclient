@@ -6,6 +6,17 @@
     xmlns:browser="http://namespaces.zope.org/browser"
     i18n_domain="imio.pm.wsclient">
 
+    <!-- Include z3c.form as dependency -->
+    <include package="plone.app.z3cform" />
+
+    <!-- Register the comment form -->
+    <browser:page
+        for="*"
+        name="send_to_plonemeeting_form"
+        class=".forms.SendToPloneMeetingForm"
+        permission="zope2.View"
+        />
+
     <!-- Control panel -->
     <browser:page
       name="ws4pmclient-settings"
@@ -56,6 +67,18 @@
       provides="zope.schema.interfaces.IVocabularyFactory"
       component=".vocabularies.pm_item_data_vocabularyFactory"
       name="imio.pm.wsclient.pm_item_data_vocabulary"
+    />
+
+    <utility
+      provides="zope.schema.interfaces.IVocabularyFactory"
+      component=".vocabularies.proposing_groups_for_user_vocabularyFactory"
+      name="imio.pm.wsclient.proposing_groups_for_user_vocabulary"
+    />
+
+    <utility
+      provides="zope.schema.interfaces.IVocabularyFactory"
+      component=".vocabularies.categories_for_user_vocabularyFactory"
+      name="imio.pm.wsclient.categories_for_user_vocabulary"
     />
 
     <!-- Resource directory for images -->

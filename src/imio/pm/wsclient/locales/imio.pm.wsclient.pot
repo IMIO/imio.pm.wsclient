@@ -23,6 +23,6 @@ msgstr ""
 msgid "send_to_plonemeeting_specify_proposing_group"
 msgstr ""
 
-#. Default: "Here is a resume of what will be send to PloneMeeting"
+#. Default: "Here is a resume of what will be sent to PloneMeeting"
 msgid "send_to_plonemeeting_descr"
 msgstr ""

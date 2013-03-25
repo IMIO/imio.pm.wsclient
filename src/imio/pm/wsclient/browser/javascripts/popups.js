@@ -8,6 +8,7 @@ jQuery('a.[id^=plone-contentmenu-actions-plonemeeting_wsclient_action_]').each(f
     if ($(this).attr('href').indexOf('&proposingGroupId=') == -1) {
     $(this).prepOverlay({
         subtype: 'ajax',
+        formselector: '#form',
         closeselector: '[name="form.button.Cancel"]',
    });}
 });

@@ -26,7 +26,7 @@ msgstr "Envoyer vers ${meetingConfigTitle}"
 msgid "TAL Condition"
 msgstr "Condition au format TAL"
 
-#. Default: "Here is a resume of what will be send to PloneMeeting"
+#. Default: "Here is a resume of what will be sent to PloneMeeting"
 msgid "send_to_plonemeeting_descr"
 msgstr "Voici un résumé de ce qui va être envoyé"
 
