@@ -60,9 +60,6 @@ class SendToPloneMeetingForm(form.Form):
         # do send to PloneMeeting
         self._doSendToPloneMeeting()
 
-    def gna(self):
-        import ipdb; ipdb.set_trace()
-
     def updateWidgets(self):
         # can not use super in Plone z3c.forms...
         portal = getSite()
