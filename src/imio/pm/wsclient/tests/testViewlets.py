@@ -82,8 +82,9 @@ class testViewlets(WS4PMCLIENTTestCase):
         # if the TAL expression has errors, available is False and a message is displayed
         messages = IStatusMessage(self.request)
         # by default, 2 messages already exist, these are item creation related messages
-        self.assertTrue(len(messages.show()) == 1)
-        self.assertTrue(messages.show()[0].message, CORRECTLY_SENT_TO_PM_INFO)
+        shownMessages = messages.show()
+        self.assertTrue(len(shownMessages) == 1)
+        self.assertTrue(shownMessages[0].message, CORRECTLY_SENT_TO_PM_INFO)
         settings.viewlet_display_condition = u'python: object.getUnexistingAttribute()'
         # in case there is a problem, a message is displayed in a tuple (msg, error_level)
         self.assertTrue(isinstance(viewlet.available(), tuple))

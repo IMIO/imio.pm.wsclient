@@ -7,15 +7,16 @@
       metal:use-macro="here/main_template/macros/master"
       i18n:domain="imio.pm.wsclient">
 
-    <metal:block fill-slot="main">
+    <div metal:fill-slot="main" tal:condition="request/show_send_to_pm_form|python:True">
 
-        <div id="content-core" tal:condition="request/show_send_to_pm_form|python:True">
+        <div id="content-core">
             <metal:form use-macro="context/@@ploneform-macros/form">
             <tal:comment replace="nothing">Do not use default title that uses a H3...</tal:comment>
             <metal:title fill-slot="title">
                 <h1 tal:condition="view/label | nothing" tal:content="view/label">Form title</h1>
             </metal:title>
             <metal:fields fill-slot="fields">
+                   <tal:show_pm_form>
                        <tal:widgets repeat="widget python: view.widgets.values()">
                            <metal:fields use-macro="context/@@ploneform-macros/field" />
                        </tal:widgets>
@@ -27,8 +28,9 @@
                            <p tal:replace="structure python: data[elt]">Data value</p>
                        </fieldset>
                        </tal:display_data_to_send>
+                   </tal:show_pm_form>
             </metal:fields>
             </metal:form>
         </div>
-    </metal:block>
+    </div>
 </html>

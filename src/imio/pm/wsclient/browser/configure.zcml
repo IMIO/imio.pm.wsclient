@@ -9,11 +9,17 @@
     <!-- Include z3c.form as dependency -->
     <include package="plone.app.z3cform" />
 
-    <!-- Register the comment form -->
+    <adapter
+        for="zope.publisher.interfaces.browser.IBrowserRequest"
+        provides="imio.pm.wsclient.interfaces.IRedirect"
+        factory=".redirect.Redirect"
+        />
+
+    <!-- special view that make it possible to redirect from an overlay and show status messages afterward -->
     <browser:page
         for="*"
-        name="send_to_plonemeeting_form"
-        class=".forms.SendToPloneMeetingForm"
+        name="redirect_view"
+        class=".redirect.RedirectView"
         permission="zope2.View"
         />
 
@@ -28,11 +34,10 @@
     <!-- View that sends the element to PloneMeeting -->
     <browser:page
         for="*"
-        name="send_to_plonemeeting"
-        class=".views.SendToPloneMeetingView"
+        name="send_to_plonemeeting_form"
+        class=".forms.SendToPloneMeetingForm"
         permission="zope2.SOAPClientSend"
-        template="templates/send_to_plonemeeting.pt"
-      />
+        />
 
     <!-- View that generates a document of an item -->
     <browser:page

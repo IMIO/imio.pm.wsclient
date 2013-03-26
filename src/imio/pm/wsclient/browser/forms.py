@@ -10,10 +10,8 @@ from zope.component.hooks import getSite
 from zope.component import queryUtility, getMultiAdapter
 from zope import interface, schema
 from zope.schema.interfaces import IVocabularyFactory
-from z3c.form import form
-from z3c.form import button
+from z3c.form import form, field, button
 from z3c.form.interfaces import HIDDEN_MODE
-from plone.autoform.form import AutoExtensibleForm
 from Products.statusmessages.interfaces import IStatusMessage
 
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
@@ -21,6 +19,7 @@ from imio.pm.wsclient import PMMessageFactory as _PM
 from imio.pm.wsclient.config import ALREADY_SENT_TO_PM_ERROR, UNABLE_TO_CONNECT_ERROR, \
     NO_USERINFOS_ERROR, NO_PROPOSING_GROUP_ERROR, CORRECTLY_SENT_TO_PM_INFO, DEFAULT_NO_WARNING_MESSAGE, \
     WS4PMCLIENT_ANNOTATION_KEY, TAL_EVAL_FIELD_ERROR
+from imio.pm.wsclient.interfaces import IRedirect
 
 
 class ISendToPloneMeeting(interface.Interface):
@@ -33,25 +32,26 @@ class ISendToPloneMeeting(interface.Interface):
                              vocabulary=u'imio.pm.wsclient.categories_for_user_vocabulary')
 
 
-class SendToPloneMeetingForm(AutoExtensibleForm, form.EditForm):
-    schema = ISendToPloneMeeting
+class SendToPloneMeetingForm(form.Form):
+    fields = field.Fields(ISendToPloneMeeting)
     ignoreContext = True  # don't use context to get widget data
     ignorePrefix = True
     autoGroups = True
     label = u"Send to PloneMeeting"
     template = ViewPageTemplateFile('templates/send_to_plonemeeting_form.pt')
+    _finishedSent = False
 
     def __init__(self, context, request):
         self.context = context
         self.request = request
-        self.meetingConfigId = self.request.get('meetingConfigId', '') or self.request.form.get('form.widgets.meetingConfigId')
+        self.meetingConfigId = self._findMeetingConfigId()
         self.proposingGroupId = self.request.form.get('form.widgets.proposingGroupId', [''])[0]
         self.portal_state = getMultiAdapter((self.context, self.request), name=u'plone_portal_state')
         self.portal = self.portal_state.portal()
         self.ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
 
     @button.buttonAndHandler(_('Send to PloneMeeting'), name='send_to_plonemeeting')
-    def handleApply(self, action):
+    def handleSendToPloneMeeting(self, action):
         data, errors = self.extractData()
         if errors:
             self.status = self.formErrorsMessage
@@ -79,7 +79,14 @@ class SendToPloneMeetingForm(AutoExtensibleForm, form.EditForm):
         self.widgets.get('proposingGroup').prompt = True
         self.widgets.get('category').prompt = True
         # initialize the value of the meetingConfigId field to what is found in the request
-        self.widgets.get('meetingConfigId').value = self.portal.REQUEST.get('meetingConfigId', '')
+        self.widgets.get('meetingConfigId').value = self._findMeetingConfigId()
+
+    def _findMeetingConfigId(self):
+        """
+          Find the meetingConfigId whereever it is...
+        """
+        return self.request.get('meetingConfigId', '') or \
+            self.request.form.get('form.widgets.meetingConfigId')
 
     def update(self):
         """ """
@@ -100,6 +107,7 @@ class SendToPloneMeetingForm(AutoExtensibleForm, form.EditForm):
             if alreadySent is None or not client:
                 IStatusMessage(self.request).addStatusMessage(_(UNABLE_TO_CONNECT_ERROR), "error")
                 self._hideForm()
+                return
 
         # do not go further if current user can not create an item in
         # PloneMeeting with any proposingGroup
@@ -111,6 +119,7 @@ class SendToPloneMeetingForm(AutoExtensibleForm, form.EditForm):
             else:
                 IStatusMessage(self.request).addStatusMessage(_(NO_PROPOSING_GROUP_ERROR % userThatWillCreate), "error")
             self._hideForm()
+            return
 
         # now that we can connect to the webservice, check that the user can actually trigger that action
         # indeed parameters are sent thru the request, and so someone could do nasty things...
@@ -126,22 +135,16 @@ class SendToPloneMeetingForm(AutoExtensibleForm, form.EditForm):
                 break
         if not mayDoAction:
             raise Unauthorized
-
-        if 'form.button.Cancel' in self.request.form:
-            # case when not using the overlay popup
-            self._redirectToRightPlace()
-        else:
-            # check the field inits before showing the form
-            if True:
-                super(SendToPloneMeetingForm, self).update()
-            else:
-                # StatusMessages are added by fields inits methods
-                return self._redirectToRightPlace()
+        super(SendToPloneMeetingForm, self).update()
 
     def _doSendToPloneMeeting(self):
         """
           The method actually called while sending to PloneMeeting
         """
+        # check again if already sent before sending
+        # this avoid double sent from 2 opened form to send
+        if self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context, (self.meetingConfigId,)):
+            return False
         # build the creationData
         client = self.ws4pmSettings._soap_connectToPloneMeeting()
         creation_data = self._getCreationData(client)
@@ -151,8 +154,9 @@ class SendToPloneMeetingForm(AutoExtensibleForm, form.EditForm):
                                                   creation_data)
         if res:
             uid, warnings = res
-            self.status = _(CORRECTLY_SENT_TO_PM_INFO)
             self.request.set('show_send_to_pm_form', False)
+            self.status = _(CORRECTLY_SENT_TO_PM_INFO)
+            self.portal.plone_utils.addPortalMessage(_(CORRECTLY_SENT_TO_PM_INFO), 'info')
             if warnings:
                 for warning in warnings[1]:
                     # show warnings in the web interface and add it to the Zope log
@@ -173,6 +177,15 @@ class SendToPloneMeetingForm(AutoExtensibleForm, form.EditForm):
                 existingAnnotations = list(annotations[WS4PMCLIENT_ANNOTATION_KEY])
                 existingAnnotations.append(self.meetingConfigId)
                 annotations[WS4PMCLIENT_ANNOTATION_KEY] = existingAnnotations
+            self._finishedSent = True
+            return True
+        return False
+
+    def render(self):
+        if self._finishedSent:
+            IRedirect(self.request).redirect(self.context.absolute_url())
+            return ""
+        return super(SendToPloneMeetingForm, self).render()
 
     def _getCreationData(self, client):
         """
@@ -266,6 +279,8 @@ class SendToPloneMeetingForm(AutoExtensibleForm, form.EditForm):
         """
         """
         self.mode = HIDDEN_MODE
+        # set _finishedSent to True so the render method will not show the form
+        self._finishedSent = True
         self.request.set('show_send_to_pm_form', False)
 
     def _redirectToRightPlace(self):

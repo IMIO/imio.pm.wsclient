@@ -29,6 +29,8 @@ from zope.component import getMultiAdapter
 from Products.PloneMeeting.tests.PloneMeetingTestCase import PloneMeetingTestCase
 from imio.pm.wsclient.testing import WS4PMCLIENT_PM_TEST_PROFILE_FUNCTIONAL
 
+SEND_TO_PM_VIEW_NAME = '@@send_to_plonemeeting_form'
+
 
 class WS4PMCLIENTTestCase(PloneMeetingTestCase):
     '''Base class for defining WS4PMCLIENT test cases.'''
@@ -52,13 +54,15 @@ class WS4PMCLIENTTestCase(PloneMeetingTestCase):
         transaction.commit()
         # use the 'send_to_plonemeeting' view
         self.request.set('URL', obj.absolute_url())
-        self.request.set('ACTUAL_URL', obj.absolute_url() + '/@@send_to_plonemeeting')
+        self.request.set('ACTUAL_URL', obj.absolute_url() + '/%s' % SEND_TO_PM_VIEW_NAME)
         self.request.set('meetingConfigId', 'plonemeeting-assembly')
-        self.request.set('proposingGroupId', proposingGroup)
-        self.request.form['form.button.Send'] = 'Send'
-        obj.restrictedTraverse('@@send_to_plonemeeting')()
+        view = obj.restrictedTraverse(SEND_TO_PM_VIEW_NAME)
+        view.proposingGroupId = proposingGroup
+        # call the view so relevant status messages are displayed
+        view()
+        view._doSendToPloneMeeting()
         transaction.commit()
-        brains = self.portal.portal_catalog(portal_type='MeetingItemPma', Title=obj.Title())
+        brains = self.portal.portal_catalog(portal_type='MeetingItemPma', externalIdentifier=obj.UID())
         return brains and brains[0].getObject() or None
 
 

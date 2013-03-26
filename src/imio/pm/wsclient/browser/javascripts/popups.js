@@ -8,9 +8,12 @@ jQuery('a.[id^=plone-contentmenu-actions-plonemeeting_wsclient_action_]').each(f
     if ($(this).attr('href').indexOf('&proposingGroupId=') == -1) {
     $(this).prepOverlay({
         subtype: 'ajax',
+        filter: common_content_filter,
         formselector: '#form',
-        closeselector: '[name="form.button.Cancel"]',
-   });}
+        noform: 'redirect',
+        redirect: $.plonepopups.redirectbasehref,
+        closeselector: '[name="form.button.Cancel"]'
+    });}
 });
 };
 

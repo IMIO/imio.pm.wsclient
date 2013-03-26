@@ -83,6 +83,9 @@ class PloneMeetingInfosViewlet(ViewletBase):
         if not items:
             # we return a message in a tuple
             return (_(CAN_NOT_SEE_LINKED_ITEMS_INFO), "info")
+
+        annotations = IAnnotations(self.context)
+        sent_to = annotations[WS4PMCLIENT_ANNOTATION_KEY]
         res = []
         # to be able to know if some infos in PloneMeeting where not found
         # for current user, save the infos actually shown...
@@ -91,17 +94,25 @@ class PloneMeetingInfosViewlet(ViewletBase):
             res.append(self.ws4pmSettings._soap_getItemInfos({'UID': item['UID'],
                                                               'showExtraInfos': True,
                                                               'showTemplates': True})[0])
-            shownItemsMeetingConfigId.append(res[-1]['extraInfos']['meeting_config_id'])
+            lastAddedItem = res[-1]
+            shownItemsMeetingConfigId.append(lastAddedItem['extraInfos']['meeting_config_id'])
+            # XXX special case if something went wrong and there is an item in PM
+            # that is not in the contect sent_to annotation
+            lastAddedItemMeetingConfigId = str(lastAddedItem['extraInfos']['meeting_config_id'])
+            if not lastAddedItemMeetingConfigId in sent_to:
+                existingSentTo = list(sent_to)
+                existingSentTo.append(lastAddedItemMeetingConfigId)
+                annotations[WS4PMCLIENT_ANNOTATION_KEY] = existingSentTo
+                sent_to = annotations[WS4PMCLIENT_ANNOTATION_KEY]
+
         # if the number of items found is inferior to elements sent, it means
         # that some infos are not viewable by current user, we add special message
-        annotations = IAnnotations(self.context)
-        sent_to = annotations[WS4PMCLIENT_ANNOTATION_KEY]
         if not len(items) == len(sent_to):
             # get meetingConfigs infos, use meetingConfig vocabulary
             factory = queryUtility(IVocabularyFactory, u'imio.pm.wsclient.pm_meeting_config_id_vocabulary')
             meetingConfigVocab = factory(self.portal_state.portal())
             # add special result
-            for sent in sent_to:
+            for sent in annotations[WS4PMCLIENT_ANNOTATION_KEY]:
                 if not sent in shownItemsMeetingConfigId:
                     # append a special result : nothing else but the meeting_config_id and title
                     # in extraInfos so sort here under works correctly

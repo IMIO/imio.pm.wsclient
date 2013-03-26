@@ -359,6 +359,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         # for performance reason (avoid to connect to SOAP if no annotations)
         # if there are no relevant annotations, it means that the p_context
         # is not linked and we return False
+        isLinked = False
         if WS4PMCLIENT_ANNOTATION_KEY in annotations:
             # the item seems to have been sent, but double check in case it was
             # deleted in PloneMeeting after having been sent
@@ -374,9 +375,9 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 # if res is None, it means that it could not connect to PloneMeeting
                 if res is None:
                     return None
-                # could connect to PM and found a result
-                if res is True:
-                    return True
+                # we found at least one linked item
+                elif res is True:
+                    isLinked = True
                 # could connect to PM but did not find a result
                 elif res is False:
                     # either the item was deleted in PloneMeeting
@@ -390,7 +391,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                     if not annotations[WS4PMCLIENT_ANNOTATION_KEY]:
                         # remove the entire annotation key if empty
                         del annotations[WS4PMCLIENT_ANNOTATION_KEY]
-        return False
+        return isLinked
 
     def renderTALExpression(self, context, portal, expression, vars={}):
         """
@@ -439,7 +440,7 @@ def notify_configuration_changed(event):
                                              meetingConfigVocab.getTerm(actToGen['pm_meeting_config_id']).title},
                                     context=portal.REQUEST),
                                 description='', i18n_domain='imio.pm.wsclient',
-                                url_expr='string:${object_url}/@@send_to_plonemeeting?meetingConfigId=%s'
+                                url_expr='string:${object_url}/@@send_to_plonemeeting_form?meetingConfigId=%s'
                                          % actToGen['pm_meeting_config_id'],
                                 icon_expr='',
                                 available_expr=actToGen['condition'],
