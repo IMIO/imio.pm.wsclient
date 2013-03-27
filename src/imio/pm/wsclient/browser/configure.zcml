@@ -35,8 +35,25 @@
     <browser:page
         for="*"
         name="send_to_plonemeeting_form"
-        class=".forms.SendToPloneMeetingForm"
+        class=".forms.SendToPloneMeetingWrapper"
         permission="zope2.SOAPClientSend"
+        />
+
+    <browser:page
+        name="ploneform-macros"
+        for=".forms.SendToPloneMeetingWrapper"
+        class="plone.z3cform.templates.Macros"
+        template="templates/z3cform-macros-with-content-provider.pt"
+        allowed_interface="zope.interface.common.mapping.IItemMapping"
+        permission="zope.Public"
+        />
+
+    <browser:page
+        name="ploneform-render-widget"
+        for="zope.contentprovider.interfaces.IContentProvider"
+        template="templates/contentprovider-widget.pt"
+        layer="plone.app.z3cform.interfaces.IPloneFormLayer"
+        permission="zope.Public"
         />
 
     <!-- View that generates a document of an item -->

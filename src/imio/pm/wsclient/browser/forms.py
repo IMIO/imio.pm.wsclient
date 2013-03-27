@@ -8,10 +8,14 @@ from zope.annotation import IAnnotations
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from zope.component.hooks import getSite
 from zope.component import queryUtility, getMultiAdapter
+from zope.contentprovider.provider import ContentProviderBase
 from zope import interface, schema
+from zope.interface import implements
 from zope.schema.interfaces import IVocabularyFactory
 from z3c.form import form, field, button
 from z3c.form.interfaces import HIDDEN_MODE
+from z3c.form.interfaces import IFieldsAndContentProvidersForm
+from z3c.form.contentprovider import ContentProviders
 from Products.statusmessages.interfaces import IStatusMessage
 
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
@@ -32,13 +36,31 @@ class ISendToPloneMeeting(interface.Interface):
                              vocabulary=u'imio.pm.wsclient.categories_for_user_vocabulary')
 
 
+class DisplayDataToSendProvider(ContentProviderBase):
+    """
+    """
+    def __init__(self, context, request, view):
+        super(DisplayDataToSendProvider, self).__init__(context, request, view)
+        self.__parent__ = view
+
+    def update(self):
+        self.gna = ''
+
+    def render(self):
+        return '<div class="ex-help">Current id :</div>'
+
+
 class SendToPloneMeetingForm(form.Form):
+    implements(IFieldsAndContentProvidersForm)
+
     fields = field.Fields(ISendToPloneMeeting)
     ignoreContext = True  # don't use context to get widget data
-    ignorePrefix = True
-    autoGroups = True
+
+    contentProviders = ContentProviders()
+    contentProviders['dataToSend'] = DisplayDataToSendProvider
+    contentProviders['dataToSend'].position = 1
     label = u"Send to PloneMeeting"
-    template = ViewPageTemplateFile('templates/send_to_plonemeeting_form.pt')
+    description = u''
     _finishedSent = False
 
     def __init__(self, context, request):
@@ -95,6 +117,7 @@ class SendToPloneMeetingForm(form.Form):
         if alreadySent:
             IStatusMessage(self.request).addStatusMessage(_(ALREADY_SENT_TO_PM_ERROR), "error")
             self._hideForm()
+            return
         elif alreadySent in (None, False):
             # None means that it was already sent but that it could not connect to PloneMeeting
             # False means that is was not sent, so no connection test is made to PloneMeeting for performance reason
@@ -275,23 +298,11 @@ class SendToPloneMeetingForm(form.Form):
     def _hideForm(self):
         """
         """
+        import ipdb; ipdb.set_trace()
         self.mode = HIDDEN_MODE
-        # set _finishedSent to True so the render method will not show the form
         self._finishedSent = True
-        self.request.set('show_send_to_pm_form', False)
-
-    def _redirectToRightPlace(self):
-        """
-          Depending on the fact that we are using a popup overlay or not,
-          if not in a popup overlay redirect to context url so the message is displayed
-        """
-        if not 'ajax_load' in self.request:
-            return self.request.RESPONSE.redirect(self.context.absolute_url())
-        else:
-            # tells the overlay popup that there are just messages to display
-            self.request.set('show_send_to_pm_form', False)
-            return self.render()
+        super(SendToPloneMeetingForm, self).update()
 
 
 from plone.z3cform.layout import wrap_form
-SendToPloneMeetingView = wrap_form(SendToPloneMeetingForm)
+SendToPloneMeetingWrapper = wrap_form(SendToPloneMeetingForm)
