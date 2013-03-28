@@ -68,7 +68,6 @@ class testViewlets(WS4PMCLIENTTestCase):
         settings.viewlet_display_condition = u''
         self.assertFalse(viewlet.available())
         cleanMemoize(self.request, viewlet)
-        import ipdb; ipdb.set_trace()
         item = self._sendToPloneMeeting(document)
         # now that the element has been sent, the viewlet is available
         self.assertTrue(viewlet.available())
