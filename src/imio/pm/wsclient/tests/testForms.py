@@ -46,14 +46,14 @@ class testForms(WS4PMCLIENTTestCase):
         # only available to connected users
         self.assertRaises(Unauthorized, self.portal.restrictedTraverse, SEND_TO_PM_VIEW_NAME)
         self.changeUser('pmCreator1')
-        self.portal.restrictedTraverse(SEND_TO_PM_VIEW_NAME)
+        self.portal.restrictedTraverse(SEND_TO_PM_VIEW_NAME).form_instance
 
     def test_canNotConnectToPloneMeeting(self):
         """If no valid parameters are defined in the settings, the view is not accessible
            and a relevant message if displayed to the member in portal_messages."""
         # only available to connected users
         self.changeUser('pmCreator1')
-        view = self.portal.restrictedTraverse(SEND_TO_PM_VIEW_NAME)
+        view = self.portal.restrictedTraverse(SEND_TO_PM_VIEW_NAME).form_instance
         # when we can not connect, a message is displayed to the user
         messages = IStatusMessage(self.request)
         self.assertTrue(len(messages.show()) == 0)
@@ -76,8 +76,7 @@ class testForms(WS4PMCLIENTTestCase):
         self.request.set('URL', document.absolute_url())
         self.request.set('ACTUAL_URL', document.absolute_url() + '/%s' % SEND_TO_PM_VIEW_NAME)
         self.request.set('meetingConfigId', 'wrong-meeting-config-id')
-        self.request.form['form.button.Send'] = 'Send'
-        view = document.restrictedTraverse(SEND_TO_PM_VIEW_NAME)
+        view = document.restrictedTraverse(SEND_TO_PM_VIEW_NAME).form_instance
         self.assertRaises(Unauthorized, view)
 
     def test_sendItemToPloneMeeting(self):
@@ -89,7 +88,7 @@ class testForms(WS4PMCLIENTTestCase):
         self.request.set('URL', document.absolute_url())
         self.request.set('ACTUAL_URL', document.absolute_url() + '/%s' % SEND_TO_PM_VIEW_NAME)
         self.request.set('meetingConfigId', 'plonemeeting-assembly')
-        view = document.restrictedTraverse(SEND_TO_PM_VIEW_NAME)
+        view = document.restrictedTraverse(SEND_TO_PM_VIEW_NAME).form_instance
         # before sending, no item is linked to the document
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 0)
@@ -101,7 +100,7 @@ class testForms(WS4PMCLIENTTestCase):
         # send to PloneMeeting
         # as form.button.Send is not in the form, nothing is done but returning the views's index
         # the form for sending an element is displayed
-        form_action = '<form class="rowlike enableUnloadProtection   kssattr-formname-document"' \
+        form_action = '<form class="rowlike enableUnloadProtection   kssattr-formname-send_to_plonemeeting_form"' \
             ' action="http://localhost:55001/plone/Members/pmCreator1/document" method="post"' \
             ' id="form" enctype="multipart/form-data">'
         self.assertTrue(form_action in view())
@@ -153,7 +152,7 @@ class testForms(WS4PMCLIENTTestCase):
         self.request.set('URL', document.absolute_url())
         self.request.set('ACTUAL_URL', document.absolute_url() + '/%s' % SEND_TO_PM_VIEW_NAME)
         self.request.set('meetingConfigId', 'plonemeeting-assembly')
-        view = document.restrictedTraverse(SEND_TO_PM_VIEW_NAME)
+        view = document.restrictedTraverse(SEND_TO_PM_VIEW_NAME).form_instance
         view.proposingGroupId = 'developers'
         # create the 'pmCreator1' member area to be able to create an item
         self.tool.getPloneMeetingFolder('plonemeeting-assembly', 'pmCreator1')
@@ -209,7 +208,7 @@ class testForms(WS4PMCLIENTTestCase):
         self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 1)
         # the item can also been send to another meetingConfig
         self.request.set('meetingConfigId', 'plonegov-assembly')
-        view = document.restrictedTraverse(SEND_TO_PM_VIEW_NAME)
+        view = document.restrictedTraverse(SEND_TO_PM_VIEW_NAME).form_instance
         view.proposingGroupId = 'developers'
         self.assertFalse(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
                         (self.request.get('meetingConfigId'),)))

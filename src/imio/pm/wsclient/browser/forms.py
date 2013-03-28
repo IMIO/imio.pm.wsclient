@@ -5,7 +5,6 @@ from collections import OrderedDict
 from AccessControl import Unauthorized
 
 from zope.annotation import IAnnotations
-from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from zope.component.hooks import getSite
 from zope.component import queryUtility, getMultiAdapter
 from zope.contentprovider.provider import ContentProviderBase
@@ -298,7 +297,6 @@ class SendToPloneMeetingForm(form.Form):
     def _hideForm(self):
         """
         """
-        import ipdb; ipdb.set_trace()
         self.mode = HIDDEN_MODE
         self._finishedSent = True
         super(SendToPloneMeetingForm, self).update()

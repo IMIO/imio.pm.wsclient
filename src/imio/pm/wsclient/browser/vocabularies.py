@@ -82,6 +82,8 @@ class proposing_groups_for_user_vocabulary(object):
             portal = portal.aq_inner.aq_parent
         ws4pmsettings = getMultiAdapter((portal, portal.REQUEST), name='ws4pmclient-settings')
         field_mappings = ws4pmsettings.settings().field_mappings
+        if not field_mappings:
+            return SimpleVocabulary([])
         forcedProposingGroup = None
         vars = {}
         vars['meetingConfigId'] = portal.REQUEST.get('meetingConfigId')
@@ -99,11 +101,11 @@ class proposing_groups_for_user_vocabulary(object):
                         _(TAL_EVAL_FIELD_ERROR %
                           (field_mapping['expression'], field_mapping['field_name'], e)),
                         "error")
-                    return []
+                    return SimpleVocabulary([])
         # even if we get a forcedProposingGroup, double check that the current user can actually use it
         userInfos = ws4pmsettings._soap_getUserInfos(showGroups=True, suffix='creators')
         if not 'groups' in userInfos:
-            return []
+            return SimpleVocabulary([])
         terms = []
         forcedProposingGroupExists = not forcedProposingGroup and True or False
         for group in userInfos['groups']:
@@ -138,9 +140,12 @@ class categories_for_user_vocabulary(object):
             portal = portal.aq_inner.aq_parent
         ws4pmsettings = getMultiAdapter((portal, portal.REQUEST), name='ws4pmclient-settings')
         field_mappings = ws4pmsettings.settings().field_mappings
+        if not field_mappings:
+            return SimpleVocabulary([])
         forcedCategory = None
         vars = {}
-        meetingConfigId = portal.REQUEST.get('meetingConfigId') or portal.REQUEST.form.get('form.widgets.meetingConfigId')
+        meetingConfigId = portal.REQUEST.get('meetingConfigId') or \
+            portal.REQUEST.form.get('form.widgets.meetingConfigId')
         vars['meetingConfigId'] = meetingConfigId
         for field_mapping in field_mappings:
             # try to find out if a proposingGroup is forced in the configuration

@@ -56,7 +56,7 @@ class WS4PMCLIENTTestCase(PloneMeetingTestCase):
         self.request.set('URL', obj.absolute_url())
         self.request.set('ACTUAL_URL', obj.absolute_url() + '/%s' % SEND_TO_PM_VIEW_NAME)
         self.request.set('meetingConfigId', 'plonemeeting-assembly')
-        view = obj.restrictedTraverse(SEND_TO_PM_VIEW_NAME)
+        view = obj.restrictedTraverse(SEND_TO_PM_VIEW_NAME).form_instance
         view.proposingGroupId = proposingGroup
         # call the view so relevant status messages are displayed
         view()
