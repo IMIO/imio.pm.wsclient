@@ -39,15 +39,7 @@
         permission="zope2.SOAPClientSend"
         />
 
-    <browser:page
-        name="ploneform-macros"
-        for=".forms.SendToPloneMeetingWrapper"
-        class="plone.z3cform.templates.Macros"
-        template="templates/z3cform-macros-with-content-provider.pt"
-        allowed_interface="zope.interface.common.mapping.IItemMapping"
-        permission="zope.Public"
-        />
-
+    <!-- define a specific template for rendering ContentProviders in z3cforms until it is in plone.app.z3cform... -->
     <browser:page
         name="ploneform-render-widget"
         for="zope.contentprovider.interfaces.IContentProvider"

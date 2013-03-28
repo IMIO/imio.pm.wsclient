@@ -10,7 +10,7 @@ jQuery('a.[id^=plone-contentmenu-actions-plonemeeting_wsclient_action_]').each(f
         subtype: 'ajax',
         filter: common_content_filter,
         formselector: '#form',
-        noform: function(el) {return $.plonepopups.noformerrorshow(el, 'reload');},
+        noform: function(el) {return $.plonepopups.noformerrorshow(el, 'redirect');},
         redirect: $.plonepopups.redirectbasehref,
         closeselector: '[name="form.button.Cancel"]'
     });}

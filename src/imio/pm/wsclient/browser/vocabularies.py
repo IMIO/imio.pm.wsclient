@@ -104,7 +104,7 @@ class proposing_groups_for_user_vocabulary(object):
                     return SimpleVocabulary([])
         # even if we get a forcedProposingGroup, double check that the current user can actually use it
         userInfos = ws4pmsettings._soap_getUserInfos(showGroups=True, suffix='creators')
-        if not 'groups' in userInfos:
+        if not userInfos or not 'groups' in userInfos:
             return SimpleVocabulary([])
         terms = []
         forcedProposingGroupExists = not forcedProposingGroup and True or False
@@ -164,6 +164,8 @@ class categories_for_user_vocabulary(object):
                     return SimpleVocabulary([])
 
         configInfos = ws4pmsettings._soap_getConfigInfos(showCategories=True)
+        if not configInfos:
+            return SimpleVocabulary([])
         categories = []
         # find categories for given meetingConfigId
         for configInfo in configInfos:

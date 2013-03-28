@@ -12,9 +12,11 @@ from zope import interface, schema
 from zope.interface import implements
 from zope.schema.interfaces import IVocabularyFactory
 from z3c.form import form, field, button
-from z3c.form.interfaces import HIDDEN_MODE
+from z3c.form.interfaces import HIDDEN_MODE, DISPLAY_MODE
 from z3c.form.interfaces import IFieldsAndContentProvidersForm
 from z3c.form.contentprovider import ContentProviders
+
+from zope.browserpage.viewpagetemplatefile import ViewPageTemplateFile
 from Products.statusmessages.interfaces import IStatusMessage
 
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
@@ -89,10 +91,13 @@ class SendToPloneMeetingForm(form.Form):
             return
         # hide the meetingConfigId field
         self.fields.get('meetingConfigId').mode = HIDDEN_MODE
+        form.Form.updateWidgets(self)
         # hide the widget if the linked vocabulary is empty, it means that
         # the linked meetingConfig does not use categories...
-        self.fields.get('category').mode = not bool(self._getCategoriesVocab()) and HIDDEN_MODE or None
-        form.Form.updateWidgets(self)
+        # we can not use HIDDEN_MODE because the field is required
+        # we set the field in DISPLAY_MODE then add a style that hides it...
+        self.fields.get('category').mode = not bool(self._getCategoriesVocab()) and DISPLAY_MODE or None
+        import ipdb; ipdb.set_trace()
         # add a 'Choose a value...'
         self.widgets.get('proposingGroup').prompt = True
         self.widgets.get('category').prompt = True
@@ -101,7 +106,7 @@ class SendToPloneMeetingForm(form.Form):
 
     def _findMeetingConfigId(self):
         """
-          Find the meetingConfigId whereever it is...
+          Find the meetingConfigId wherever it is...
         """
         return self.request.get('meetingConfigId', '') or \
             self.request.form.get('form.widgets.meetingConfigId')
@@ -115,7 +120,7 @@ class SendToPloneMeetingForm(form.Form):
         alreadySent = self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context, (self.meetingConfigId,))
         if alreadySent:
             IStatusMessage(self.request).addStatusMessage(_(ALREADY_SENT_TO_PM_ERROR), "error")
-            self._hideForm()
+            self._changeFormForErrors()
             return
         elif alreadySent in (None, False):
             # None means that it was already sent but that it could not connect to PloneMeeting
@@ -125,7 +130,7 @@ class SendToPloneMeetingForm(form.Form):
                 client = self.ws4pmSettings._soap_connectToPloneMeeting()
             if alreadySent is None or not client:
                 IStatusMessage(self.request).addStatusMessage(_(UNABLE_TO_CONNECT_ERROR), "error")
-                self._hideForm()
+                self._changeFormForErrors()
                 return
 
         # do not go further if current user can not create an item in
@@ -137,7 +142,7 @@ class SendToPloneMeetingForm(form.Form):
                 IStatusMessage(self.request).addStatusMessage(_(NO_USERINFOS_ERROR % userThatWillCreate), "error")
             else:
                 IStatusMessage(self.request).addStatusMessage(_(NO_PROPOSING_GROUP_ERROR % userThatWillCreate), "error")
-            self._hideForm()
+            self._changeFormForErrors()
             return
 
         # now that we can connect to the webservice, check that the user can actually trigger that action
@@ -203,7 +208,7 @@ class SendToPloneMeetingForm(form.Form):
     def render(self):
         if self._finishedSent:
             IRedirect(self.request).redirect(self.context.absolute_url())
-            return ""
+
         return super(SendToPloneMeetingForm, self).render()
 
     def _getCreationData(self, client):
@@ -294,11 +299,13 @@ class SendToPloneMeetingForm(form.Form):
                 data.pop(elt)
         return data
 
-    def _hideForm(self):
+    def _changeFormForErrors(self):
         """
         """
-        self.mode = HIDDEN_MODE
-        self._finishedSent = True
+        self._finishedSent = False
+        # if we use an overlay popup do some nasty things...
+        if 'ajax_load' in self.request.form:
+            self.template = ViewPageTemplateFile('templates/show_errors_in_overlay_form.pt').__get__(self, '')
         super(SendToPloneMeetingForm, self).update()
 
 
