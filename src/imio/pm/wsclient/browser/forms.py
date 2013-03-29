@@ -12,7 +12,7 @@ from zope import interface, schema
 from zope.interface import implements
 from zope.schema.interfaces import IVocabularyFactory
 from z3c.form import form, field, button
-from z3c.form.interfaces import HIDDEN_MODE, DISPLAY_MODE
+from z3c.form.interfaces import HIDDEN_MODE
 from z3c.form.interfaces import IFieldsAndContentProvidersForm
 from z3c.form.contentprovider import ContentProviders
 
@@ -59,10 +59,11 @@ class SendToPloneMeetingForm(form.Form):
 
     contentProviders = ContentProviders()
     contentProviders['dataToSend'] = DisplayDataToSendProvider
-    contentProviders['dataToSend'].position = 1
+    contentProviders['dataToSend'].position = 2
     label = u"Send to PloneMeeting"
     description = u''
     _finishedSent = False
+    _displayErrorsInOverlay = False
 
     def __init__(self, context, request):
         self.context = context
@@ -91,12 +92,15 @@ class SendToPloneMeetingForm(form.Form):
             return
         # hide the meetingConfigId field
         self.fields.get('meetingConfigId').mode = HIDDEN_MODE
-        form.Form.updateWidgets(self)
         # hide the widget if the linked vocabulary is empty, it means that
         # the linked meetingConfig does not use categories...
-        # we can not use HIDDEN_MODE because the field is required
-        # we set the field in DISPLAY_MODE then add a style that hides it...
-        self.fields.get('category').mode = not bool(self._getCategoriesVocab()) and DISPLAY_MODE or None
+        # hide it and set it to required=False
+        category_field = self.fields.get('category')
+        category_field.mode = not bool(self._getCategoriesVocab()) and HIDDEN_MODE or None
+        # as category is a required field, hidding it is not enough...
+        category_field.field.required = False
+        # XXX manipulate self.fields BEFORE doing form.Form.updateWidgets
+        form.Form.updateWidgets(self)
         # add a 'Choose a value...'
         self.widgets.get('proposingGroup').prompt = True
         self.widgets.get('category').prompt = True
@@ -206,9 +210,7 @@ class SendToPloneMeetingForm(form.Form):
     def render(self):
         if self._finishedSent:
             IRedirect(self.request).redirect(self.context.absolute_url())
-            # if not in a overlay popup, render nothing
-            if not 'ajax_load' in self.request.form:
-                return ""
+            return ""
         return super(SendToPloneMeetingForm, self).render()
 
     def _getCreationData(self, client):
@@ -302,10 +304,11 @@ class SendToPloneMeetingForm(form.Form):
     def _changeFormForErrors(self):
         """
         """
-        self._finishedSent = True
         # if we use an overlay popup do some nasty things...
         if 'ajax_load' in self.request.form:
             self.template = ViewPageTemplateFile('templates/show_errors_in_overlay_form.pt').__get__(self, '')
+        else:
+            self._finishedSent = True
         super(SendToPloneMeetingForm, self).update()
 
 
