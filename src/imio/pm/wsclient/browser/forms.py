@@ -97,7 +97,6 @@ class SendToPloneMeetingForm(form.Form):
         # we can not use HIDDEN_MODE because the field is required
         # we set the field in DISPLAY_MODE then add a style that hides it...
         self.fields.get('category').mode = not bool(self._getCategoriesVocab()) and DISPLAY_MODE or None
-        import ipdb; ipdb.set_trace()
         # add a 'Choose a value...'
         self.widgets.get('proposingGroup').prompt = True
         self.widgets.get('category').prompt = True
@@ -179,7 +178,6 @@ class SendToPloneMeetingForm(form.Form):
         if res:
             uid, warnings = res
             self.request.set('show_send_to_pm_form', False)
-            self.status = _(CORRECTLY_SENT_TO_PM_INFO)
             self.portal.plone_utils.addPortalMessage(_(CORRECTLY_SENT_TO_PM_INFO), 'info')
             if warnings:
                 for warning in warnings[1]:
@@ -208,7 +206,9 @@ class SendToPloneMeetingForm(form.Form):
     def render(self):
         if self._finishedSent:
             IRedirect(self.request).redirect(self.context.absolute_url())
-
+            # if not in a overlay popup, render nothing
+            if not 'ajax_load' in self.request.form:
+                return ""
         return super(SendToPloneMeetingForm, self).render()
 
     def _getCreationData(self, client):
@@ -302,7 +302,7 @@ class SendToPloneMeetingForm(form.Form):
     def _changeFormForErrors(self):
         """
         """
-        self._finishedSent = False
+        self._finishedSent = True
         # if we use an overlay popup do some nasty things...
         if 'ajax_load' in self.request.form:
             self.template = ViewPageTemplateFile('templates/show_errors_in_overlay_form.pt').__get__(self, '')
