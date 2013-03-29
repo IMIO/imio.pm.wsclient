@@ -30,9 +30,12 @@ from imio.pm.wsclient.interfaces import IRedirect
 class ISendToPloneMeeting(interface.Interface):
     meetingConfigId = schema.TextLine(title=_(u"Meeting config id"))
     proposingGroup = schema.Choice(title=_PM(u"PloneMeeting_label_proposingGroup"),
+                                   description=_(u"Select the proposing group to use "
+                                                 "for the created item in PloneMeeting"),
                                    required=True,
                                    vocabulary=u'imio.pm.wsclient.proposing_groups_for_user_vocabulary')
     category = schema.Choice(title=_PM(u"PloneMeeting_label_category"),
+                             description=_(u"Select the category to use for the created item item in PloneMeeting"),
                              required=True,
                              vocabulary=u'imio.pm.wsclient.categories_for_user_vocabulary')
 
@@ -40,15 +43,30 @@ class ISendToPloneMeeting(interface.Interface):
 class DisplayDataToSendProvider(ContentProviderBase):
     """
     """
+    template = ViewPageTemplateFile('templates/display_data_to_send.pt')
+
     def __init__(self, context, request, view):
         super(DisplayDataToSendProvider, self).__init__(context, request, view)
         self.__parent__ = view
 
-    def update(self):
-        self.gna = ''
+    def getDisplayableData(self):
+        """
+          Returns data to be displayed in the resume form
+          Do not display :
+          - externalIdentifier
+          - empty values
+        """
+        data = self.__parent__.form._buildDataDict()
+        if 'externalIdentifier' in data:
+            data.pop('externalIdentifier')
+        for elt in data:
+            # keep category and proposingGroup even if empty
+            if not data[elt].strip() and not elt in ['category', 'proposingGroup', ]:
+                data.pop(elt)
+        return data
 
     def render(self):
-        return '<div class="ex-help">Current id :</div>'
+        return self.template()
 
 
 class SendToPloneMeetingForm(form.Form):
@@ -59,7 +77,8 @@ class SendToPloneMeetingForm(form.Form):
 
     contentProviders = ContentProviders()
     contentProviders['dataToSend'] = DisplayDataToSendProvider
-    contentProviders['dataToSend'].position = 2
+    # put the 'dataToSend' in last position
+    contentProviders['dataToSend'].position = 3
     label = u"Send to PloneMeeting"
     description = u''
     _finishedSent = False
@@ -84,35 +103,9 @@ class SendToPloneMeetingForm(form.Form):
         # do send to PloneMeeting
         self._doSendToPloneMeeting()
 
-    def updateWidgets(self):
-        # can not use super in Plone z3c.forms...
-        portal = getSite()
-        # this is also called by the kss inline_validation, avoid too much work...
-        if not portal.__module__ == 'Products.CMFPlone.Portal':
-            return
-        # hide the meetingConfigId field
-        self.fields.get('meetingConfigId').mode = HIDDEN_MODE
-        # hide the widget if the linked vocabulary is empty, it means that
-        # the linked meetingConfig does not use categories...
-        # hide it and set it to required=False
-        category_field = self.fields.get('category')
-        category_field.mode = not bool(self._getCategoriesVocab()) and HIDDEN_MODE or None
-        # as category is a required field, hidding it is not enough...
-        category_field.field.required = False
-        # XXX manipulate self.fields BEFORE doing form.Form.updateWidgets
-        form.Form.updateWidgets(self)
-        # add a 'Choose a value...'
-        self.widgets.get('proposingGroup').prompt = True
-        self.widgets.get('category').prompt = True
-        # initialize the value of the meetingConfigId field to what is found in the request
-        self.widgets.get('meetingConfigId').value = self._findMeetingConfigId()
-
-    def _findMeetingConfigId(self):
-        """
-          Find the meetingConfigId wherever it is...
-        """
-        return self.request.get('meetingConfigId', '') or \
-            self.request.form.get('form.widgets.meetingConfigId')
+    @button.buttonAndHandler(_('Cancel'), name='cancel')
+    def handleCancel(self, action):
+        self._finishedSent = True
 
     def update(self):
         """ """
@@ -162,7 +155,46 @@ class SendToPloneMeetingForm(form.Form):
                 break
         if not mayDoAction:
             raise Unauthorized
+
         super(SendToPloneMeetingForm, self).update()
+        # after calling parent's update, self.actions are available
+        self.actions.get('cancel').addClass('standalone')
+
+    def updateWidgets(self):
+        portal = getSite()
+        # this is also called by the kss inline_validation, avoid too much work...
+        if not portal.__module__ == 'Products.CMFPlone.Portal':
+            return
+        # hide the meetingConfigId field
+        self.fields.get('meetingConfigId').mode = HIDDEN_MODE
+        # hide the widget if the linked vocabulary is empty, it means that
+        # the linked meetingConfig does not use categories...
+        # hide it and set it to required=False
+        category_field = self.fields.get('category')
+        category_field.mode = not bool(self._getCategoriesVocab()) and HIDDEN_MODE or None
+        # as category is a required field, hidding it is not enough...
+        category_field.field.required = bool(self._getCategoriesVocab()) and True or False
+        # XXX manipulate self.fields BEFORE doing form.Form.updateWidgets
+        form.Form.updateWidgets(self)
+        # add a 'Choose a value...'
+        self.widgets.get('proposingGroup').prompt = True
+        self.widgets.get('category').prompt = True
+        # initialize the value of the meetingConfigId field to what is found in the request
+        self.widgets.get('meetingConfigId').value = self._findMeetingConfigId()
+        # add the class 'standalone' on the 'Cancel' button
+
+    def render(self):
+        if self._finishedSent:
+            IRedirect(self.request).redirect(self.context.absolute_url())
+            return ""
+        return super(SendToPloneMeetingForm, self).render()
+
+    def _findMeetingConfigId(self):
+        """
+          Find the meetingConfigId wherever it is...
+        """
+        return self.request.get('meetingConfigId', '') or \
+            self.request.form.get('form.widgets.meetingConfigId')
 
     def _doSendToPloneMeeting(self):
         """
@@ -206,12 +238,6 @@ class SendToPloneMeetingForm(form.Form):
             self._finishedSent = True
             return True
         return False
-
-    def render(self):
-        if self._finishedSent:
-            IRedirect(self.request).redirect(self.context.absolute_url())
-            return ""
-        return super(SendToPloneMeetingForm, self).render()
 
     def _getCreationData(self, client):
         """
@@ -284,22 +310,6 @@ class SendToPloneMeetingForm(form.Form):
         portal = getSite()
         factory = queryUtility(IVocabularyFactory, u'imio.pm.wsclient.proposing_groups_for_user_vocabulary')
         return factory(portal)
-
-    def getDisplayableData(self):
-        """
-          Returns data to be displayed in the resume form
-          Do not display :
-          - externalIdentifier
-          - empty values
-        """
-        data = self._buildDataDict()
-        if 'externalIdentifier' in data:
-            data.pop('externalIdentifier')
-        for elt in data:
-            # keep category and proposingGroup even if empty
-            if not data[elt].strip() and not elt in ['category', 'proposingGroup', ]:
-                data.pop(elt)
-        return data
 
     def _changeFormForErrors(self):
         """

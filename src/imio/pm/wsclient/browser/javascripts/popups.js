@@ -11,7 +11,7 @@ jQuery('a.[id^=plone-contentmenu-actions-plonemeeting_wsclient_action_]').each(f
         formselector: '#form',
         noform: 'redirect',
         redirect: $.plonepopups.redirectbasehref,
-        closeselector: '[name="form.button.Cancel"]'
+        closeselector: '[name="form.buttons.cancel"]'
     });}
 });
 };
