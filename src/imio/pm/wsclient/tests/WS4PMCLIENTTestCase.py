@@ -41,21 +41,22 @@ class WS4PMCLIENTTestCase(PloneMeetingTestCase):
         """ """
         PloneMeetingTestCase.setUp(self)
 
-    def _sendToPloneMeeting(self, obj, user='pmCreator1', proposingGroup='developers'):
+    def _sendToPloneMeeting(self, obj, user='pmCreator1', proposingGroup='developers',
+                            meetingConfigId='plonemeeting-assembly', category=''):
         """
           Helper method for sending an element to PloneMeeting
         """
         # set correct config
         setCorrectSettingsConfig(self.portal)
         # create the 'pmCreator1' member area to be able to create an item
-        self.tool.getPloneMeetingFolder('plonemeeting-assembly', user)
+        self.tool.getPloneMeetingFolder(meetingConfigId, user)
         # we have to commit() here or portal used behing the SOAP call
         # does not have the freshly created item...
         transaction.commit()
         # use the 'send_to_plonemeeting' view
         self.request.set('URL', obj.absolute_url())
         self.request.set('ACTUAL_URL', obj.absolute_url() + '/%s' % SEND_TO_PM_VIEW_NAME)
-        self.request.set('meetingConfigId', 'plonemeeting-assembly')
+        self.request.set('meetingConfigId', meetingConfigId)
         view = obj.restrictedTraverse(SEND_TO_PM_VIEW_NAME).form_instance
         view.proposingGroupId = proposingGroup
         # call the view so relevant status messages are displayed

@@ -75,16 +75,20 @@ class testViews(WS4PMCLIENTTestCase):
         # nothing is generated, just redirected to the context
         self.assertFalse(view() != DOCUMENT_ABSOLUTE_URL)
         self.assertTrue(len(messages.show()) == 5)
-        self.assertTrue(messages.show()[4].message == u"An error occured while generating the document in " \
-            "PloneMeeting!  The error message was : Server raised fault: 'You can not access this item!'")
+        self.assertTrue(
+            messages.show()[4].message == u"An error occured while generating the document in "
+            "PloneMeeting!  The error message was : Server raised fault: 'You can not access this item!'"
+        )
         # now with a valid itemUID but no valid templateId
         self.request.set('itemUID', item.UID())
         view = document.restrictedTraverse('@@generate_document_from_plonemeeting')
         # nothing is generated, just redirected to the context
         self.assertFalse(view() != DOCUMENT_ABSOLUTE_URL)
         self.assertTrue(len(messages.show()) == 6)
-        self.assertTrue(messages.show()[5].message == u"An error occured while generating the document in " \
-            "PloneMeeting!  The error message was : Server raised fault: 'You can not access this template!'")
+        self.assertTrue(
+            messages.show()[5].message == u"An error occured while generating the document in "
+            "PloneMeeting!  The error message was : Server raised fault: 'You can not access this template!'"
+        )
         # now with all valid infos
         self.request.set('templateId', 'itemTemplate')
         view = document.restrictedTraverse('@@generate_document_from_plonemeeting')

@@ -7,8 +7,8 @@ class pm_meeting_config_id_vocabulary(object):
     """
       Overrides the existing imio.pm.wsclient.browser.vocabularies.pm_meeting_config_id_vocabulary
       vocabulary that needs PloneMeeting to work and in the testSettings.py we do not have PloneMeeting...
+      For other tests, the existing vocabulary is used.
     """
-
     implements(IVocabularyFactory)
 
     def __call__(self, context):
