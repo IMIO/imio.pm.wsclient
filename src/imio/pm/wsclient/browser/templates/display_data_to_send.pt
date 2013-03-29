@@ -1,0 +1,8 @@
+<tal:comment replace="nothing">Display data that will be send to PloneMeeting</tal:comment>
+<br /><span class="discreet" i18n:translate="send_to_plonemeeting_descr">Here is a resume of what will be sent to PloneMeeting</span> :
+<tal:display_data_to_send tal:define="data view/getDisplayableData" tal:repeat="elt data">
+<fieldset tal:condition="python: not elt in ['category', 'proposingGroup', ]">
+    <legend i18n:domain="PloneMeeting" i18n:translate="" tal:content="string:PloneMeeting_label_${elt}">Data name</legend>
+    <p tal:replace="structure python: data[elt]">Data value</p>
+</fieldset>
+</tal:display_data_to_send>
