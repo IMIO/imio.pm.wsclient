@@ -47,7 +47,7 @@ class IGeneratedActionsSchema(Interface):
         vocabulary=u'imio.pm.wsclient.possible_permissions_vocabulary')
     pm_meeting_config_id = schema.Choice(
         title=_("PloneMeeting meetingConfig id"),
-        required=False,
+        required=True,
         vocabulary=u'imio.pm.wsclient.pm_meeting_config_id_vocabulary')
 
 
@@ -55,11 +55,11 @@ class IFieldMappingsSchema(Interface):
     """Schema used for the datagrid field 'field_mappings' of IWS4PMClientSettings."""
     field_name = schema.Choice(
         title=_("PloneMeeting field name"),
-        required=False,
+        required=True,
         vocabulary=u'imio.pm.wsclient.pm_item_data_vocabulary')
     expression = schema.TextLine(
         title=_("TAL expression to evaluate for the corresponding PloneMeeting field name"),
-        required=False,)
+        required=True,)
 
 
 class IUserMappingsSchema(Interface):
@@ -124,13 +124,9 @@ class IWS4PMClientSettings(Interface):
         required=False,)
     generated_actions = schema.List(
         title=_("Generated actions"),
-        description=_("Enter a 'TAL condition' evaluated to show the action.  "
-                      "Choose permission(s) the user must have to see the action.  "
-                      "Enter a PloneMeeting proposingGroup id to force the creation of the item with this "
-                      "proposingGroup.  Warning, if the user can not create an item for this proposingGroup, "
-                      "a warning message will appear.  If left empty, if the user is in only one proposingGroup, "
-                      "it will be used automatically, if the user is in several proposingGroups, a popup will ask "
-                      "him which proposingGroup to use.  Finally, choose a meetingConfig the item will be created in."),
+        description=_("Actions to send an item to PloneMeeting can be generated.  First enter a 'TAL condition' "
+                      "evaluated to show the action then choose permission(s) the user must have to see the action.  "
+                      "Finally, choose the meetingConfig the item will be sent to."),
         value_type=DictRow(title=_("Actions"),
                            schema=IGeneratedActionsSchema,
                            required=False),
