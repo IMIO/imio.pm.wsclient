@@ -83,6 +83,10 @@ class proposing_groups_for_user_vocabulary(object):
         ws4pmsettings = getMultiAdapter((portal, portal.REQUEST), name='ws4pmclient-settings')
         field_mappings = ws4pmsettings.settings().field_mappings
         if not field_mappings:
+            portal.REQUEST.set('error_in_vocabularies', True)
+            IStatusMessage(portal.REQUEST).addStatusMessage(
+                _("No field_mappings defined in the WS4PMClient configuration!"),
+                'error')
             return SimpleVocabulary([])
         forcedProposingGroup = None
         vars = {}
@@ -97,14 +101,21 @@ class proposing_groups_for_user_vocabulary(object):
                                                                              vars)
                     break
                 except Exception, e:
+                    portal.REQUEST.set('error_in_vocabularies', True)
                     IStatusMessage(portal.REQUEST).addStatusMessage(
                         _(TAL_EVAL_FIELD_ERROR %
                           (field_mapping['expression'], field_mapping['field_name'], e)),
-                        "error")
+                        'error')
                     return SimpleVocabulary([])
         # even if we get a forcedProposingGroup, double check that the current user can actually use it
         userInfos = ws4pmsettings._soap_getUserInfos(showGroups=True, suffix='creators')
         if not userInfos or not 'groups' in userInfos:
+            portal.REQUEST.set('error_in_vocabularies', True)
+            # add a status message if the main error is not the fact that we can not connect to the WS
+            if userInfos is not None:
+                IStatusMessage(portal.REQUEST).addStatusMessage(
+                    _("No user informations found for current user or the current user " \
+                      "is not a creator in PloneMeeting!"), 'error')
             return SimpleVocabulary([])
         terms = []
         forcedProposingGroupExists = not forcedProposingGroup and True or False
@@ -120,11 +131,12 @@ class proposing_groups_for_user_vocabulary(object):
                                         unicode(group['id']),
                                         unicode(group['title']),))
         if not forcedProposingGroupExists:
+            portal.REQUEST.set('error_in_vocabularies', True)
             IStatusMessage(portal.REQUEST).addStatusMessage(
                 _("The current user can not create an item with the proposingGroup forced "
                   "thru the configuration!  Please contact system administrator!"),
-                "error")
-            return
+                'error')
+            return SimpleVocabulary([])
         return SimpleVocabulary(terms)
 proposing_groups_for_user_vocabularyFactory = proposing_groups_for_user_vocabulary()
 
@@ -141,6 +153,10 @@ class categories_for_user_vocabulary(object):
         ws4pmsettings = getMultiAdapter((portal, portal.REQUEST), name='ws4pmclient-settings')
         field_mappings = ws4pmsettings.settings().field_mappings
         if not field_mappings:
+            portal.REQUEST.set('error_in_vocabularies', True)
+            IStatusMessage(portal.REQUEST).addStatusMessage(
+                _("No field_mappings defined in the WS4PMClient configuration!"),
+                'error')
             return SimpleVocabulary([])
         forcedCategory = None
         vars = {}
@@ -157,14 +173,20 @@ class categories_for_user_vocabulary(object):
                                                                        vars)
                     break
                 except Exception, e:
+                    portal.REQUEST.set('error_in_vocabularies', True)
                     IStatusMessage(portal.REQUEST).addStatusMessage(
                         _(TAL_EVAL_FIELD_ERROR %
                           (field_mapping['expression'], field_mapping['field_name'], e)),
-                        "error")
+                        'error')
                     return SimpleVocabulary([])
 
         configInfos = ws4pmsettings._soap_getConfigInfos(showCategories=True)
         if not configInfos:
+            portal.REQUEST.set('error_in_vocabularies', True)
+            # add a status message if the main error is not the fact that we can not connect to the WS
+            if configInfos is not None:
+                IStatusMessage(portal.REQUEST).addStatusMessage(
+                    _("No configuration informations found!"), 'error')
             return SimpleVocabulary([])
         categories = []
         # find categories for given meetingConfigId
@@ -190,10 +212,11 @@ class categories_for_user_vocabulary(object):
                                         unicode(category.id),
                                         unicode(category.title),))
         if not forcedCategoryExists:
+            portal.REQUEST.set('error_in_vocabularies', True)
             IStatusMessage(portal.REQUEST).addStatusMessage(
                 _("The current user can not create an item with the category forced "
                   "thru the configuration!  Please contact system administrator!"),
-                "error")
-            return
+                'error')
+            return SimpleVocabulary([])
         return SimpleVocabulary(terms)
 categories_for_user_vocabularyFactory = categories_for_user_vocabulary()

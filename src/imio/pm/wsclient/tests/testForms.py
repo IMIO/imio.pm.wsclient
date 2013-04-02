@@ -51,6 +51,8 @@ class testForms(WS4PMCLIENTTestCase):
     def test_canNotConnectToPloneMeeting(self):
         """If no valid parameters are defined in the settings, the view is not accessible
            and a relevant message if displayed to the member in portal_messages."""
+        # set base params to avoid extra status messages like 'no field_mappings defined'
+        setCorrectSettingsConfig(self.portal, setConnectionParams=False, withValidation=False)
         # only available to connected users
         self.changeUser('pmCreator1')
         view = self.portal.restrictedTraverse(SEND_TO_PM_VIEW_NAME).form_instance

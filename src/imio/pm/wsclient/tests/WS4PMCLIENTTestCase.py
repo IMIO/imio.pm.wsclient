@@ -67,7 +67,7 @@ class WS4PMCLIENTTestCase(PloneMeetingTestCase):
         return brains and brains[0].getObject() or None
 
 
-def setCorrectSettingsConfig(portal, minimal=False, withValidation=True, **kwargs):
+def setCorrectSettingsConfig(portal, setConnectionParams=True, minimal=False, withValidation=True, **kwargs):
     """Set a workable set of settings for tests.
        If p_withValidation is False, remove validation because we want
        to force to set some values and relevant vocabularies for example do not contain that value.
@@ -82,9 +82,10 @@ def setCorrectSettingsConfig(portal, minimal=False, withValidation=True, **kwarg
         AbstractCollection._validate = _validate
     ws4pmSettings = getMultiAdapter((portal, portal.REQUEST), name='ws4pmclient-settings')
     settings = ws4pmSettings.settings()
-    settings.pm_url = kwargs.get('pm_url', None) or u'%s/ws4pm.wsdl' % portal.absolute_url()
-    settings.pm_username = kwargs.get('pm_username', None) or u'pmManager'
-    settings.pm_password = kwargs.get('pm_password', None) or u'meeting'
+    if setConnectionParams:
+        settings.pm_url = kwargs.get('pm_url', None) or u'%s/ws4pm.wsdl' % portal.absolute_url()
+        settings.pm_username = kwargs.get('pm_username', None) or u'pmManager'
+        settings.pm_password = kwargs.get('pm_password', None) or u'meeting'
     settings.user_mappings = kwargs.get('user_mappings', None) or \
         u'localUserId|pmCreator1\r\nlocalUserId2|pmCreator2\r\nadmin|pmCreator1'
     settings.viewlet_display_condition = kwargs.get('viewlet_display_condition', None) or u''

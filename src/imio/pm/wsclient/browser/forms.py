@@ -157,6 +157,10 @@ class SendToPloneMeetingForm(form.Form):
             raise Unauthorized
 
         super(SendToPloneMeetingForm, self).update()
+        # while calling parent's update, vocabularies are initialized
+        # if there where errors in the vocabularies, hide the form
+        if self.request.get('error_in_vocabularies', False):
+            self._changeFormForErrors()
         # after calling parent's update, self.actions are available
         self.actions.get('cancel').addClass('standalone')
 
