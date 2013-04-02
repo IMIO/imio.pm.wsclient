@@ -39,14 +39,14 @@
         permission="zope2.SOAPClientSend"
         />
 
-    <!-- define a specific template for rendering ContentProviders in z3cforms until it is in plone.app.z3cform... -->
-    <browser:page
+    <!-- define a specific template for rendering ContentProviders in z3c.form until it is in plone.app.z3cform... -->
+    <!-- browser:page
         name="ploneform-render-widget"
         for="zope.contentprovider.interfaces.IContentProvider"
         template="templates/contentprovider-widget.pt"
         layer="plone.app.z3cform.interfaces.IPloneFormLayer"
         permission="zope.Public"
-        />
+        /-->
 
     <!-- View that generates a document of an item -->
     <browser:page
