@@ -132,15 +132,30 @@ class testSettings(unittest2.TestCase):
         self.portal.acl_users.userFolderAddUser('lambda', 'lambda', ['Member'], [])
         # if the found user_mappings leads to a user that is not
         # settings.pm_username, this user mapping is returned
-        settings.user_mappings = u'localUserId|pmCreator1\r\nlambda|aUserInPloneMeeting\r\nadmin|pmCreator1'
+        settings.user_mappings = [{'local_userid': u'localUserId',
+                                   'pm_userid': u'pmCreator1'},
+                                  {'local_userid': u'lambda',
+                                   'pm_userid': u'aUserInPloneMeeting'},
+                                  {'local_userid': u'admin',
+                                   'pm_userid': u'pmCreator1'}, ]
         login(self.portal, 'lambda')
         self.assertEquals(ws4pmSettings._getUserIdToUseInTheNameOfWith(), u'aUserInPloneMeeting')
         # not the user_mappings is linking to the settings.pm_username
-        settings.user_mappings = u'localUserId|pmCreator1\r\nlambda|%s\r\nadmin|pmCreator1' % TEST_USER_ID
+        settings.user_mappings = [{'local_userid': u'localUserId',
+                                   'pm_userid': u'pmCreator1'},
+                                  {'local_userid': u'lambda',
+                                   'pm_userid': u'%s' % TEST_USER_ID},
+                                  {'local_userid': u'admin',
+                                   'pm_userid': u'pmCreator1'}, ]
         self.assertEquals(ws4pmSettings._getUserIdToUseInTheNameOfWith(), None)
         # if the user is not the settings.pm_username and not found in the mappings
         # it is his own userId that will be used
-        settings.user_mappings = u'localUserId|pmCreator1\r\notherUser|otherUserInPloneMeeting\r\nadmin|pmCreator1'
+        settings.user_mappings = [{'local_userid': u'localUserId',
+                                   'pm_userid': u'pmCreator1'},
+                                  {'local_userid': u'otherUser',
+                                   'pm_userid': u'otherUserInPloneMeeting'},
+                                  {'local_userid': u'admin',
+                                   'pm_userid': u'pmCreator1'}, ]
         self.assertEquals(ws4pmSettings._getUserIdToUseInTheNameOfWith(), 'lambda')
 
     def test_renderTALExpression(self):

@@ -328,18 +328,19 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             else:
                 return None
         # check if a user_mapping exists
-        for user_mapping in settings.user_mappings:
-            localUserId, distantUserId = user_mapping['local_userid'], user_mapping['pm_userid']
-            # if we found a mapping for the current user, check also
-            # that the distantUserId the mapping is linking to, is not the soapUsername
-            if memberId == localUserId.strip():
-                if not soapUsername == distantUserId.strip():
-                    return distantUserId.strip()
-                else:
-                    if mandatory:
-                        return soapUsername
+        if settings.user_mappings:
+            for user_mapping in settings.user_mappings:
+                localUserId, distantUserId = user_mapping['local_userid'], user_mapping['pm_userid']
+                # if we found a mapping for the current user, check also
+                # that the distantUserId the mapping is linking to, is not the soapUsername
+                if memberId == localUserId.strip():
+                    if not soapUsername == distantUserId.strip():
+                        return distantUserId.strip()
                     else:
-                        return None
+                        if mandatory:
+                            return soapUsername
+                        else:
+                            return None
         return memberId
 
     def checkAlreadySentToPloneMeeting(self, context, meetingConfigIds=[]):
