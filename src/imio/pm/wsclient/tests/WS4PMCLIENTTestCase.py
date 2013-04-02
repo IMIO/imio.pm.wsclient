@@ -87,7 +87,12 @@ def setCorrectSettingsConfig(portal, setConnectionParams=True, minimal=False, wi
         settings.pm_username = kwargs.get('pm_username', None) or u'pmManager'
         settings.pm_password = kwargs.get('pm_password', None) or u'meeting'
     settings.user_mappings = kwargs.get('user_mappings', None) or \
-        u'localUserId|pmCreator1\r\nlocalUserId2|pmCreator2\r\nadmin|pmCreator1'
+        [{'local_userid': u'localUserId',
+          'pm_userid': u'pmCreator1'},
+         {'local_userid': u'localUserId2',
+          'pm_userid': u'pmCreator2'},
+         {'local_userid': u'admin',
+          'pm_userid': u'pmCreator1'}, ]
     settings.viewlet_display_condition = kwargs.get('viewlet_display_condition', None) or u''
     if not minimal:
         # these parameters are only available while correctly connected

@@ -7,7 +7,7 @@ from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter, queryUtility
 from zope.component.hooks import getSite
 
-from zope.interface import Interface, invariant, Invalid
+from zope.interface import Interface
 from zope import schema
 from zope.schema.interfaces import IVocabularyFactory
 
@@ -58,8 +58,18 @@ class IFieldMappingsSchema(Interface):
         required=False,
         vocabulary=u'imio.pm.wsclient.pm_item_data_vocabulary')
     expression = schema.TextLine(
-        title=_("TAL expression to evaluate to get the value to use for the given data"),
+        title=_("TAL expression to evaluate for the corresponding PloneMeeting field name"),
         required=False,)
+
+
+class IUserMappingsSchema(Interface):
+    """Schema used for the datagrid field 'user_mappings' of IWS4PMClientSettings."""
+    local_userid = schema.TextLine(
+        title=_("Local user id"),
+        required=True)
+    pm_userid = schema.TextLine(
+        title=_("PloneMeeting corresponding user id"),
+        required=True,)
 
 
 class IWS4PMClientSettings(Interface):
@@ -72,13 +82,15 @@ class IWS4PMClientSettings(Interface):
         required=True,)
     pm_timeout = schema.Int(
         title=_(u"PloneMeeting connection timeout"),
-        description=_(u"Enter the timeout while connecting to PloneMeeting.  Do not set a too high timeout because "
-                      "it will impact the load of the viewlet showing PM infos on an sent element.  "
-                      "Default is '10' seconds."),
+        description=_(u"Enter the timeout while connecting to PloneMeeting.  Do not set a too high timeout because it "
+                      "will impact the load of the viewlet showing PM infos on an sent element if PM is not available."
+                      "  Default is '10' seconds."),
         default=10,
         required=True,)
     pm_username = schema.TextLine(
         title=_("PloneMeeting username to use"),
+        description=_(u"The user must be at least a 'MeetingManager'.  Nevertheless, items will be created regarding "
+                      "the <i>User ids mappings</i> defined here under."),
         required=True,)
     pm_password = schema.Password(
         title=_("PloneMeeting password to use"),
@@ -88,26 +100,27 @@ class IWS4PMClientSettings(Interface):
         description=_("Enter a TAL expression that will be evaluated to check if the viewlet displaying "
                       "informations about the created items in PloneMeeting should be displayed.  "
                       "If empty, the viewlet will only be displayed if an item is actually linked to it.  "
-                      "The element 'isLinked' representing this default behaviour is available in the TAL expression."),
+                      "The 'isLinked' variable representing this default behaviour is available in the TAL expression."),
         required=False,)
     field_mappings = schema.List(
         title=_("Field accessor mappings"),
         description=_("For every available data you can send, define in the mapping a TAL expression that will be "
                       "executed to obtain the correct value to send.  The 'meetingConfigId' and 'proposingGroupId' "
                       "variables are also available for the expression."),
-        value_type=DictRow(title=_("Actions"),
+        value_type=DictRow(title=_("Field mappings"),
                            schema=IFieldMappingsSchema,
                            required=False),
         required=False,)
-    user_mappings = schema.Text(
+    user_mappings = schema.List(
         title=_("User ids mappings"),
         description=_("By default, while sending an element to PloneMeeting, the user id of the logged in user "
-                      "sending the element is considered and a check is made in PloneMeeting to see"
-                      "if the same user id also exists.  If it does not, you can define here the user mappings "
-                      "to use.  For example : 'jdoe' in current application correspond to 'johndoe' "
-                      "in PloneMeeting.  The format to use is <strong>one mapping by line with userIds separated by "
-                      "a '|'</strong>, for example : "
-                      "<br />localUserId|plonemeetingCorrespondingUserId<br />anotherUserId|aUserIdInPloneMeeting"),
+                      "is used and a binding is made to the same user id in PloneMeeting.  "
+                      "If the local user id does not exist in PloneMeeting, you can define here the user mappings "
+                      "to use.  For example : 'jdoe' in 'Local user id' of the current application correspond to "
+                      "'johndoe' in PloneMeeting."),
+        value_type=DictRow(title=_("User mappings"),
+                           schema=IUserMappingsSchema,
+                           required=False),
         required=False,)
     generated_actions = schema.List(
         title=_("Generated actions"),
@@ -123,17 +136,6 @@ class IWS4PMClientSettings(Interface):
                            required=False),
         required=False,)
 
-    @invariant
-    def isUserMappingsCorrectFormat(settings):
-        user_mappings = settings.user_mappings
-        for user_mapping in user_mappings.split('\n'):
-            try:
-                localuser, pmuser = user_mapping.split('|')
-            except:
-                raise Invalid("User ids mapping : the format is not correct, it should be one mapping by line "
-                              "(no blank line!) with user ids separated by a '|', for example : "
-                              "currentAppUserId|plonemeetingCorrespondingUserId")
-
 
 class WS4PMClientSettingsEditForm(RegistryEditForm):
     """
@@ -146,6 +148,7 @@ class WS4PMClientSettingsEditForm(RegistryEditForm):
     fields = field.Fields(IWS4PMClientSettings)
     fields['generated_actions'].widgetFactory = DataGridFieldFactory
     fields['field_mappings'].widgetFactory = DataGridFieldFactory
+    fields['user_mappings'].widgetFactory = DataGridFieldFactory
 
     def updateFields(self):
         super(WS4PMClientSettingsEditForm, self).updateFields()
@@ -329,19 +332,18 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             else:
                 return None
         # check if a user_mapping exists
-        if settings.user_mappings and settings.user_mappings.strip():
-            for user_mapping in settings.user_mappings.split('\n'):
-                localUserId, distantUserId = user_mapping.split('|')
-                # if we found a mapping for the current user, check also
-                # that the distantUserId to mapping is linking to is not the soapUsername
-                if memberId == localUserId.strip():
-                    if not soapUsername == distantUserId.strip():
-                        return distantUserId.strip()
+        for user_mapping in settings.user_mappings:
+            localUserId, distantUserId = user_mapping['local_userid'], user_mapping['pm_userid']
+            # if we found a mapping for the current user, check also
+            # that the distantUserId the mapping is linking to, is not the soapUsername
+            if memberId == localUserId.strip():
+                if not soapUsername == distantUserId.strip():
+                    return distantUserId.strip()
+                else:
+                    if mandatory:
+                        return soapUsername
                     else:
-                        if mandatory:
-                            return soapUsername
-                        else:
-                            return None
+                        return None
         return memberId
 
     def checkAlreadySentToPloneMeeting(self, context, meetingConfigIds=[]):
