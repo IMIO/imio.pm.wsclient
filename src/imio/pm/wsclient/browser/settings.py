@@ -78,18 +78,17 @@ class IWS4PMClientSettings(Interface):
     """
     pm_url = schema.TextLine(
         title=_(u"PloneMeeting WSDL URL"),
-        description=_(u"Enter the PloneMeeting WSDL URL you want to work with."),
         required=True,)
     pm_timeout = schema.Int(
         title=_(u"PloneMeeting connection timeout"),
-        description=_(u"Enter the timeout while connecting to PloneMeeting.  Do not set a too high timeout because it "
-                      "will impact the load of the viewlet showing PM infos on an sent element if PM is not available."
-                      "  Default is '10' seconds."),
+        description=_(u"Enter the timeout while connecting to PloneMeeting. Do not set a too high timeout because it "
+                      "will impact the load of the viewlet showing PM infos on a sent element if PM is not available. "
+                      "Default is '10' seconds."),
         default=10,
         required=True,)
     pm_username = schema.TextLine(
         title=_("PloneMeeting username to use"),
-        description=_(u"The user must be at least a 'MeetingManager'.  Nevertheless, items will be created regarding "
+        description=_(u"The user must be at least a 'MeetingManager'. Nevertheless, items will be created regarding "
                       "the <i>User ids mappings</i> defined here under."),
         required=True,)
     pm_password = schema.Password(
@@ -98,14 +97,14 @@ class IWS4PMClientSettings(Interface):
     viewlet_display_condition = schema.TextLine(
         title=_("Viewlet display condition"),
         description=_("Enter a TAL expression that will be evaluated to check if the viewlet displaying "
-                      "informations about the created items in PloneMeeting should be displayed.  "
-                      "If empty, the viewlet will only be displayed if an item is actually linked to it.  "
+                      "informations about the created items in PloneMeeting should be displayed. "
+                      "If empty, the viewlet will only be displayed if an item is actually linked to it. "
                       "The 'isLinked' variable representing this default behaviour is available in the TAL expression."),
         required=False,)
     field_mappings = schema.List(
         title=_("Field accessor mappings"),
         description=_("For every available data you can send, define in the mapping a TAL expression that will be "
-                      "executed to obtain the correct value to send.  The 'meetingConfigId' and 'proposingGroupId' "
+                      "executed to obtain the correct value to send. The 'meetingConfigId' and 'proposingGroupId' "
                       "variables are also available for the expression."),
         value_type=DictRow(title=_("Field mappings"),
                            schema=IFieldMappingsSchema,
@@ -114,9 +113,9 @@ class IWS4PMClientSettings(Interface):
     user_mappings = schema.List(
         title=_("User ids mappings"),
         description=_("By default, while sending an element to PloneMeeting, the user id of the logged in user "
-                      "is used and a binding is made to the same user id in PloneMeeting.  "
+                      "is used and a binding is made to the same user id in PloneMeeting. "
                       "If the local user id does not exist in PloneMeeting, you can define here the user mappings "
-                      "to use.  For example : 'jdoe' in 'Local user id' of the current application correspond to "
+                      "to use. For example : 'jdoe' in 'Local user id' of the current application correspond to "
                       "'johndoe' in PloneMeeting."),
         value_type=DictRow(title=_("User mappings"),
                            schema=IUserMappingsSchema,
@@ -124,8 +123,8 @@ class IWS4PMClientSettings(Interface):
         required=False,)
     generated_actions = schema.List(
         title=_("Generated actions"),
-        description=_("Actions to send an item to PloneMeeting can be generated.  First enter a 'TAL condition' "
-                      "evaluated to show the action then choose permission(s) the user must have to see the action.  "
+        description=_("Actions to send an item to PloneMeeting can be generated. First enter a 'TAL condition' "
+                      "evaluated to show the action then choose permission(s) the user must have to see the action. "
                       "Finally, choose the meetingConfig the item will be sent to."),
         value_type=DictRow(title=_("Actions"),
                            schema=IGeneratedActionsSchema,
@@ -222,7 +221,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             # if we are really on the configuration panel, display relevant message
             if self.request.get('PATH_INFO', '').endswith('@@ws4pmclient-settings'):
                 IStatusMessage(self.request).addStatusMessage(
-                    _(CONFIG_UNABLE_TO_CONNECT_ERROR % (e.message or str(e.reason))), "error")
+                    _(CONFIG_UNABLE_TO_CONNECT_ERROR, mapping={'error': (e.message or str(e.reason))}), "error")
             return None
         return client
 
@@ -305,7 +304,8 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 uid, warnings = client.service.createItem(meetingConfigId, proposingGroupId, creationData, inTheNameOf)
                 return uid, warnings
             except Exception, exc:
-                IStatusMessage(self.request).addStatusMessage(_(CONFIG_CREATE_ITEM_PM_ERROR % exc), "error")
+                IStatusMessage(self.request).addStatusMessage(_(CONFIG_CREATE_ITEM_PM_ERROR, mapping={'error': exc}),
+                                                              "error")
 
     def _getUserIdToUseInTheNameOfWith(self, mandatory=False):
         """

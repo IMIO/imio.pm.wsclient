@@ -6,11 +6,11 @@
                    portal_url context/@@plone_portal_state/portal_url;"
            i18n:domain="imio.pm.wsclient">
 
-    <fieldset><legend>PloneMeeting informations</legend>
+    <fieldset><legend i18n:translate="">PloneMeeting informations</legend>
     <p class="discreet" i18n:translate="pm_informations_help">You see these informations because the current element has been sent to PloneMeeting.</p>
         <tal:showInfos condition="python: isinstance(available, tuple)">
         <dl class="portalMessage info" tal:attributes="class python: 'portalMessage %s' % available[1]">
-          <dt i18n:translate="" tal:content="python: available[1]">Level</dt>
+          <dt i18n:domain="plone" i18n:translate="" tal:content="python: available[1].capitalize()">Level</dt>
           <dd tal:content="python: available[0]">Message</dd>
         </dl>
         </tal:showInfos>

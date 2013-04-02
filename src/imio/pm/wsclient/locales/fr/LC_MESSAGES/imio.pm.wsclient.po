@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-02-12 13:15-100\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,13 +18,189 @@ msgstr ""
 "Preferred-encodings: utf-8 latin1\n"
 "X-is-fallback-for: fr-be fr-ca fr-lu fr-mc fr-ch fr-fr\n"
 
+#. Default: "A filename is mandatory while generating a document! Please contact system administrator!"
+msgid "A filename is mandatory while generating a document! Please contact system administrator!"
+msgstr "Un nom de fichier est obligatoire pour générer un document! Contactez votre administrateur sytème!"
+
+#. Default: "Actions to send an item to PloneMeeting can be generated. First enter a 'TAL condition' evaluated to show the action then choose permission(s) the user must have to see the action. Finally, choose the meetingConfig the item will be sent to."
+msgid "Actions to send an item to PloneMeeting can be generated. First enter a 'TAL condition' evaluated to show the action then choose permission(s) the user must have to see the action. Finally, choose the meetingConfig the item will be sent to."
+msgstr "Des actions pour faciliter l'envoi d'un point vers PloneMeeting peuvent être générées.  Elle apparaîtront par défaut dans la liste déroulante 'Actions'.  Vous pouvez définir une 'Expression au format TAL' et choisir une 'Permission' pour protéger l'action.  Pour finir, définissez dans quelle configuration de séance le point correspondant sera créé."
+
+#. Default: "An error occured during the item creation in PloneMeeting! The error message was : ${error}"
+msgid "An error occured during the item creation in PloneMeeting! The error message was : ${error}"
+msgstr "Une erreur est survenue lors de l'envoi vers PloneMeeting!  L'erreur est : ${error}"
+
+#. Default: "By default, while sending an element to PloneMeeting, the user id of the logged in user is used and a binding is made to the same user id in PloneMeeting. If the local user id does not exist in PloneMeeting, you can define here the user mappings to use. For example : 'jdoe' in 'Local user id' of the current application correspond to 'johndoe' in PloneMeeting."
+msgid "By default, while sending an element to PloneMeeting, the user id of the logged in user is used and a binding is made to the same user id in PloneMeeting. If the local user id does not exist in PloneMeeting, you can define here the user mappings to use. For example : 'jdoe' in 'Local user id' of the current application correspond to 'johndoe' in PloneMeeting."
+msgstr "Par défaut lors de l'envoi d'un point vers PloneMeeting, le nom d'utilisateur de l'utilisateur couramment connecté est utilisé.  Si le nom d'utilisteur local est différent du nom d'utilisateur dans PloneMeeting, vous pouvez les définir ci-dessous.  Par exemple 'jdoe' dans l'application courante a un utilisateur correspondant 'johndoe' dans PloneMeeting."
+
+#. Default: "Cancel"
+msgid "Cancel"
+msgstr "Annuler"
+
+#. Default: "Could not detect correct mimetype for item template! Please contact system administrator!"
+msgid "Could not detect correct mimetype for item template! Please contact system administrator!"
+msgstr "Impossible de détecter le type MIME pour le document à générer!  Contactez votre administrateur système!"
+
+#. Default: "Could not get userInfos in PloneMeeting for user '${userId}'!"
+msgid "Could not get userInfos in PloneMeeting for user '${userId}'!"
+msgstr "Impossible d'obtenir des informations sur l'utilisateur '${userId}' dans PloneMeeting!"
+
+#. Default: "Enter a TAL expression that will be evaluated to check if the viewlet displaying informations about the created items in PloneMeeting should be displayed. If empty, the viewlet will only be displayed if an item is actually linked to it. The 'isLinked' variable representing this default behaviour is available in the TAL expression."
+msgid "Enter a TAL expression that will be evaluated to check if the viewlet displaying informations about the created items in PloneMeeting should be displayed. If empty, the viewlet will only be displayed if an item is actually linked to it. The 'isLinked' variable representing this default behaviour is available in the TAL expression."
+msgstr "Entrez une expression au format TAL qui sera évaluée pour vérifier si le viewlet affichant les informations dans PloneMeeting doit être montré ou non.  Par défaut, si aucune expression n'est entrée ci-dessous, le viewlet sera montré s'il y a effectivement un point correspondant dans PloneMeeting.  La variable 'isLinked' est disponible pour l'expression TAL."
+
+#. Default: "Enter the timeout while connecting to PloneMeeting. Do not set a too high timeout because it will impact the load of the viewlet showing PM infos on a sent element if PM is not available. Default is '10' seconds."
+msgid "Enter the timeout while connecting to PloneMeeting. Do not set a too high timeout because it will impact the load of the viewlet showing PM infos on a sent element if PM is not available. Default is '10' seconds."
+msgstr "Entrez le timeout de connexion à PloneMeeting.  Attention, ne pas mettre une valeurs trop importe car si PloneMeeting n'est pas disponible, cela influera sur la vitesse d'affichage d'une page dans laquelle le viewlet affichant les infos PloneMeeting est montré."
+
+#. Default: "Field accessor mappings"
+msgid "Field accessor mappings"
+msgstr "Correspondances pour les champs"
+
+#. Default: "For every available data you can send, define in the mapping a TAL expression that will be executed to obtain the correct value to send. The 'meetingConfigId' and 'proposingGroupId' variables are also available for the expression."
+msgid "For every available data you can send, define in the mapping a TAL expression that will be executed to obtain the correct value to send. The 'meetingConfigId' and 'proposingGroupId' variables are also available for the expression."
+msgstr "Pour chaque données à envoyer, définissez une expression TAL qui fait correspondre au context, la valeur à utiliser pour un champ dans PloneMeeting.  Les variables 'meetingConfigId' et 'proposingGroupId' sont disponibles pour l'expression TAL."
+
+#. Default: "Generated actions"
+msgid "Generated actions"
+msgstr "Actions générées"
+
+#. Default: "Local user id"
+msgid "Local user id"
+msgstr "Nom d'utilisateur local"
+
+#. Default: "No configuration informations found!"
+msgid "No configuration informations found!"
+msgstr "Aucune information de configuration n'a été trouvée dans PloneMeeting!"
+
+#. Default: "No field_mappings defined in the WS4PMClient configuration!"
+msgid "No field_mappings defined in the WS4PMClient configuration!"
+msgstr "Aucune correspondance de champs définie dans la configuration des webservices PloneMeeting!"
+
+#. Default: "No user informations found for current user or the current user is not a creator in PloneMeeting!"
+msgid "No user informations found for current user or the current user is not a creator in PloneMeeting!"
+msgstr "Pas d'informations trouvées pour l'utilisateur courant ou l'utilisateur courant n'est pas un créateur dans PloneMeeting!"
+
+#. Default: "PloneMeeting WSDL URL"
+msgid "PloneMeeting WSDL URL"
+msgstr "URL du fichier WSDL PloneMeeting"
+
+#. Default: "PloneMeeting connection timeout"
+msgid "PloneMeeting connection timeout"
+msgstr "Timeout de connexion à PloneMeeting"
+
+#. Default: "PloneMeeting corresponding user id"
+msgid "PloneMeeting corresponding user id"
+msgstr "Nom d'utilisateur correspondant dans PloneMeeting"
+
+#. Default: "PloneMeeting field name"
+msgid "PloneMeeting field name"
+msgstr "Nom du champ dans PloneMeeting"
+
+#. Default: "PloneMeeting informations"
+msgid "PloneMeeting informations"
+msgstr "Informations provenant de PloneMeeting"
+
+#. Default: "PloneMeeting meetingConfig id"
+msgid "PloneMeeting meetingConfig id"
+msgstr "Identifiant de configuration de séance dans PloneMeeting"
+
+#. Default: "PloneMeeting password to use"
+msgid "PloneMeeting password to use"
+msgstr "Mot de passe à utiliser dans PloneMeeting"
+
+#. Default: "PloneMeeting username to use"
+msgid "PloneMeeting username to use"
+msgstr "Nom d'utilisateur à utiliser dans PloneMeeting"
+
+#. Default: "Select the category to use for the created item item in PloneMeeting"
+msgid "Select the category to use for the created item item in PloneMeeting"
+msgstr "Sélectionnez la catégorie avec laquelle le point sera créé dans PloneMeeting"
+
+#. Default: "Select the proposing group to use for the created item in PloneMeeting"
+msgid "Select the proposing group to use for the created item in PloneMeeting"
+msgstr "Sélectionnez le groupe proposant avec lequel le point sera créé dans PloneMeeting"
+
+#. Default: "Send"
+msgid "Send"
+msgstr "Envoyer"
+
 #. Default: "Send to ${meetingConfigTitle}"
 msgid "Send to"
 msgstr "Envoyer vers ${meetingConfigTitle}"
 
+#. Default: "Send to PloneMeeting"
+msgid "Send to PloneMeeting"
+msgstr "Envoyer vers PloneMeeting"
+
 #. Default: "TAL Condition"
 msgid "TAL Condition"
 msgstr "Condition au format TAL"
+
+#. Default: "TAL expression to evaluate for the corresponding PloneMeeting field name"
+msgid "TAL expression to evaluate for the corresponding PloneMeeting field name"
+msgstr "Expression TAL à évaluer pour le champ PloneMeeting correspondant"
+
+#. Default: "The configuration specify that user '${userId}' will create the item in PloneMeeting but this user can not create item for any proposingGroup in PloneMeeting!"
+msgid "The configuration specify that user '${userId}' will create the item in PloneMeeting but this user can not create item for any proposingGroup in PloneMeeting!"
+msgstr "La configuration specifie que l'utilisateur '${userId}' va créer le point dans PloneMeeting mais cet utilisateur ne peut pas créer de points dans PloneMeeting!"
+
+#. Default: "The current user can not create an item with the category forced thru the configuration! Please contact system administrator!"
+msgid "The current user can not create an item with the category forced thru the configuration! Please contact system administrator!"
+msgstr "L'utilisateur courant ne peut créer de point avec la catégorie forcée dans la configuration! Contactez votre administrateur système!"
+
+#. Default: "The current user can not create an item with the proposingGroup forced thru the configuration! Please contact system administrator!"
+msgid "The current user can not create an item with the proposingGroup forced thru the configuration! Please contact system administrator!"
+msgstr "L'utilisateur courant ne peut créer de point pour le groupe proposant forcé par la configuration! Contactez votre administrateur système!"
+
+#. Default: "The item has been correctly sent to PloneMeeting."
+msgid "The item has been correctly sent to PloneMeeting."
+msgstr "L'élément a été correctement envoyé vers PloneMeeting."
+
+#. Default: "The user must be at least a 'MeetingManager'. Nevertheless, items will be created regarding the <i>User ids mappings</i> defined here under."
+msgid "The user must be at least a 'MeetingManager'. Nevertheless, items will be created regarding the <i>User ids mappings</i> defined here under."
+msgstr "L'utilisateur renseigné doit être au moins 'MeetingManager'. Néanmoins, les points créés dans PloneMeeting le seront en fonction de ce qui est défini dans le champ 'Correspondance pour les utilisateurs' ci-dessous."
+
+#. Default: "There was an error evaluating the TAL expression '${expr}' for the field '${field_name}'! The error was : ${error}. Please contact system administrator."
+msgid "There was an error evaluating the TAL expression '${expr}' for the field '${field_name}'! The error was : ${error}. Please contact system administrator."
+msgstr "Une erreur s'est produite lors de l'évaluation de l'expression TAL '${expr} pour le champ '${field_name}'!  L'erreur est : ${error}.  Contactez votre administrateur système."
+
+#. Default: "This element has already been sent to PloneMeeting!"
+msgid "This element has already been sent to PloneMeeting!"
+msgstr "Cet élément a déjà été envoyé vers PloneMeeting!"
+
+#. Default: "This element is linked to item(s) in PloneMeeting but your are not allowed to see it."
+msgid "This element is linked to item(s) in PloneMeeting but your are not allowed to see it."
+msgstr "Cet élément est lié à un(des) point(s) dans PloneMeeting mais vous n'avez pas l'autorisation des le(s) voir."
+
+#. Default: "Unable to connect to PloneMeeting! Please contact system administrator!"
+msgid "Unable to connect to PloneMeeting! Please contact system administrator!"
+msgstr "Impossible de se connecter à PloneMeeting!  Contactez votre administrateur système!"
+
+#. Default: "Unable to connect to PloneMeeting! The error message was : ${error}!"
+msgid "Unable to connect to PloneMeeting! The error message was : ${error}!"
+msgstr "Impossible de se conneter à PloneMeeting!  Le message d'erreur est : ${error}!"
+
+#. Default: "Unable to display informations about the potentially linked item in PloneMeeting because there was an error evaluating the TAL expression '${expr}' for the field '${field_name}'! The error was : '${error}'.  Please contact system administrator."
+msgid "Unable to display informations about the potentially linked item in PloneMeeting because there was an error evaluating the TAL expression '${expr}' for the field '${field_name}'! The error was : '${error}'.  Please contact system administrator."
+msgstr "Impossible de montrer le viewlet affichant les informations liées dans PloneMeeting car il y a une erreur dans l'expression TAL liée à la condition d'affichage du viewlet.  Contactez votre administrateur système!"
+
+#. Default: "User ids mappings"
+msgid "User ids mappings"
+msgstr "Correspondances pour les nom d'utilisateurs"
+
+#. Default: "Viewlet display condition"
+msgid "Viewlet display condition"
+msgstr "Condition d'affichage du viewlet"
+
+#. Default: "WS4PM Client settings"
+msgid "WS4PM Client settings"
+msgstr "Client webservices PloneMeeting"
+
+#. Default: "You see these informations because the current element has been sent to PloneMeeting."
+msgid "pm_informations_help"
+msgstr "Vous voyez ces informations car cet élément a été envoyé vers PloneMeeting."
 
 #. Default: "Here is a resume of what will be sent to PloneMeeting"
 msgid "send_to_plonemeeting_descr"

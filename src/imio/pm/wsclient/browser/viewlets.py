@@ -38,7 +38,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
         isLinked = self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context)
         # in case it could not connect to PloneMeeting, checkAlreadySentToPloneMeeting returns None
         if isLinked is None:
-            return (_(UNABLE_TO_CONNECT_ERROR), "error")
+            return (_(UNABLE_TO_CONNECT_ERROR), 'error')
         viewlet_display_condition = settings.viewlet_display_condition
         # if we have no defined viewlet_display_condition, use the isLinked value
         if not viewlet_display_condition or not viewlet_display_condition.strip():
@@ -54,9 +54,9 @@ class PloneMeetingInfosViewlet(ViewletBase):
             if not res:
                 return False
         except Exception, e:
-            return (_(UNABLE_TO_DISPLAY_VIEWLET_ERROR % (settings.viewlet_display_condition,
-                                                         'viewlet_display_condition',
-                                                         e)), 'error')
+            return (_(UNABLE_TO_DISPLAY_VIEWLET_ERROR, mapping={'expr': settings.viewlet_display_condition,
+                                                                'field_name': 'viewlet_display_condition',
+                                                                'error': e}), 'error')
         # evaluate self.getPloneMeetingLinkedInfos
         linkedInfos = self.getPloneMeetingLinkedInfos()
         if isinstance(linkedInfos, tuple):
@@ -77,12 +77,12 @@ class PloneMeetingInfosViewlet(ViewletBase):
             items = self.ws4pmSettings._soap_searchItems({'externalIdentifier': self.context.UID()})
         except Exception, exc:
             return (_(u"An error occured while searching for linked items in PloneMeeting!  "
-                      "The error message was : %s" % exc), "error")
+                      "The error message was : %s" % exc), 'error')
         # if we are here, it means that the current element is actually linked to item(s)
         # in PloneMeeting but the current user can not see it!
         if not items:
             # we return a message in a tuple
-            return (_(CAN_NOT_SEE_LINKED_ITEMS_INFO), "info")
+            return (_(CAN_NOT_SEE_LINKED_ITEMS_INFO), 'info')
 
         annotations = IAnnotations(self.context)
         sent_to = annotations[WS4PMCLIENT_ANNOTATION_KEY]

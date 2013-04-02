@@ -22,7 +22,7 @@ from Products.statusmessages.interfaces import IStatusMessage
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient import PMMessageFactory as _PM
 from imio.pm.wsclient.config import ALREADY_SENT_TO_PM_ERROR, UNABLE_TO_CONNECT_ERROR, \
-    NO_USERINFOS_ERROR, NO_PROPOSING_GROUP_ERROR, CORRECTLY_SENT_TO_PM_INFO, DEFAULT_NO_WARNING_MESSAGE, \
+    NO_USER_INFOS_ERROR, NO_PROPOSING_GROUP_ERROR, CORRECTLY_SENT_TO_PM_INFO, DEFAULT_NO_WARNING_MESSAGE, \
     WS4PMCLIENT_ANNOTATION_KEY, TAL_EVAL_FIELD_ERROR
 from imio.pm.wsclient.interfaces import IRedirect
 
@@ -79,7 +79,7 @@ class SendToPloneMeetingForm(form.Form):
     contentProviders['dataToSend'] = DisplayDataToSendProvider
     # put the 'dataToSend' in last position
     contentProviders['dataToSend'].position = 3
-    label = u"Send to PloneMeeting"
+    label = _(u"Send to PloneMeeting")
     description = u''
     _finishedSent = False
     _displayErrorsInOverlay = False
@@ -93,7 +93,7 @@ class SendToPloneMeetingForm(form.Form):
         self.portal = self.portal_state.portal()
         self.ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
 
-    @button.buttonAndHandler(_('Send to PloneMeeting'), name='send_to_plonemeeting')
+    @button.buttonAndHandler(_('Send'), name='send_to_plonemeeting')
     def handleSendToPloneMeeting(self, action):
         data, errors = self.extractData()
         if errors:
@@ -135,9 +135,11 @@ class SendToPloneMeetingForm(form.Form):
         if not userInfos or not 'groups' in userInfos:
             userThatWillCreate = self.ws4pmSettings._getUserIdToUseInTheNameOfWith()
             if not userInfos:
-                IStatusMessage(self.request).addStatusMessage(_(NO_USERINFOS_ERROR % userThatWillCreate), "error")
+                IStatusMessage(self.request).addStatusMessage(
+                    _(NO_USER_INFOS_ERROR, mapping={'userId': userThatWillCreate}), "error")
             else:
-                IStatusMessage(self.request).addStatusMessage(_(NO_PROPOSING_GROUP_ERROR % userThatWillCreate), "error")
+                IStatusMessage(self.request).addStatusMessage(
+                    _(NO_PROPOSING_GROUP_ERROR, mapping={'userId': userThatWillCreate}), "error")
             self._changeFormForErrors()
             return
 
@@ -272,18 +274,17 @@ class SendToPloneMeetingForm(form.Form):
         """
         data = OrderedDict()
         settings = self.ws4pmSettings.settings()
+        # initialize category field in case it is not defined in field_mappings
+        data['category'] = self.request.form.get('form.widgets.category', [u'', ])[0]
         for availableData in settings.field_mappings:
             field_name = availableData['field_name']
             if field_name == 'category':
                 # check that the meetingConfig we want to send the item to
                 # actually use categories
                 if not self._getCategoriesVocab():
-                    continue
+                    data[field_name] = u''
                 else:
-                    #if we receive a category, use it
-                    if self.request.form.get('form.widgets.category'):
-                        data[field_name] = self.request.form.get('form.widgets.category')[0]
-                        continue
+                    continue
             expr = availableData['expression']
             # make the meetingConfigId available in the expression
             vars = {}
@@ -297,8 +298,9 @@ class SendToPloneMeetingForm(form.Form):
                                                                           vars)
             except Exception, e:
                 IStatusMessage(self.request).addStatusMessage(
-                    _(TAL_EVAL_FIELD_ERROR %
-                      (settings.viewlet_display_condition, 'viewlet_display_condition', e)),
+                    _(TAL_EVAL_FIELD_ERROR, mapping={'expr': expr,
+                                                     'field_name': field_name,
+                                                     'error': e}),
                     "error")
                 return self.request.RESPONSE.redirect(self.context.absolute_url())
         return data

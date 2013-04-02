@@ -5,7 +5,9 @@ from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleTerm, SimpleVocabulary
 from Products.statusmessages.interfaces import IStatusMessage
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
-from imio.pm.wsclient.config import TAL_EVAL_FIELD_ERROR
+from imio.pm.wsclient.config import TAL_EVAL_FIELD_ERROR, NO_FIELD_MAPPINGS_ERROR, \
+    CAN_NOT_CREATE_FOR_PROPOSING_GROUP_ERROR, NO_USER_INFOS_ERROR, NO_CONFIG_INFOS_ERROR, \
+    CAN_NOT_CREATE_WITH_CATEGORY_ERROR
 
 
 class pm_meeting_config_id_vocabulary(object):
@@ -85,7 +87,7 @@ class proposing_groups_for_user_vocabulary(object):
         if not field_mappings:
             portal.REQUEST.set('error_in_vocabularies', True)
             IStatusMessage(portal.REQUEST).addStatusMessage(
-                _("No field_mappings defined in the WS4PMClient configuration!"),
+                _(NO_FIELD_MAPPINGS_ERROR),
                 'error')
             return SimpleVocabulary([])
         forcedProposingGroup = None
@@ -103,8 +105,9 @@ class proposing_groups_for_user_vocabulary(object):
                 except Exception, e:
                     portal.REQUEST.set('error_in_vocabularies', True)
                     IStatusMessage(portal.REQUEST).addStatusMessage(
-                        _(TAL_EVAL_FIELD_ERROR %
-                          (field_mapping['expression'], field_mapping['field_name'], e)),
+                        _(TAL_EVAL_FIELD_ERROR, mapping={'expr': field_mapping['expression'],
+                                                         'field_name': field_mapping['field_name'],
+                                                         'error': e}),
                         'error')
                     return SimpleVocabulary([])
         # even if we get a forcedProposingGroup, double check that the current user can actually use it
@@ -113,9 +116,9 @@ class proposing_groups_for_user_vocabulary(object):
             portal.REQUEST.set('error_in_vocabularies', True)
             # add a status message if the main error is not the fact that we can not connect to the WS
             if userInfos is not None:
-                IStatusMessage(portal.REQUEST).addStatusMessage(
-                    _("No user informations found for current user or the current user " \
-                      "is not a creator in PloneMeeting!"), 'error')
+                userThatWillCreate = self.ws4pmSettings._getUserIdToUseInTheNameOfWith()
+                IStatusMessage(self.request).addStatusMessage(
+                    _(NO_USER_INFOS_ERROR, mapping={'userId': userThatWillCreate}), 'error')
             return SimpleVocabulary([])
         terms = []
         forcedProposingGroupExists = not forcedProposingGroup and True or False
@@ -133,8 +136,7 @@ class proposing_groups_for_user_vocabulary(object):
         if not forcedProposingGroupExists:
             portal.REQUEST.set('error_in_vocabularies', True)
             IStatusMessage(portal.REQUEST).addStatusMessage(
-                _("The current user can not create an item with the proposingGroup forced "
-                  "thru the configuration!  Please contact system administrator!"),
+                _(CAN_NOT_CREATE_FOR_PROPOSING_GROUP_ERROR),
                 'error')
             return SimpleVocabulary([])
         return SimpleVocabulary(terms)
@@ -155,7 +157,7 @@ class categories_for_user_vocabulary(object):
         if not field_mappings:
             portal.REQUEST.set('error_in_vocabularies', True)
             IStatusMessage(portal.REQUEST).addStatusMessage(
-                _("No field_mappings defined in the WS4PMClient configuration!"),
+                _(NO_FIELD_MAPPINGS_ERROR),
                 'error')
             return SimpleVocabulary([])
         forcedCategory = None
@@ -175,8 +177,9 @@ class categories_for_user_vocabulary(object):
                 except Exception, e:
                     portal.REQUEST.set('error_in_vocabularies', True)
                     IStatusMessage(portal.REQUEST).addStatusMessage(
-                        _(TAL_EVAL_FIELD_ERROR %
-                          (field_mapping['expression'], field_mapping['field_name'], e)),
+                        _(TAL_EVAL_FIELD_ERROR, mapping={'expr': field_mapping['expression'],
+                                                         'field_name': field_mapping['field_name'],
+                                                         'error': e}),
                         'error')
                     return SimpleVocabulary([])
 
@@ -186,7 +189,7 @@ class categories_for_user_vocabulary(object):
             # add a status message if the main error is not the fact that we can not connect to the WS
             if configInfos is not None:
                 IStatusMessage(portal.REQUEST).addStatusMessage(
-                    _("No configuration informations found!"), 'error')
+                    _(NO_CONFIG_INFOS_ERROR), 'error')
             return SimpleVocabulary([])
         categories = []
         # find categories for given meetingConfigId
@@ -214,8 +217,7 @@ class categories_for_user_vocabulary(object):
         if not forcedCategoryExists:
             portal.REQUEST.set('error_in_vocabularies', True)
             IStatusMessage(portal.REQUEST).addStatusMessage(
-                _("The current user can not create an item with the category forced "
-                  "thru the configuration!  Please contact system administrator!"),
+                _(CAN_NOT_CREATE_WITH_CATEGORY_ERROR),
                 'error')
             return SimpleVocabulary([])
         return SimpleVocabulary(terms)
