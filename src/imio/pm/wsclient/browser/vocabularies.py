@@ -116,8 +116,8 @@ class proposing_groups_for_user_vocabulary(object):
             portal.REQUEST.set('error_in_vocabularies', True)
             # add a status message if the main error is not the fact that we can not connect to the WS
             if userInfos is not None:
-                userThatWillCreate = self.ws4pmSettings._getUserIdToUseInTheNameOfWith()
-                IStatusMessage(self.request).addStatusMessage(
+                userThatWillCreate = ws4pmsettings._getUserIdToUseInTheNameOfWith()
+                IStatusMessage(portal.REQUEST).addStatusMessage(
                     _(NO_USER_INFOS_ERROR, mapping={'userId': userThatWillCreate}), 'error')
             return SimpleVocabulary([])
         terms = []

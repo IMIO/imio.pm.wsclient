@@ -170,7 +170,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         messages = messages.show()
         self.assertTrue(len(messages) == 1)
         self.assertEquals(messages[0].message,
-                          u"An error occured during the item creation in PloneMeeting!  "
+                          u"An error occured during the item creation in PloneMeeting! "
                           "The error message was : Server raised fault: ''unexisting-category-id' "
                           "is not available for the 'developers' group!'")
 

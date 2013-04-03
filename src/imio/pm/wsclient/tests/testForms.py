@@ -26,9 +26,11 @@ import transaction
 from AccessControl import Unauthorized
 from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
+from zope.i18n import translate
 
 from Products.statusmessages.interfaces import IStatusMessage
 
+from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY, UNABLE_TO_CONNECT_ERROR, \
     CORRECTLY_SENT_TO_PM_INFO, ALREADY_SENT_TO_PM_ERROR, NO_PROPOSING_GROUP_ERROR
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, \
@@ -141,7 +143,8 @@ class testForms(WS4PMCLIENTTestCase):
         self.assertFalse(messages.show())
         # if no item is created, _sendToPloneMeeting returns None
         self.assertFalse(self._sendToPloneMeeting(document, user='pmCreator2', proposingGroup='vendors'))
-        self.assertTrue(messages.show()[0].message == NO_PROPOSING_GROUP_ERROR % 'pmCreator2')
+        msg = _(NO_PROPOSING_GROUP_ERROR, mapping={'userId': 'pmCreator2'})
+        self.assertTrue(messages.show()[0].message == translate(msg))
 
     def test_checkAlreadySentToPloneMeeting(self):
         """Test in case we sent the element again to PloneMeeting, that should not happen...
@@ -214,6 +217,7 @@ class testForms(WS4PMCLIENTTestCase):
         view.proposingGroupId = 'developers'
         self.assertFalse(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
                         (self.request.get('meetingConfigId'),)))
+        self.request.form['form.widgets.category'] = [u'deployment', ]
         self.assertTrue(view._doSendToPloneMeeting())
         self.assertTrue(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
                         (self.request.get('meetingConfigId'),)))
