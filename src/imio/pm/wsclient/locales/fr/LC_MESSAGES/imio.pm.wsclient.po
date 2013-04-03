@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: YEAR-MO-DA HO:MI +ZONE\n"
+"POT-Creation-Date: 2013-02-12 13:15-100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -58,9 +58,9 @@ msgstr "Entrez le timeout de connexion à PloneMeeting.  Attention, ne pas mettr
 msgid "Field accessor mappings"
 msgstr "Correspondances pour les champs"
 
-#. Default: "For every available data you can send, define in the mapping a TAL expression that will be executed to obtain the correct value to send. The 'meetingConfigId' and 'proposingGroupId' variables are also available for the expression."
-msgid "For every available data you can send, define in the mapping a TAL expression that will be executed to obtain the correct value to send. The 'meetingConfigId' and 'proposingGroupId' variables are also available for the expression."
-msgstr "Pour chaque données à envoyer, définissez une expression TAL qui fait correspondre au context, la valeur à utiliser pour un champ dans PloneMeeting.  Les variables 'meetingConfigId' et 'proposingGroupId' sont disponibles pour l'expression TAL."
+#. Default: "For every available data you can send, define in the mapping a TAL expression that will be executed to obtain the correct value to send. The 'meetingConfigId' and 'proposingGroupId' variables are also available for the expression. Special case for the 'proposingGroup' and 'category' fields, you can 'force' the use of a particular value by defining it here. If not defined the user will be able to use every 'proposingGroup' or 'category' he is allowed to use in PloneMeeting."
+msgid "For every available data you can send, define in the mapping a TAL expression that will be executed to obtain the correct value to send. The 'meetingConfigId' and 'proposingGroupId' variables are also available for the expression. Special case for the 'proposingGroup' and 'category' fields, you can 'force' the use of a particular value by defining it here. If not defined the user will be able to use every 'proposingGroup' or 'category' he is allowed to use in PloneMeeting."
+msgstr "Pour chaque données à envoyer, définissez une expression TAL qui fait correspondre à l'élément à envoyer, la valeur à utiliser pour un champ dans PloneMeeting. Les variables 'meetingConfigId' et 'proposingGroupId' sont disponibles pour l'expression TAL.  Pour les champs 'proposingGroup' et 'category', si vous définissez une valeur ici, cela 'forcera' l'utilisation de ces valeurs.  Sinon l'utilisateur pourra utiluser les 'groupes proposants' et 'catégories' qu'il peut habituellement utiliser dans PloneMeeting."
 
 #. Default: "Generated actions"
 msgid "Generated actions"
@@ -153,6 +153,10 @@ msgstr "L'utilisateur courant ne peut créer de point avec la catégorie forcée
 #. Default: "The current user can not create an item with the proposingGroup forced thru the configuration! Please contact system administrator!"
 msgid "The current user can not create an item with the proposingGroup forced thru the configuration! Please contact system administrator!"
 msgstr "L'utilisateur courant ne peut créer de point pour le groupe proposant forcé par la configuration! Contactez votre administrateur système!"
+
+#. Default: "The element will not be sendable to PloneMeeting until sufficient field mappings are defined in the configuration. The 'title' is needed but 'description' and 'decision' should also be defined."
+msgid "The element will not be sendable to PloneMeeting until sufficient field mappings are defined in the configuration. The 'title' is needed but 'description' and 'decision' should also be defined."
+msgstr "L'élément ne pourra pas être envoyé vers PloneMeeting tant que les 'Correspondances pour les champs' ne sont pas définies dans la configuration. Le champ 'title' doit être défini et idéalement, les champs 'description' et 'decision' également."
 
 #. Default: "The item has been correctly sent to PloneMeeting."
 msgid "The item has been correctly sent to PloneMeeting."

@@ -105,7 +105,10 @@ class IWS4PMClientSettings(Interface):
         title=_("Field accessor mappings"),
         description=_("For every available data you can send, define in the mapping a TAL expression that will be "
                       "executed to obtain the correct value to send. The 'meetingConfigId' and 'proposingGroupId' "
-                      "variables are also available for the expression."),
+                      "variables are also available for the expression. Special case for the 'proposingGroup' and "
+                      "'category' fields, you can 'force' the use of a particular value by defining it here. If not "
+                      "defined the user will be able to use every 'proposingGroup' or 'category' he is allowed to "
+                      "use in PloneMeeting."),
         value_type=DictRow(title=_("Field mappings"),
                            schema=IFieldMappingsSchema,
                            required=False),

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: YEAR-MO-DA HO:MI +ZONE\n"
+"POT-Creation-Date: 2013-02-12 13:15-100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -58,8 +58,8 @@ msgstr ""
 msgid "Field accessor mappings"
 msgstr ""
 
-#. Default: "For every available data you can send, define in the mapping a TAL expression that will be executed to obtain the correct value to send. The 'meetingConfigId' and 'proposingGroupId' variables are also available for the expression."
-msgid "For every available data you can send, define in the mapping a TAL expression that will be executed to obtain the correct value to send. The 'meetingConfigId' and 'proposingGroupId' variables are also available for the expression."
+#. Default: "For every available data you can send, define in the mapping a TAL expression that will be executed to obtain the correct value to send. The 'meetingConfigId' and 'proposingGroupId' variables are also available for the expression. Special case for the 'proposingGroup' and 'category' fields, you can 'force' the use of a particular value by defining it here. If not defined the user will be able to use every 'proposingGroup' or 'category' he is allowed to use in PloneMeeting."
+msgid "For every available data you can send, define in the mapping a TAL expression that will be executed to obtain the correct value to send. The 'meetingConfigId' and 'proposingGroupId' variables are also available for the expression. Special case for the 'proposingGroup' and 'category' fields, you can 'force' the use of a particular value by defining it here. If not defined the user will be able to use every 'proposingGroup' or 'category' he is allowed to use in PloneMeeting."
 msgstr ""
 
 #. Default: "Generated actions"
@@ -152,6 +152,10 @@ msgstr ""
 
 #. Default: "The current user can not create an item with the proposingGroup forced thru the configuration! Please contact system administrator!"
 msgid "The current user can not create an item with the proposingGroup forced thru the configuration! Please contact system administrator!"
+msgstr ""
+
+#. Default: "The element will not be sendable to PloneMeeting until sufficient field mappings are defined in the configuration.  The 'title' is needed but 'description' and 'decision' should also be defined."
+msgid "The element will not be sendable to PloneMeeting until sufficient field mappings are defined in the configuration.  The 'title' is needed but 'description' and 'decision' should also be defined."
 msgstr ""
 
 #. Default: "The item has been correctly sent to PloneMeeting."

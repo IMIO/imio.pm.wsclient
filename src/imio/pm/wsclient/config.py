@@ -30,6 +30,10 @@ CAN_NOT_CREATE_FOR_PROPOSING_GROUP_ERROR = u"The current user can not create an 
 NO_CONFIG_INFOS_ERROR = u"No configuration informations found!"
 CAN_NOT_CREATE_WITH_CATEGORY_ERROR = u"The current user can not create an item with the category forced " \
                                      "thru the configuration! Please contact system administrator!"
+NOT_SENDABLE_UNTIL_FIELD_MAPPINGS_DEFINED_WARNING = u"The element will not be sendable to PloneMeeting until " \
+                                                    "sufficient field mappings are defined in the configuration. " \
+                                                    "The 'title' is needed but 'description' and 'decision' should " \
+                                                    "also be defined."
 
 # annotations key
 WS4PMCLIENT_ANNOTATION_KEY = "imio.pm.wsclient-sent_to"
