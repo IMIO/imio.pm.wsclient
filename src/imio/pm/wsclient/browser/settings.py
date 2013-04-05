@@ -209,10 +209,10 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
           Either return None or the connected client.
         """
         settings = self.settings()
-        url = self.request.form.get('form.widgets.pm_url') or settings.pm_url
-        username = self.request.form.get('form.widgets.pm_username') or settings.pm_username
-        password = self.request.form.get('form.widgets.pm_password') or settings.pm_password
-        timeout = self.request.form.get('form.widgets.pm_timeout') or settings.pm_timeout
+        url = self.request.form.get('form.widgets.pm_url') or settings.pm_url or ''
+        username = self.request.form.get('form.widgets.pm_username') or settings.pm_username or ''
+        password = self.request.form.get('form.widgets.pm_password') or settings.pm_password or ''
+        timeout = self.request.form.get('form.widgets.pm_timeout') or settings.pm_timeout or ''
         imp = Import('http://schemas.xmlsoap.org/soap/encoding/')
         d = ImportDoctor(imp)
         t = HttpAuthenticated(username=username, password=password)
@@ -405,6 +405,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         if expression:
             expression = expression.strip()
             ctx = createExprContext(context.aq_inner.aq_parent, portal, context)
+            vars['context'] = context
             ctx.vars.update(vars)
             res = Expression(expression)(ctx)
         # make sure we do not return None because it breaks SOAP call
@@ -446,8 +447,8 @@ def notify_configuration_changed(event):
                                 url_expr='string:${object_url}/@@send_to_plonemeeting_form?meetingConfigId=%s'
                                          % actToGen['pm_meeting_config_id'],
                                 icon_expr='',
-                                available_expr=actToGen['condition'],
-                                permissions=(actToGen['permissions'], ),
+                                available_expr=actToGen['condition'] or '',
+                                permissions=actToGen['permissions'] or ('View',),
                                 visible=True)
                 object_buttons._setObject(actionId, action)
                 i = i + 1
