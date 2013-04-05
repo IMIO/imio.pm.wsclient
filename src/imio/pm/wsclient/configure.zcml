@@ -17,8 +17,6 @@
       id="zope2.SOAPClientSend"
       title="SOAP Client Send"/>
 
-
-    <include package="plone.app.registry" />
     <include package=".browser" />
     <include file="subscribers.zcml" />
 
