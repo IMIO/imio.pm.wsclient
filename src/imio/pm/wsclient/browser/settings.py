@@ -304,8 +304,9 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 # we create an item inTheNameOf the currently connected member
                 # _getUserIdToCreateWith returns None if the settings defined username creates the item
                 inTheNameOf = self._getUserIdToUseInTheNameOfWith()
-                uid, warnings = client.service.createItem(meetingConfigId, proposingGroupId, creationData, inTheNameOf)
-                return uid, warnings
+                res = client.service.createItem(meetingConfigId, proposingGroupId, creationData, inTheNameOf)
+                # return 'UID' and 'warnings' if any
+                return res['UID'], 'warnings' in res.__keylist__ and res['warnings'] or []
             except Exception, exc:
                 IStatusMessage(self.request).addStatusMessage(_(CONFIG_CREATE_ITEM_PM_ERROR, mapping={'error': exc}),
                                                               "error")

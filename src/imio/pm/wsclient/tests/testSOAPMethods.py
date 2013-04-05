@@ -154,7 +154,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         transaction.commit()
         # the item is created and his UID is returned
         # check that the item is actually created inTheNameOf 'pmCreator1'
-        itemUID = result[0][1]
+        itemUID = result[0]
         item = self.portal.uid_catalog(UID=itemUID)[0].getObject()
         # created in the 'pmCreator1' member area
         self.assertTrue(item.aq_inner.aq_parent.UID(), pmFolder.UID())

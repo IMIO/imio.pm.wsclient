@@ -22,7 +22,7 @@ from Products.statusmessages.interfaces import IStatusMessage
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient import PMMessageFactory as _PM
 from imio.pm.wsclient.config import ALREADY_SENT_TO_PM_ERROR, UNABLE_TO_CONNECT_ERROR, \
-    NO_USER_INFOS_ERROR, NO_PROPOSING_GROUP_ERROR, CORRECTLY_SENT_TO_PM_INFO, DEFAULT_NO_WARNING_MESSAGE, \
+    NO_USER_INFOS_ERROR, NO_PROPOSING_GROUP_ERROR, CORRECTLY_SENT_TO_PM_INFO, \
     WS4PMCLIENT_ANNOTATION_KEY, TAL_EVAL_FIELD_ERROR, NOT_SENDABLE_UNTIL_FIELD_MAPPINGS_DEFINED_WARNING
 from imio.pm.wsclient.interfaces import IRedirect
 
@@ -225,15 +225,10 @@ class SendToPloneMeetingForm(form.Form):
             self.request.set('show_send_to_pm_form', False)
             self.portal.plone_utils.addPortalMessage(_(CORRECTLY_SENT_TO_PM_INFO), 'info')
             if warnings:
-                for warning in warnings[1]:
+                for warning in warnings:
                     # show warnings in the web interface and add it to the Zope log
-                    # do not show the DEFAULT_NO_WARNING_MESSAGE
-                    if warning == DEFAULT_NO_WARNING_MESSAGE:
-                        continue
-                    else:
-                        type = "warning"
-                        logger.warning(warning)
-                        IStatusMessage(self.request).addStatusMessage(_(warning), type)
+                    logger.warning(warning)
+                    IStatusMessage(self.request).addStatusMessage(_(warning), 'warning')
             # finally save in the self.context annotation that the item has been sent
             annotations = IAnnotations(self.context)
             if not WS4PMCLIENT_ANNOTATION_KEY in annotations:
