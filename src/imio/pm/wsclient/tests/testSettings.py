@@ -31,8 +31,7 @@ from zope.component import getMultiAdapter
 from zope.tales.tales import CompilerError
 
 from imio.pm.wsclient.config import ACTION_SUFFIX
-from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig, \
-                                                       createDocument
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig, createDocument
 from imio.pm.wsclient.testing import WS4PMCLIENT_PROFILE_FUNCTIONAL
 
 
@@ -97,7 +96,7 @@ class testSettings(unittest2.TestCase):
             {'pm_meeting_config_id': 'plonemeeting-assembly',
              'condition': u'python:True',
              'permissions': u'View'},
-            ]
+        ]
         setCorrectSettingsConfig(self.portal,
                                  withValidation=False,
                                  **{'generated_actions': generated_actions})
@@ -169,14 +168,14 @@ class testSettings(unittest2.TestCase):
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         expr = u'python: None'
         # make sure None is never returned by the renderer as it breaks SOAP calls
-        self.assertTrue(ws4pmSettings.renderTALExpression(document, self.portal, expr, '') == u'')
+        self.assertTrue(ws4pmSettings.renderTALExpression(document, self.portal, expr, {}) == u'')
         expr = u'object/Title'
-        self.assertTrue(ws4pmSettings.renderTALExpression(document, self.portal, expr, '') == u'Document title')
+        self.assertTrue(ws4pmSettings.renderTALExpression(document, self.portal, expr, {}) == u'Document title')
         expr = u'string:"My expr result"'
-        self.assertTrue(ws4pmSettings.renderTALExpression(document, self.portal, expr, '') == u'"My expr result"')
+        self.assertTrue(ws4pmSettings.renderTALExpression(document, self.portal, expr, {}) == u'"My expr result"')
         # with a wrong expression, we raise
         expr = 'u object/wrongMethodCall'
-        self.assertRaises(CompilerError, ws4pmSettings.renderTALExpression, document, self.portal, expr, '')
+        self.assertRaises(CompilerError, ws4pmSettings.renderTALExpression, document, self.portal, expr, {})
 
 
 def test_suite():
