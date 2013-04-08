@@ -30,6 +30,9 @@ from AccessControl import Unauthorized
 from zope.component import getMultiAdapter
 from zope.tales.tales import CompilerError
 
+from zope.event import notify
+from zope.traversing.interfaces import BeforeTraverseEvent
+
 from imio.pm.wsclient.config import ACTION_SUFFIX
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig, createDocument
 from imio.pm.wsclient.testing import WS4PMCLIENT_PROFILE_FUNCTIONAL
@@ -47,6 +50,9 @@ class testSettings(unittest2.TestCase):
         request = self.layer['request']
         self.portal = portal
         self.request = request
+        # setup manually the correct browserlayer, see:
+        # https://dev.plone.org/ticket/11673
+        notify(BeforeTraverseEvent(self.portal, self.request))
 
     def test_ws4pmSettings(self):
         """Check that we can actually access settings and that we have the correct fields."""

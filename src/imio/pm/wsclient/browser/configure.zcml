@@ -18,6 +18,7 @@
     <!-- special view that make it possible to redirect from an overlay and show status messages afterward -->
     <browser:page
         for="*"
+        layer="imio.pm.wsclient.interfaces.IWS4PMClientLayer"
         name="redirect_view"
         class=".redirect.RedirectView"
         permission="zope2.View"
@@ -26,6 +27,7 @@
     <!-- Control panel -->
     <browser:page
       name="ws4pmclient-settings"
+      layer="imio.pm.wsclient.interfaces.IWS4PMClientLayer"
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"
       class=".settings.WS4PMClientSettings"
       permission="cmf.ManagePortal"
@@ -34,6 +36,7 @@
     <!-- View that sends the element to PloneMeeting -->
     <browser:page
         for="*"
+        layer="imio.pm.wsclient.interfaces.IWS4PMClientLayer"
         name="send_to_plonemeeting_form"
         class=".forms.SendToPloneMeetingWrapper"
         permission="zope2.SOAPClientSend"
@@ -51,6 +54,7 @@
     <!-- View that generates a document of an item -->
     <browser:page
         for="*"
+        layer="imio.pm.wsclient.interfaces.IWS4PMClientLayer"
         name="generate_document_from_plonemeeting"
         class=".views.GenerateItemTemplateView"
         permission="zope2.SOAPClientAccess"
@@ -58,7 +62,8 @@
 
     <!-- Viewlets -->
     <browser:viewlet
-        name="imio.pm.ws.pminfos"
+        name="imio.pm.wsclient.pminfos"
+        layer="imio.pm.wsclient.interfaces.IWS4PMClientLayer"
         manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
         class=".viewlets.PloneMeetingInfosViewlet"
         permission="zope2.SOAPClientAccess"
@@ -98,12 +103,14 @@
     <!-- Resource directory for images -->
     <browser:resourceDirectory
         name="imio.pm.wsclient.images"
+        layer="imio.pm.wsclient.interfaces.IWS4PMClientLayer"
         directory="images"
     />
 
     <!-- Resource directory for js -->
     <browser:resourceDirectory
         name="imio.pm.wsclient.javascripts"
+        layer="imio.pm.wsclient.interfaces.IWS4PMClientLayer"
         directory="javascripts"
     />
 
