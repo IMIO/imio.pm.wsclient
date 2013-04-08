@@ -448,7 +448,8 @@ def notify_configuration_changed(event):
                                          % actToGen['pm_meeting_config_id'],
                                 icon_expr='',
                                 available_expr=actToGen['condition'] or '',
-                                permissions=(actToGen['permissions'], ) or ('View', ),
+                                # make sure we have a tuple as permissions value
+                                permissions=actToGen['permissions'] and (actToGen['permissions'], ) or ('View', ),
                                 visible=True)
                 object_buttons._setObject(actionId, action)
                 i = i + 1
