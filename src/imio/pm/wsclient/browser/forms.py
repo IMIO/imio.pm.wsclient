@@ -251,11 +251,6 @@ class SendToPloneMeetingForm(form.Form):
         data = self._buildDataDict()
         # now that every values are evaluated, build the CreationData
         creation_data = client.factory.create('CreationData')
-        # not using categories?
-        if not 'category' in data:
-            # make sure we do not pass a 'None' !
-            creation_data.category = u''
-
         for elt in data:
             # proposingGroup is managed apart
             if elt == u'proposingGroup':
