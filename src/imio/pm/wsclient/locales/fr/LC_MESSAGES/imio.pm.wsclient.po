@@ -213,3 +213,4 @@ msgstr "Voici un résumé de ce qui va être envoyé"
 #. Default: "Please specify the proposingGroup to use"
 msgid "send_to_plonemeeting_specify_proposing_group"
 msgstr "Choisissez le groupe proposant avec lequel le point sera créé"
+

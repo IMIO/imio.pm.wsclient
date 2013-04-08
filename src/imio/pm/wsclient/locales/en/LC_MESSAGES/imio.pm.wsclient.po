@@ -154,9 +154,9 @@ msgstr "The current user can not create an item with the category forced thru th
 msgid "The current user can not create an item with the proposingGroup forced thru the configuration! Please contact system administrator!"
 msgstr "The current user can not create an item with the proposingGroup forced thru the configuration! Please contact system administrator!"
 
-#. Default: "The element will not be sendable to PloneMeeting until sufficient field mappings are defined in the configuration.  The 'title' is needed but 'description' and 'decision' should also be defined."
-msgid "The element will not be sendable to PloneMeeting until sufficient field mappings are defined in the configuration.  The 'title' is needed but 'description' and 'decision' should also be defined."
-msgstr "The element will not be sendable to PloneMeeting until sufficient field mappings are defined in the configuration.  The 'title' is needed but 'description' and 'decision' should also be defined."
+#. Default: "The element will not be sendable to PloneMeeting until sufficient field mappings are defined in the configuration. The 'title' is needed but 'description' and 'decision' should also be defined."
+msgid "The element will not be sendable to PloneMeeting until sufficient field mappings are defined in the configuration. The 'title' is needed but 'description' and 'decision' should also be defined."
+msgstr ""
 
 #. Default: "The item has been correctly sent to PloneMeeting."
 msgid "The item has been correctly sent to PloneMeeting."
