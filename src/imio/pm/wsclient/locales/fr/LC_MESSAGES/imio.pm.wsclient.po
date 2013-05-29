@@ -114,6 +114,10 @@ msgstr "Mot de passe à utiliser dans PloneMeeting"
 msgid "PloneMeeting username to use"
 msgstr "Nom d'utilisateur à utiliser dans PloneMeeting"
 
+#. Default: "Save"
+msgid "Save"
+msgstr "Enregistrer"
+
 #. Default: "Select the category to use for the created item item in PloneMeeting"
 msgid "Select the category to use for the created item item in PloneMeeting"
 msgstr "Sélectionnez la catégorie avec laquelle le point sera créé dans PloneMeeting"
@@ -213,4 +217,3 @@ msgstr "Voici un résumé de ce qui va être envoyé"
 #. Default: "Please specify the proposingGroup to use"
 msgid "send_to_plonemeeting_specify_proposing_group"
 msgstr "Choisissez le groupe proposant avec lequel le point sera créé"
-

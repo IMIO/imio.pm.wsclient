@@ -114,6 +114,10 @@ msgstr "PloneMeeting password to use"
 msgid "PloneMeeting username to use"
 msgstr "PloneMeeting username to use"
 
+#. Default: "Save"
+msgid "Save"
+msgstr ""
+
 #. Default: "Select the category to use for the created item item in PloneMeeting"
 msgid "Select the category to use for the created item item in PloneMeeting"
 msgstr "Select the category to use for the created item item in PloneMeeting"

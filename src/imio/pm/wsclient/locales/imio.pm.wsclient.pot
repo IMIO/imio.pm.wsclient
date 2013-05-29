@@ -124,6 +124,10 @@ msgstr ""
 msgid "Send"
 msgstr ""
 
+#. Default: "Save"
+msgid "Save"
+msgstr ""
+
 #. Default: "Cancel"
 msgid "Cancel"
 msgstr ""
