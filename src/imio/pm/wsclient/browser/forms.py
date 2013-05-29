@@ -12,6 +12,7 @@ from zope.annotation import IAnnotations
 from zope.component.hooks import getSite
 from zope.component import queryUtility, getMultiAdapter
 from zope.contentprovider.provider import ContentProviderBase
+from zope.i18n import translate
 from zope import interface, schema
 from zope.interface import implements
 from zope.schema.interfaces import IVocabularyFactory
@@ -99,6 +100,13 @@ class SendToPloneMeetingForm(form.Form):
         self.portal_state = getMultiAdapter((self.context, self.request), name=u'plone_portal_state')
         self.portal = self.portal_state.portal()
         self.ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
+        # manage the label to display to wich meetingConfig we are sending the element...
+        self.label = translate('Send to',
+                               domain='imio.pm.wsclient',
+                               mapping={'meetingConfigTitle':
+                                        self.ws4pmSettings.getMeetingConfigTitle(self.meetingConfigId),
+                                        },
+                               context=self.request)
 
     @button.buttonAndHandler(_('Send'), name='send_to_plonemeeting')
     def handleSendToPloneMeeting(self, action):

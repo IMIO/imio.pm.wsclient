@@ -414,6 +414,17 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         else:
             return res
 
+    def getMeetingConfigTitle(self, meetingConfigId):
+        """
+          Return the title of the given p_meetingConfigId
+          Use the vocabulary u'imio.pm.wsclient.pm_meeting_config_id_vocabulary'
+        """
+        # get the pm_meeting_config_id_vocabulary so we will be able to displayValue
+        factory = queryUtility(IVocabularyFactory, u'imio.pm.wsclient.pm_meeting_config_id_vocabulary')
+        # self.context is portal
+        meetingConfigVocab = factory(self.context)
+        return meetingConfigVocab.getTerm(meetingConfigId).title
+
 
 def notify_configuration_changed(event):
     """Event subscriber that is called every time the configuration changed."""
@@ -430,18 +441,17 @@ def notify_configuration_changed(event):
                     object_buttons.manage_delObjects([object_button.id])
             # then recreate them
             i = 1
-            # get the pm_meeting_config_id_vocabulary so we will be able to displayValue
-            factory = queryUtility(IVocabularyFactory, u'imio.pm.wsclient.pm_meeting_config_id_vocabulary')
-            meetingConfigVocab = factory(portal)
+            ws4pmSettings = getMultiAdapter((portal, portal.REQUEST), name='ws4pmclient-settings')
             for actToGen in event.record.value:
                 actionId = "%s%d" % (ACTION_SUFFIX, i)
-                # get value from vocab
                 action = Action(actionId,
                                 title=translate(
                                     'Send to',
                                     domain='imio.pm.wsclient',
-                                    mapping={'meetingConfigTitle':
-                                             meetingConfigVocab.getTerm(actToGen['pm_meeting_config_id']).title},
+                                    mapping={
+                                        'meetingConfigTitle':
+                                        ws4pmSettings.getMeetingConfigTitle(actToGen['pm_meeting_config_id']),
+                                    },
                                     context=portal.REQUEST),
                                 description='', i18n_domain='imio.pm.wsclient',
                                 url_expr='string:${object_url}/@@send_to_plonemeeting_form?meetingConfigId=%s'
