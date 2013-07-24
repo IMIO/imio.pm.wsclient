@@ -57,6 +57,7 @@ class testForms(WS4PMCLIENTTestCase):
         setCorrectSettingsConfig(self.portal, setConnectionParams=False, withValidation=False)
         # only available to connected users
         self.changeUser('pmCreator1')
+        self._configureRequestForView(self.portal)
         view = self.portal.restrictedTraverse(SEND_TO_PM_VIEW_NAME).form_instance
         # when we can not connect, a message is displayed to the user
         messages = IStatusMessage(self.request)
@@ -89,9 +90,7 @@ class testForms(WS4PMCLIENTTestCase):
         self.changeUser('pmCreator1')
         # create an element to send...
         document = createDocument(self.portal.Members.pmCreator1)
-        self.request.set('URL', document.absolute_url())
-        self.request.set('ACTUAL_URL', document.absolute_url() + '/%s' % SEND_TO_PM_VIEW_NAME)
-        self.request.set('meetingConfigId', 'plonemeeting-assembly')
+        self._configureRequestForView(document)
         view = document.restrictedTraverse(SEND_TO_PM_VIEW_NAME).form_instance
         # before sending, no item is linked to the document
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
@@ -154,9 +153,7 @@ class testForms(WS4PMCLIENTTestCase):
         self.changeUser('pmCreator1')
         # create an element to send...
         document = createDocument(self.portal.Members.pmCreator1)
-        self.request.set('URL', document.absolute_url())
-        self.request.set('ACTUAL_URL', document.absolute_url() + '/%s' % SEND_TO_PM_VIEW_NAME)
-        self.request.set('meetingConfigId', 'plonemeeting-assembly')
+        self._configureRequestForView(document)
         view = document.restrictedTraverse(SEND_TO_PM_VIEW_NAME).form_instance
         view.proposingGroupId = 'developers'
         # create the 'pmCreator1' member area to be able to create an item
@@ -239,6 +236,12 @@ class testForms(WS4PMCLIENTTestCase):
         # wipe out annotations
         view.ws4pmSettings.checkAlreadySentToPloneMeeting(document)
         self.assertFalse(WS4PMCLIENT_ANNOTATION_KEY in annotations)
+
+    def _configureRequestForView(self, obj):
+        """Helper method that configure the request values so the view to test works..."""
+        self.request.set('URL', obj.absolute_url())
+        self.request.set('ACTUAL_URL', obj.absolute_url() + '/%s' % SEND_TO_PM_VIEW_NAME)
+        self.request.set('meetingConfigId', 'plonemeeting-assembly')
 
 
 def test_suite():

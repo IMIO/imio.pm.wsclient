@@ -28,7 +28,7 @@ WS4PMCLIENT_PM_TEST_PROFILE = PloneWithPackageLayer(
                             'Products.CMFPlacefulWorkflow',
                             'imio.pm.wsclient',
                             'imio.pm.ws'),
-    gs_profile_id='Products.PloneMeeting:test',
+    gs_profile_id='Products.PloneMeeting:testing',
     name="WS4PMCLIENT_PM_TEST_PROFILE")
 
 WS4PMCLIENT_PM_TEST_PROFILE_INTEGRATION = IntegrationTesting(

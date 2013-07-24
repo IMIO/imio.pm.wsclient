@@ -423,7 +423,10 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         factory = queryUtility(IVocabularyFactory, u'imio.pm.wsclient.pm_meeting_config_id_vocabulary')
         # self.context is portal
         meetingConfigVocab = factory(self.context)
-        return meetingConfigVocab.getTerm(meetingConfigId).title
+        try:
+            return meetingConfigVocab.getTerm(meetingConfigId).title
+        except LookupError:
+            return ''
 
 
 def notify_configuration_changed(event):
