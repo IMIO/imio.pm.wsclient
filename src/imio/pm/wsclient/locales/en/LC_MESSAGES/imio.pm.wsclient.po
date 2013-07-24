@@ -78,8 +78,8 @@ msgstr "No configuration informations found!"
 msgid "No field_mappings defined in the WS4PMClient configuration!"
 msgstr "No field_mappings defined in the WS4PMClient configuration!"
 
-#. Default: "No sufficient field mappings are defined in the configuration. It is recommended to define at least the 'title' mapping, but 'description' and 'decision' should also be defined."
-msgid "No sufficient field mappings are defined in the configuration. It is recommended to define at least the 'title' mapping, but 'description' and 'decision' should also be defined."
+#. Default: "No sufficient field mappings are defined in the configuration. It is recommended to define at least the 'title' mapping, but 'description' and 'decision' should also be defined. It will ne be possible to create the item in PloneMeeting."
+msgid "No sufficient field mappings are defined in the configuration. It is recommended to define at least the 'title' mapping, but 'description' and 'decision' should also be defined. It will ne be possible to create the item in PloneMeeting."
 msgstr ""
 
 #. Default: "No user informations found for current user or the current user is not a creator in PloneMeeting!"

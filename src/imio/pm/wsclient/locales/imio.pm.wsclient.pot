@@ -208,6 +208,6 @@ msgstr ""
 msgid "The current user can not create an item with the category forced thru the configuration! Please contact system administrator!"
 msgstr ""
 
-#. Default: "No sufficient field mappings are defined in the configuration. It is recommended to define at least the 'title' mapping, but 'description' and 'decision' should also be defined."
-msgid "No sufficient field mappings are defined in the configuration. It is recommended to define at least the 'title' mapping, but 'description' and 'decision' should also be defined."
+#. Default: "No sufficient field mappings are defined in the configuration. It is recommended to define at least the 'title' mapping, but 'description' and 'decision' should also be defined. It will ne be possible to create the item in PloneMeeting."
+msgid "No sufficient field mappings are defined in the configuration. It is recommended to define at least the 'title' mapping, but 'description' and 'decision' should also be defined. It will ne be possible to create the item in PloneMeeting."
 msgstr ""

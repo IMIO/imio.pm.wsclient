@@ -31,9 +31,10 @@ NO_CONFIG_INFOS_ERROR = u"No configuration informations found!"
 CAN_NOT_CREATE_WITH_CATEGORY_ERROR = u"The current user can not create an item with the category forced " \
                                      "thru the configuration! Please contact system administrator!"
 SEND_WITHOUT_SUFFICIENT_FIELD_MAPPINGS_DEFINED_WARNING = u"No sufficient field mappings are defined in the " \
-                                                         "configuration. It is recommanded to define at least the " \
+                                                         "configuration. It is recommended to define at least the " \
                                                          "'title' mapping, but 'description' and 'decision' should " \
-                                                         "also be defined."
+                                                         "also be defined. It will ne be possible to create the " \
+                                                         "item in PloneMeeting."
 
 # annotations key
 WS4PMCLIENT_ANNOTATION_KEY = "imio.pm.wsclient-sent_to"
