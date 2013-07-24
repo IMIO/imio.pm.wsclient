@@ -28,7 +28,7 @@ from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient import PMMessageFactory as _PM
 from imio.pm.wsclient.config import ALREADY_SENT_TO_PM_ERROR, UNABLE_TO_CONNECT_ERROR, \
     NO_USER_INFOS_ERROR, NO_PROPOSING_GROUP_ERROR, CORRECTLY_SENT_TO_PM_INFO, \
-    WS4PMCLIENT_ANNOTATION_KEY, TAL_EVAL_FIELD_ERROR, NOT_SENDABLE_UNTIL_FIELD_MAPPINGS_DEFINED_WARNING
+    WS4PMCLIENT_ANNOTATION_KEY, TAL_EVAL_FIELD_ERROR, SEND_WITHOUT_SUFFICIENT_FIELD_MAPPINGS_DEFINED_WARNING
 from imio.pm.wsclient.interfaces import IRedirect
 
 
@@ -69,7 +69,7 @@ class DisplayDataToSendProvider(ContentProviderBase):
             if not data[elt].strip() and not elt in ['category', 'proposingGroup', ]:
                 data.pop(elt)
         if not 'title' in data:
-            IStatusMessage(self.request).addStatusMessage(_(NOT_SENDABLE_UNTIL_FIELD_MAPPINGS_DEFINED_WARNING),
+            IStatusMessage(self.request).addStatusMessage(_(SEND_WITHOUT_SUFFICIENT_FIELD_MAPPINGS_DEFINED_WARNING),
                                                           'warning')
         return data
 

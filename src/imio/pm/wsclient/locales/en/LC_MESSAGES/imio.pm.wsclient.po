@@ -78,6 +78,10 @@ msgstr "No configuration informations found!"
 msgid "No field_mappings defined in the WS4PMClient configuration!"
 msgstr "No field_mappings defined in the WS4PMClient configuration!"
 
+#. Default: "No sufficient field mappings are defined in the configuration. It is recommended to define at least the 'title' mapping, but 'description' and 'decision' should also be defined."
+msgid "No sufficient field mappings are defined in the configuration. It is recommended to define at least the 'title' mapping, but 'description' and 'decision' should also be defined."
+msgstr ""
+
 #. Default: "No user informations found for current user or the current user is not a creator in PloneMeeting!"
 msgid "No user informations found for current user or the current user is not a creator in PloneMeeting!"
 msgstr "No user informations found for current user or the current user is not a creator in PloneMeeting!"
@@ -157,10 +161,6 @@ msgstr "The current user can not create an item with the category forced thru th
 #. Default: "The current user can not create an item with the proposingGroup forced thru the configuration! Please contact system administrator!"
 msgid "The current user can not create an item with the proposingGroup forced thru the configuration! Please contact system administrator!"
 msgstr "The current user can not create an item with the proposingGroup forced thru the configuration! Please contact system administrator!"
-
-#. Default: "The element will not be sendable to PloneMeeting until sufficient field mappings are defined in the configuration. The 'title' is needed but 'description' and 'decision' should also be defined."
-msgid "The element will not be sendable to PloneMeeting until sufficient field mappings are defined in the configuration. The 'title' is needed but 'description' and 'decision' should also be defined."
-msgstr ""
 
 #. Default: "The item has been correctly sent to PloneMeeting."
 msgid "The item has been correctly sent to PloneMeeting."

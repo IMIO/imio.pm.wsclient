@@ -78,6 +78,10 @@ msgstr "Aucune information de configuration n'a été trouvée dans PloneMeeting
 msgid "No field_mappings defined in the WS4PMClient configuration!"
 msgstr "Aucune correspondance de champs définie dans la configuration des webservices PloneMeeting!"
 
+#. Default: "No sufficient field mappings are defined in the configuration. It is recommended to define at least the 'title' mapping, but 'description' and 'decision' should also be defined."
+msgid "No sufficient field mappings are defined in the configuration. It is recommended to define at least the 'title' mapping, but 'description' and 'decision' should also be defined."
+msgstr "Les 'Correspondances pour les champs' définies dans la configuration ne sont pas suffisantes. Le champ 'title' doit être défini et idéalement, les champs 'description' et 'decision' également."
+
 #. Default: "No user informations found for current user or the current user is not a creator in PloneMeeting!"
 msgid "No user informations found for current user or the current user is not a creator in PloneMeeting!"
 msgstr "Pas d'informations trouvées pour l'utilisateur courant ou l'utilisateur courant n'est pas un créateur dans PloneMeeting!"
@@ -157,10 +161,6 @@ msgstr "L'utilisateur courant ne peut créer de point avec la catégorie forcée
 #. Default: "The current user can not create an item with the proposingGroup forced thru the configuration! Please contact system administrator!"
 msgid "The current user can not create an item with the proposingGroup forced thru the configuration! Please contact system administrator!"
 msgstr "L'utilisateur courant ne peut créer de point pour le groupe proposant forcé par la configuration! Contactez votre administrateur système!"
-
-#. Default: "The element will not be sendable to PloneMeeting until sufficient field mappings are defined in the configuration. The 'title' is needed but 'description' and 'decision' should also be defined."
-msgid "The element will not be sendable to PloneMeeting until sufficient field mappings are defined in the configuration. The 'title' is needed but 'description' and 'decision' should also be defined."
-msgstr "L'élément ne pourra pas être envoyé vers PloneMeeting tant que les 'Correspondances pour les champs' ne sont pas définies dans la configuration. Le champ 'title' doit être défini et idéalement, les champs 'description' et 'decision' également."
 
 #. Default: "The item has been correctly sent to PloneMeeting."
 msgid "The item has been correctly sent to PloneMeeting."
