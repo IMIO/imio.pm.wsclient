@@ -61,6 +61,10 @@ class WS4PMCLIENTTestCase(PloneMeetingTestCase):
         view.proposingGroupId = proposingGroup
         # call the view so relevant status messages are displayed
         view()
+        # we start a new transaction because view._doSendToPloneMeeting creates the
+        # item using a suds SOAP subprocess call and the item is actually created when the transaction is committed
+        # if not, the item is not really created and not found here under by the portal_catalog query
+        transaction.begin()
         view._doSendToPloneMeeting()
         transaction.commit()
         brains = self.portal.portal_catalog(portal_type='MeetingItemPma', externalIdentifier=obj.UID())
