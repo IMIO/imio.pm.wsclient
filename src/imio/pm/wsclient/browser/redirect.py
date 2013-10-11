@@ -7,7 +7,7 @@ from imio.pm.wsclient.interfaces import IRedirect
 class RedirectView(BrowserView):
     """
     """
-    DEFAULT = """<html><head><base href='{0}' /></head></html>"""
+    DEFAULT = """<html><head><base href="{0}" /></head></html>"""
 
     def __call__(self):
         """ """
