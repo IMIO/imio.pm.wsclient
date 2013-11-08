@@ -27,7 +27,7 @@ from zope.annotation.interfaces import IAnnotations
 from zope.component import getMultiAdapter
 
 from Products.PloneMeeting.tests.PloneMeetingTestCase import PloneMeetingTestCase
-from imio.pm.wsclient.testing import WS4PMCLIENT_PM_TEST_PROFILE_FUNCTIONAL
+from imio.pm.wsclient.testing import WS4PMCLIENT_PM_TESTING_PROFILE_FUNCTIONAL
 
 SEND_TO_PM_VIEW_NAME = '@@send_to_plonemeeting_form'
 
@@ -35,7 +35,7 @@ SEND_TO_PM_VIEW_NAME = '@@send_to_plonemeeting_form'
 class WS4PMCLIENTTestCase(PloneMeetingTestCase):
     '''Base class for defining WS4PMCLIENT test cases.'''
 
-    layer = WS4PMCLIENT_PM_TEST_PROFILE_FUNCTIONAL
+    layer = WS4PMCLIENT_PM_TESTING_PROFILE_FUNCTIONAL
 
     def setUp(self):
         """ """

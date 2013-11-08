@@ -23,6 +23,9 @@
 #
 
 from datetime import datetime
+from dateutil import tz
+
+from DateTime import DateTime
 import transaction
 from zope.annotation import IAnnotations
 from Products.statusmessages.interfaces import IStatusMessage
@@ -172,9 +175,58 @@ class testViewlets(WS4PMCLIENTTestCase):
         self.assertTrue(viewlet.displayMeetingDate(datetime(1950, 1, 1)) == '-')
         # If there is a date, it is corretly displayed
         # if no hours (hours = 00:00), a short format is used, without displaying hours
+        # the sent date is UTC but displayMeetingDate will return it using local timezone
+        # so build a date that will return a date without hours...
+        utcMeetingDate = datetime(2013, 6, 10)
+        utcMeetingDate = utcMeetingDate.replace(tzinfo=tz.tzlocal())
+        delta = utcMeetingDate.utcoffset()
+        utcMeetingDate = utcMeetingDate - delta
+        # set utcMeetingDate as being UTC
+        utcMeetingDate = utcMeetingDate.replace(tzinfo=tz.tzutc())
         self.assertTrue(viewlet.displayMeetingDate(datetime(2013, 6, 10)) == u'Jun 10, 2013')
         # If hours, then a long format is used
         self.assertTrue(viewlet.displayMeetingDate(datetime(2013, 6, 10, 15, 30)) == u'Jun 10, 2013 03:30 PM')
+
+    def test_displayedDateRespectTimeZone(self):
+        """
+          This confirm a bug in suds 0.4 corrected in suds-jurko 0.4.1.jurko.4
+          where returned date does not work when not using current time zone.
+          For example, a GMT+1 date is wrongly displayed when we are in GMT+2, it miss 1 hour,
+          so 2013/03/03 00:00 becomes 2013/03/02 23:00...
+        """
+        self.changeUser('admin')
+        document = createDocument(self.portal)
+        item = self._sendToPloneMeeting(document)
+        # create a meeting and present the item
+        self.changeUser('pmManager')
+        # use a date in GMT+1
+        meeting = self.create('Meeting', date=DateTime('2013/03/03'))
+        self.assertTrue(meeting.getDate().timezone() == 'GMT+1')
+        self.presentItem(item)
+        import transaction
+        transaction.commit()
+        viewlet = PloneMeetingInfosViewlet(document, self.request, None, None)
+        viewlet.update()
+        meeting_date = viewlet.getPloneMeetingLinkedInfos()[0]['meeting_date']
+        self.assertEquals((meeting_date.year,
+                           meeting_date.month,
+                           meeting_date.day,
+                           meeting_date.hour,
+                           meeting_date.minute),
+                          (2013, 3, 2, 23, 0))
+        # change meeting date, use a date in GMT+2
+        meeting.setDate(DateTime('2013/08/08'))
+        self.assertTrue(meeting.getDate().timezone() == 'GMT+2')
+        transaction.commit()
+        viewlet = PloneMeetingInfosViewlet(document, self.request, None, None)
+        viewlet.update()
+        meeting_date = viewlet.getPloneMeetingLinkedInfos()[0]['meeting_date']
+        self.assertEquals((meeting_date.year,
+                           meeting_date.month,
+                           meeting_date.day,
+                           meeting_date.hour,
+                           meeting_date.minute),
+                          (2013, 8, 7, 22, 0))
 
 
 def test_suite():

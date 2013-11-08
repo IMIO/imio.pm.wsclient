@@ -20,7 +20,7 @@ WS4PMCLIENT = PloneWithPackageLayer(
     gs_profile_id='imio.pm.wsclient:testing',
     name="WS4PMCLIENT")
 
-WS4PMCLIENT_PM_TEST_PROFILE = PloneWithPackageLayer(
+WS4PMCLIENT_PM_TESTING_PROFILE = PloneWithPackageLayer(
     bases=(WS4PMCLIENT, ),
     zcml_filename="testing.zcml",
     zcml_package=imio.pm.wsclient,
@@ -29,13 +29,13 @@ WS4PMCLIENT_PM_TEST_PROFILE = PloneWithPackageLayer(
                             'imio.pm.wsclient',
                             'imio.pm.ws'),
     gs_profile_id='Products.PloneMeeting:testing',
-    name="WS4PMCLIENT_PM_TEST_PROFILE")
+    name="WS4PMCLIENT_PM_TESTING_PROFILE")
 
-WS4PMCLIENT_PM_TEST_PROFILE_INTEGRATION = IntegrationTesting(
-    bases=(WS4PMCLIENT_PM_TEST_PROFILE,), name="WS4PMCLIENT_PM_TEST_PROFILE_INTEGRATION")
+WS4PMCLIENT_PM_TESTING_PROFILE_INTEGRATION = IntegrationTesting(
+    bases=(WS4PMCLIENT_PM_TESTING_PROFILE,), name="WS4PMCLIENT_PM_TESTING_PROFILE_INTEGRATION")
 
 WS4PMCLIENT_PROFILE_FUNCTIONAL = FunctionalTesting(
     bases=(WS4PMCLIENT,), name="WS4PMCLIENT_PROFILE_FUNCTIONAL")
 
-WS4PMCLIENT_PM_TEST_PROFILE_FUNCTIONAL = FunctionalTesting(
-    bases=(WS4PMCLIENT_PM_TEST_PROFILE, z2.ZSERVER), name="WS4PMCLIENT_PM_TEST_PROFILE_FUNCTIONAL")
+WS4PMCLIENT_PM_TESTING_PROFILE_FUNCTIONAL = FunctionalTesting(
+    bases=(WS4PMCLIENT_PM_TESTING_PROFILE, z2.ZSERVER), name="WS4PMCLIENT_PM_TESTING_PROFILE_FUNCTIONAL")
