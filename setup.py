@@ -31,7 +31,6 @@ setup(name='imio.pm.wsclient',
           # -*- Extra requirements: -*-
           'suds-jurko',
       ],
-      dependency_links = ['https://bitbucket.org/mduggan1/suds/get/suds-ticket-353.zip'],
       extras_require={'test': ['plone.app.testing', 'unittest2', 'imio.pm.ws']},
       entry_points="""
       # -*- Entry points: -*-
