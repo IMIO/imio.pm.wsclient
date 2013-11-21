@@ -193,6 +193,7 @@ class testViewlets(WS4PMCLIENTTestCase):
           where returned date does not work when not using current time zone.
           For example, a GMT+1 date is wrongly displayed when we are in GMT+2, it miss 1 hour,
           so 2013/03/03 00:00 becomes 2013/03/02 23:00...
+          Returned dates should always be UTC.
         """
         self.changeUser('admin')
         document = createDocument(self.portal)
@@ -203,7 +204,6 @@ class testViewlets(WS4PMCLIENTTestCase):
         meeting = self.create('Meeting', date=DateTime('2013/03/03'))
         self.assertTrue(meeting.getDate().timezone() == 'GMT+1')
         self.presentItem(item)
-        import transaction
         transaction.commit()
         viewlet = PloneMeetingInfosViewlet(document, self.request, None, None)
         viewlet.update()
