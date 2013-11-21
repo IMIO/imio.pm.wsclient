@@ -222,7 +222,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             client.service.testConnection('')
         except Exception, e:
             # if we are really on the configuration panel, display relevant message
-            if self.request.get('PATH_INFO', '').endswith('@@ws4pmclient-settings'):
+            if self.request.get('URL', '').endswith('@@ws4pmclient-settings'):
                 IStatusMessage(self.request).addStatusMessage(
                     _(CONFIG_UNABLE_TO_CONNECT_ERROR, mapping={'error': (e.message or str(e.reason))}), "error")
             return None
