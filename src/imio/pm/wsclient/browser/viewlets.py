@@ -99,7 +99,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
             lastAddedItem = res[-1]
             shownItemsMeetingConfigId.append(lastAddedItem['extraInfos']['meeting_config_id'])
             # XXX special case if something went wrong and there is an item in PM
-            # that is not in the contect sent_to annotation
+            # that is not in the context sent_to annotation
             lastAddedItemMeetingConfigId = str(lastAddedItem['extraInfos']['meeting_config_id'])
             if not lastAddedItemMeetingConfigId in sent_to:
                 existingSentTo = list(sent_to)
@@ -151,8 +151,4 @@ class PloneMeetingInfosViewlet(ViewletBase):
             long_format = False
         else:
             long_format = True
-
-        localizedTime = self.context.restrictedTraverse('@@plone').toLocalizedTime(meeting_date, long_format=long_format)
-        if localizedTime.endswith('00:00'):
-            localizedTime = localizedTime[:-6]
-        return localizedTime
+        return self.context.restrictedTraverse('@@plone').toLocalizedTime(meeting_date, long_format=long_format)
