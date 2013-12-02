@@ -80,7 +80,9 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
                                           'category',
                                           'decision',
                                           'description',
+                                          'detailedDescription',
                                           'externalIdentifier',
+                                          'motivation',
                                           'proposingGroup',
                                           'title'])
 
@@ -144,11 +146,12 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         # does not have the freshly created item...
         transaction.commit()
         # create an item for 'pmCreator1'
-        data = {'title': 'My sample item',
-                'category': 'deployment',
-                'description': '<p>My description</p>',
-                'decision': '<p>My decision</p>',
-                'externalIdentifier': 'my-external-identifier'}
+        data = {'title': u'My sample item',
+                'category': u'deployment',
+                'description': u'<p>My description</p>',
+                # also use accents, this was failing with suds-jurko 0.5
+                'decision': u'<p>My d\xe9cision</p>',
+                'externalIdentifier': u'my-external-identifier'}
         result = ws4pmSettings._soap_createItem('plonegov-assembly', 'developers', data)
         # commit again so the item is really created
         transaction.commit()
