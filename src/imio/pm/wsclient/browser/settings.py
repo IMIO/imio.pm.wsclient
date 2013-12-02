@@ -459,7 +459,7 @@ def notify_configuration_changed(event):
                                 description='', i18n_domain='imio.pm.wsclient',
                                 url_expr='string:${object_url}/@@send_to_plonemeeting_form?meetingConfigId=%s'
                                          % actToGen['pm_meeting_config_id'],
-                                icon_expr='',
+                                icon_expr='string:${portal_url}/++resource++imio.pm.wsclient.images/send_to_plonemeeting.png',
                                 available_expr=actToGen['condition'] or '',
                                 # make sure we have a tuple as permissions value
                                 permissions=actToGen['permissions'] and (actToGen['permissions'], ) or ('View', ),
