@@ -35,6 +35,14 @@ SEND_TO_PM_VIEW_NAME = '@@send_to_plonemeeting_form'
 class WS4PMCLIENTTestCase(PloneMeetingTestCase):
     '''Base class for defining WS4PMCLIENT test cases.'''
 
+    # define PM base TestCase test file that we will not launch from here
+    subproductIgnoredTestFiles = ['testMeetingCategory.py', 'testVotes.py', 'testWFAdaptations.py',
+                                  'testPodTemplates.py', 'testAdvices.py', 'testMeetingFileType.py',
+                                  'testMeeting.py', 'testChangeItemOrderView.py', 'testMeetingGroup.py',
+                                  'testWorkflows.py', 'testMeetingConfig.py', 'testToolPloneMeeting.py',
+                                  'testPortlets.py', 'testMeetingItem.py', 'testConversionWithDocumentViewer.py',
+                                  'testPerformances.py']
+
     layer = WS4PMCLIENT_PM_TESTING_PROFILE_FUNCTIONAL
 
     def setUp(self):
