@@ -115,7 +115,11 @@ class testForms(WS4PMCLIENTTestCase):
         # while the element is sent, the view will return nothing...
         self.assertFalse(view())
         # now that the element has been sent, an item is linked to the document
-        self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 1)
+        items = ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})
+        self.assertTrue(len(items) == 1)
+        # moreover, as defined in the configuration, 2 annexes were added to the item
+        itemInfos = ws4pmSettings._soap_getItemInfos({'UID': items[0]['UID'], 'showAnnexes': True})[0]
+        self.assertTrue(len(itemInfos['annexes']) == 2)
 
     def test_canNotSendIfInNoPMCreatorGroup(self):
         """

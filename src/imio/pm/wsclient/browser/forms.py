@@ -58,16 +58,24 @@ class DisplayDataToSendProvider(ContentProviderBase):
         """
           Returns data to be displayed in the resume form
           Do not display :
-          - externalIdentifier
-          - empty values
+          - externalIdentifier;
+          - empty values.
+          Prepare annexes to be displayed correctly.
         """
         data = self.__parent__.form._buildDataDict()
         if 'externalIdentifier' in data:
             data.pop('externalIdentifier')
         for elt in data:
-            # keep category and proposingGroup even if empty
-            if not data[elt].strip() and not elt in ['category', 'proposingGroup', ]:
+            # remove empty data but keep category and proposingGroup even if empty
+            try:
+                value = isinstance(data[elt], str) and data[elt].strip() or data[elt]
+            except:
+                import ipdb; ipdb.set_trace()
+            if not value and not elt in ['category', 'proposingGroup', ]:
                 data.pop(elt)
+            if elt == 'annexes':
+                res = ['{0} ({1})'.format(annex['title'], annex['filename']) for annex in data[elt]]
+                data[elt] = '<br />'.join(res)
         if not 'title' in data:
             IStatusMessage(self.request).addStatusMessage(_(SEND_WITHOUT_SUFFICIENT_FIELD_MAPPINGS_DEFINED_WARNING),
                                                           'warning')
@@ -267,7 +275,7 @@ class SendToPloneMeetingForm(form.Form):
             # proposingGroup is managed apart
             if elt == u'proposingGroup':
                 continue
-            if not isinstance(data[elt], unicode):
+            if isinstance(data[elt], str):
                 data[elt] = unicode(data[elt], 'utf-8')
             creation_data[elt] = data[elt]
         # initialize the externalIdentifier to the context UID
@@ -281,6 +289,9 @@ class SendToPloneMeetingForm(form.Form):
         settings = self.ws4pmSettings.settings()
         # initialize category field in case it is not defined in field_mappings
         data['category'] = self.request.form.get('form.widgets.category', [u'', ])[0]
+        # if category is '--NOVALUE--', consider it empty
+        if data['category'] == '--NOVALUE--':
+            data['category'] = ''
         for availableData in settings.field_mappings:
             field_name = availableData['field_name']
             if field_name == 'category':

@@ -305,8 +305,11 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 # _getUserIdToCreateWith returns None if the settings defined username creates the item
                 inTheNameOf = self._getUserIdToUseInTheNameOfWith()
                 res = client.service.createItem(meetingConfigId, proposingGroupId, creationData, inTheNameOf)
-                # return 'UID' and 'warnings' if any
-                return res['UID'], 'warnings' in res.__keylist__ and res['warnings'] or []
+                # return 'UID' and 'warnings' if any current user is a Manager
+                warnings = []
+                if self.context.portal_membership.getAuthenticatedMember().has_role('Manager'):
+                    warnings = 'warnings' in res.__keylist__ and res['warnings'] or []
+                return res['UID'], warnings
             except Exception, exc:
                 IStatusMessage(self.request).addStatusMessage(_(CONFIG_CREATE_ITEM_PM_ERROR, mapping={'error': exc}),
                                                               "error")

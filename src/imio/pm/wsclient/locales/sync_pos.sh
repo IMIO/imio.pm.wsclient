@@ -1,4 +1,4 @@
-files="imio.pm.wsclient"
+files="imio.pm.wsclient PloneMeeting"
 languages="en fr"
 
 for file in $files; do
