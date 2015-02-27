@@ -16,7 +16,8 @@ WS4PMCLIENT = PloneWithPackageLayer(
     zcml_filename="testing-settings.zcml",
     zcml_package=imio.pm.wsclient,
     additional_z2_products=('imio.pm.wsclient',
-                            'imio.pm.ws'),
+                            'imio.pm.ws',
+                            'Products.PasswordStrength'),
     gs_profile_id='imio.pm.wsclient:testing',
     name="WS4PMCLIENT")
 
@@ -27,7 +28,8 @@ WS4PMCLIENT_PM_TESTING_PROFILE = PloneWithPackageLayer(
     additional_z2_products=('Products.PloneMeeting',
                             'Products.CMFPlacefulWorkflow',
                             'imio.pm.wsclient',
-                            'imio.pm.ws'),
+                            'imio.pm.ws',
+                            'Products.PasswordStrength'),
     gs_profile_id='Products.PloneMeeting:testing',
     name="WS4PMCLIENT_PM_TESTING_PROFILE")
 

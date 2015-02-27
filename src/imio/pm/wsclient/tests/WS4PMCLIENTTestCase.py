@@ -26,6 +26,7 @@ from Acquisition import aq_base
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getMultiAdapter
 
+from Products.PloneMeeting.config import DEFAULT_USER_PASSWORD
 from Products.PloneMeeting.tests.PloneMeetingTestCase import PloneMeetingTestCase
 from imio.pm.wsclient.testing import WS4PMCLIENT_PM_TESTING_PROFILE_FUNCTIONAL
 
@@ -97,7 +98,7 @@ def setCorrectSettingsConfig(portal, setConnectionParams=True, minimal=False, wi
     if setConnectionParams:
         settings.pm_url = kwargs.get('pm_url', None) or u'%s/ws4pm.wsdl' % portal.absolute_url()
         settings.pm_username = kwargs.get('pm_username', None) or u'pmManager'
-        settings.pm_password = kwargs.get('pm_password', None) or u'meeting'
+        settings.pm_password = kwargs.get('pm_password', None) or DEFAULT_USER_PASSWORD
     settings.user_mappings = kwargs.get('user_mappings', None) or \
         [{'local_userid': u'localUserId',
           'pm_userid': u'pmCreator1'},
