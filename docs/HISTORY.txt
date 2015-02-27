@@ -1,6 +1,7 @@
 Changelog
 =========
 
-1.0dev (unreleased)
--------------------
+1.0 (2015-02-27)
+----------------
+- Use with Products.PloneMeeting 3.2
 - Initial release
