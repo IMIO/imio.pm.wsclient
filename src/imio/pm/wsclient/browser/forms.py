@@ -67,10 +67,7 @@ class DisplayDataToSendProvider(ContentProviderBase):
             data.pop('externalIdentifier')
         for elt in data:
             # remove empty data but keep category and proposingGroup even if empty
-            try:
-                value = isinstance(data[elt], str) and data[elt].strip() or data[elt]
-            except:
-                import ipdb; ipdb.set_trace()
+            value = isinstance(data[elt], str) and data[elt].strip() or data[elt]
             if not value and not elt in ['category', 'proposingGroup', ]:
                 data.pop(elt)
             if elt == 'annexes':
