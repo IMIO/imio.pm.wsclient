@@ -70,6 +70,7 @@ class DisplayDataToSendProvider(ContentProviderBase):
             value = isinstance(data[elt], str) and data[elt].strip() or data[elt]
             if not value and not elt in ['category', 'proposingGroup', ]:
                 data.pop(elt)
+                continue
             if elt == 'annexes':
                 res = ['{0} ({1})'.format(annex['title'], annex['filename']) for annex in data[elt]]
                 data[elt] = '<br />'.join(res)
