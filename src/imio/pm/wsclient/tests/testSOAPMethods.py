@@ -27,9 +27,11 @@ from zope.component import getMultiAdapter
 
 from Products.statusmessages.interfaces import IStatusMessage
 
-from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, \
-    setCorrectSettingsConfig, \
-    cleanMemoize
+from imio.pm.ws.config import POD_TEMPLATE_ID_PATTERN
+
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import cleanMemoize
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
 
 
 class testSOAPMethods(WS4PMCLIENTTestCase):
@@ -83,6 +85,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
                                           'detailedDescription',
                                           'externalIdentifier',
                                           'motivation',
+                                          'preferredMeeting',
                                           'proposingGroup',
                                           'title'])
 
@@ -165,14 +168,11 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         # if we try to create with wrong data, the SOAP ws returns a response
         # that is displayed to the user creating the item
         data['category'] = 'unexisting-category-id'
-        messages = IStatusMessage(self.request)
-        self.assertTrue(len(messages.show()) == 0)
         result = ws4pmSettings._soap_createItem('plonegov-assembly', 'developers', data)
         self.assertTrue(result is None)
+        messages = IStatusMessage(self.request)
         # a message is displayed
-        messages = messages.show()
-        self.assertTrue(len(messages) == 1)
-        self.assertEquals(messages[0].message,
+        self.assertEquals(messages.show()[-1].message,
                           u"An error occured during the item creation in PloneMeeting! "
                           "The error message was : Server raised fault: ''unexisting-category-id' "
                           "is not available for the 'developers' group!'")
@@ -189,14 +189,20 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         # we have to commit() here or portal used behing the SOAP call
         # does not have the freshly created item...
         transaction.commit()
-        self.assertTrue(ws4pmSettings._soap_getItemTemplate({'itemUID': item.UID(), 'templateId': 'itemTemplate'}))
+        self.assertTrue(ws4pmSettings._soap_getItemTemplate(
+            {'itemUID': item.UID(),
+             'templateId': POD_TEMPLATE_ID_PATTERN.format('itemTemplate', 'odt')}))
         # getItemTemplate is called inTheNameOf the currently connected user
         # if the user (like 'pmCreator1') can see the item, he gets the rendered template
         # either (like for 'pmCreator2') nothing is returned
         self.changeUser('pmCreator1')
-        self.assertTrue(ws4pmSettings._soap_getItemTemplate({'itemUID': item.UID(), 'templateId': 'itemTemplate'}))
+        self.assertTrue(ws4pmSettings._soap_getItemTemplate(
+            {'itemUID': item.UID(),
+             'templateId': POD_TEMPLATE_ID_PATTERN.format('itemTemplate', 'odt')}))
         self.changeUser('pmCreator2')
-        self.assertFalse(ws4pmSettings._soap_getItemTemplate({'itemUID': item.UID(), 'templateId': 'itemTemplate'}))
+        self.assertFalse(ws4pmSettings._soap_getItemTemplate(
+            {'itemUID': item.UID(),
+             'templateId': POD_TEMPLATE_ID_PATTERN.format('itemTemplate', 'odt')}))
 
 
 def test_suite():

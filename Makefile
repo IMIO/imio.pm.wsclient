@@ -4,7 +4,7 @@ all: run
 
 .PHONY: bootstrap
 bootstrap:
-	/srv/python273/bin/virtualenv .
+	virtualenv-2.7 .
 	./bin/python bootstrap.py
 
 .PHONY: buildout

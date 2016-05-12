@@ -24,10 +24,15 @@
 
 from Products.statusmessages.interfaces import IStatusMessage
 
-from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR, UNABLE_TO_DETECT_MIMETYPE_ERROR, \
-    FILENAME_MANDATORY_ERROR, CORRECTLY_SENT_TO_PM_INFO
-from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, \
-    createDocument, cleanMemoize
+from imio.pm.ws.config import POD_TEMPLATE_ID_PATTERN
+
+from imio.pm.wsclient.config import CORRECTLY_SENT_TO_PM_INFO
+from imio.pm.wsclient.config import FILENAME_MANDATORY_ERROR
+from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR
+from imio.pm.wsclient.config import UNABLE_TO_DETECT_MIMETYPE_ERROR
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import cleanMemoize
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import createDocument
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
 
 
 class testViews(WS4PMCLIENTTestCase):
@@ -52,31 +57,27 @@ class testViews(WS4PMCLIENTTestCase):
         cleanMemoize(self.request)
         item = self._sendToPloneMeeting(document)
         # a statusmessage for having created the item successfully
-        self.assertTrue(len(messages.show()) == 2)
-        self.assertTrue(messages.show()[1].message == CORRECTLY_SENT_TO_PM_INFO)
+        self.assertEqual(messages.show()[-1].message, CORRECTLY_SENT_TO_PM_INFO)
         view = document.restrictedTraverse('@@generate_document_from_plonemeeting')
         # with no templateFormat defined, the mimetype can not be determined
         # an error statusmessage is displayed
         # last added statusmessage
         # nothing is generated, just redirected to the context
         self.assertFalse(view() != DOCUMENT_ABSOLUTE_URL)
-        self.assertTrue(len(messages.show()) == 3)
-        self.assertTrue(messages.show()[2].message == UNABLE_TO_DETECT_MIMETYPE_ERROR)
+        self.assertEqual(messages.show()[-1].message, UNABLE_TO_DETECT_MIMETYPE_ERROR)
         self.request.set('templateFormat', 'odt')
         # if no templateFilename, an error is displayed, nothing is generated
         view = document.restrictedTraverse('@@generate_document_from_plonemeeting')
         # nothing is generated, just redirected to the context
         self.assertFalse(view() != DOCUMENT_ABSOLUTE_URL)
-        self.assertTrue(len(messages.show()) == 4)
-        self.assertTrue(messages.show()[3].message == FILENAME_MANDATORY_ERROR)
+        self.assertEqual(messages.show()[-1].message, FILENAME_MANDATORY_ERROR)
         # if not valid itemUID defined, the item can not be found and so accessed
         self.request.set('templateFilename', 'filename')
         view = document.restrictedTraverse('@@generate_document_from_plonemeeting')
         # nothing is generated, just redirected to the context
         self.assertFalse(view() != DOCUMENT_ABSOLUTE_URL)
-        self.assertTrue(len(messages.show()) == 5)
-        self.assertTrue(
-            messages.show()[4].message == u"An error occured while generating the document in "
+        self.assertEqual(
+            messages.show()[-1].message, u"An error occured while generating the document in "
             "PloneMeeting!  The error message was : Server raised fault: 'You can not access this item!'"
         )
         # now with a valid itemUID but no valid templateId
@@ -84,13 +85,12 @@ class testViews(WS4PMCLIENTTestCase):
         view = document.restrictedTraverse('@@generate_document_from_plonemeeting')
         # nothing is generated, just redirected to the context
         self.assertFalse(view() != DOCUMENT_ABSOLUTE_URL)
-        self.assertTrue(len(messages.show()) == 6)
-        self.assertTrue(
-            messages.show()[5].message == u"An error occured while generating the document in "
+        self.assertEqual(
+            messages.show()[-1].message, u"An error occured while generating the document in "
             "PloneMeeting!  The error message was : Server raised fault: 'You can not access this template!'"
         )
         # now with all valid infos
-        self.request.set('templateId', 'itemTemplate')
+        self.request.set('templateId', POD_TEMPLATE_ID_PATTERN.format('itemTemplate', 'odt'))
         view = document.restrictedTraverse('@@generate_document_from_plonemeeting')
         res = view()
         # with have a real result, aka not redirected to the context, a file
