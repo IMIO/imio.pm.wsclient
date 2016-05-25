@@ -98,7 +98,7 @@ class testViews(WS4PMCLIENTTestCase):
         self.assertTrue(len(res) > 10000)
         self.assertEquals(self.request.response.headers,
                           {'content-type': 'application/vnd.oasis.opendocument.text',
-                           'location': 'http://localhost:55001/plone/document',
+                           'location': '{0}/document'.format(self.portal.absolute_url()),
                            'content-disposition': 'inline;filename="filename.odt"'})
 
 

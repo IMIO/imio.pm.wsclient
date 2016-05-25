@@ -104,8 +104,8 @@ class testForms(WS4PMCLIENTTestCase):
         # as form.button.Send is not in the form, nothing is done but returning the views's index
         # the form for sending an element is displayed
         form_action = '<form class="rowlike enableUnloadProtection   kssattr-formname-send_to_plonemeeting_form"' \
-            ' action="http://localhost:55001/plone/Members/pmCreator1/document" method="post"' \
-            ' id="form" enctype="multipart/form-data">'
+            ' action="{0}/Members/pmCreator1/document" method="post"' \
+            ' id="form" enctype="multipart/form-data">'.format(self.portal.absolute_url())
         self.assertTrue(form_action in view())
         self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 0)
         # now send the element to PM
