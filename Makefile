@@ -10,7 +10,7 @@ bootstrap:
 .PHONY: buildout
 buildout:
 	if ! test -f bin/buildout;then make bootstrap;fi
-	bin/buildout -v
+	bin/buildout
 
 .PHONY: run
 run:
