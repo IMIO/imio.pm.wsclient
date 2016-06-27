@@ -60,7 +60,7 @@ class DisplayDataToSendProvider(ContentProviderBase):
           Do not display :
           - externalIdentifier;
           - empty values.
-          Prepare annexes to be displayed correctly.
+          Prepare extraAttrs and annexes to be displayed correctly.
         """
         data = self.__parent__.form._buildDataDict()
         if 'externalIdentifier' in data:
@@ -71,6 +71,15 @@ class DisplayDataToSendProvider(ContentProviderBase):
             if not value and not elt in ['category', 'proposingGroup', ]:
                 data.pop(elt)
                 continue
+
+            if elt == 'extraAttrs':
+                res = ['<fieldset><legend>{0}</legend>{1}</fieldset>'.format(
+                    translate('PloneMeeting_label_' + extraAttr['key'],
+                              domain="PloneMeeting",
+                              context=self.request),
+                    extraAttr['value']) for extraAttr in data[elt]]
+                data[elt] = '<br />'.join(res)
+
             if elt == 'annexes':
                 res = ['{0} ({1})'.format(annex['title'], annex['filename']) for annex in data[elt]]
                 data[elt] = '<br />'.join(res)

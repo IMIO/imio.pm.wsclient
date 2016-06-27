@@ -84,6 +84,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
                                           'description',
                                           'detailedDescription',
                                           'externalIdentifier',
+                                          'extraAttrs',
                                           'motivation',
                                           'preferredMeeting',
                                           'proposingGroup',
@@ -154,7 +155,9 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
                 'description': u'<p>My description</p>',
                 # also use accents, this was failing with suds-jurko 0.5
                 'decision': u'<p>My d\xe9cision</p>',
-                'externalIdentifier': u'my-external-identifier'}
+                'externalIdentifier': u'my-external-identifier',
+                'extraAttrs': [{'key': 'internalNotes',
+                                'value': '<p>Internal notes</p>'}]}
         result = ws4pmSettings._soap_createItem('plonegov-assembly', 'developers', data)
         # commit again so the item is really created
         transaction.commit()
@@ -165,6 +168,14 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         # created in the 'pmCreator1' member area
         self.assertTrue(item.aq_inner.aq_parent.UID(), pmFolder.UID())
         self.assertTrue(item.owner_info()['id'] == 'pmCreator1')
+        self.assertEqual(item.Title(), data['title'])
+        self.assertEqual(item.getCategory(), data['category'])
+        self.assertEqual(item.Description(), data['description'])
+        self.assertEqual(item.getDecision(), data['decision'].encode('utf-8'))
+        self.assertEqual(item.externalIdentifier, data['externalIdentifier'])
+        # extraAttrs
+        self.assertEqual(item.getInternalNotes(), data['extraAttrs'][0]['value'])
+
         # if we try to create with wrong data, the SOAP ws returns a response
         # that is displayed to the user creating the item
         data['category'] = 'unexisting-category-id'

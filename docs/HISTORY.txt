@@ -4,8 +4,7 @@ Changelog
 1.3 (unreleased)
 ----------------
 
-- Nothing changed yet.
-
+- Display `extraAttrs` correctly in the preview form
 
 1.2 (2016-05-13)
 ----------------
