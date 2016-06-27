@@ -24,7 +24,7 @@ jQuery('input.[class*=apButtonAction_plonemeeting_wsclient_action_]').each(funct
     // add a surrounding <a></a> tag as overlays are only working with links
     // extract window.location attribute from current input.onclick value
     url = $(this).attr('onclick');
-    $(this).wrap("<a href='"+ url.replace("window.location='", '').replace("'", "") +"'></a>");
+    $(this).wrap("<a href='"+ url.replace("window.location='", '').replace("window.open('", '').replace(", '_parent')", '').replace("'", "") +"'></a>");
     // remove the onclick and use his value as href for added <a></a>
     $(this)[0].attributes['onclick'].value = '';
     // now work with the parent, actually the added <a>
