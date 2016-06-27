@@ -22,6 +22,7 @@ from z3c.form.interfaces import IFieldsAndContentProvidersForm
 from z3c.form.contentprovider import ContentProviders
 
 from zope.browserpage.viewpagetemplatefile import ViewPageTemplateFile
+from Products.CMFPlone.utils import safe_unicode
 from Products.statusmessages.interfaces import IStatusMessage
 
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
@@ -284,6 +285,9 @@ class SendToPloneMeetingForm(form.Form):
                 continue
             if isinstance(data[elt], str):
                 data[elt] = unicode(data[elt], 'utf-8')
+            if elt == 'extraAttrs':
+                for attr in data[elt]:
+                    attr['value'] = safe_unicode(attr['value'])
             creation_data[elt] = data[elt]
         # initialize the externalIdentifier to the context UID
         creation_data['externalIdentifier'] = self.context.UID()
