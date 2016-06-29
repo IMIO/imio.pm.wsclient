@@ -18,3 +18,7 @@ msgstr ""
 msgid "PloneMeeting_label_annexes"
 msgstr ""
 
+#. Default: "Extra attributes"
+msgid "PloneMeeting_label_extraAttrs"
+msgstr ""
+

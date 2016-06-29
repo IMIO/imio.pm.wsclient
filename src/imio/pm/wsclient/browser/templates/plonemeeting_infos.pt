@@ -17,10 +17,10 @@
         <table class="listing" tal:condition="python: available is True and items">
             <thead i18n:domain="PloneMeeting">
                <th i18n:translate="listingheader_title">Title</th>
-               <th i18n:translate="pm_creator">Creator</th>
-               <th i18n:translate="search_config_label">Meeting config</th>
+               <th i18n:translate="creator">Creator</th>
+               <th i18n:translate="MeetingConfig" i18n:domain="plone">Meeting config</th>
                <th i18n:translate="State">Review state</th>
-               <th i18n:translate="category_or_proposing_group">Category or proposing group</th>
+               <th i18n:translate="MeetingCategory" i18n:domain="plone">Category or proposing group</th>
                <th i18n:translate="Meeting" i18n:domain="plone">Related meeting date</th>
                <th i18n:translate="doc">Documents</th>
             </thead>
