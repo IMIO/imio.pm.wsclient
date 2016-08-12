@@ -24,8 +24,8 @@
 
 from zope.component import getGlobalSiteManager
 
-from imio.pm.wsclient.interfaces import ISentToPM
-from imio.pm.wsclient.interfaces import IWillbeSendToPM
+from imio.pm.wsclient.interfaces import ISentToPMEvent
+from imio.pm.wsclient.interfaces import IWillbeSendToPMEvent
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, \
     setCorrectSettingsConfig, createDocument, SEND_TO_PM_VIEW_NAME
 
@@ -64,13 +64,13 @@ class testEvents(WS4PMCLIENTTestCase):
             raise FailTest("the WillBeSendToPm event should be raised before sending the item to PM")
 
         gsm = getGlobalSiteManager()
-        gsm.registerHandler(will_be_send_to_pm_handler, (zope.interface.Interface, IWillbeSendToPM))
+        gsm.registerHandler(will_be_send_to_pm_handler, (zope.interface.Interface, IWillbeSendToPMEvent))
 
         #send the element to pm, the event handler should raise the exception
         with self.assertRaises(WillBeSendToPm):
             self.sending_view._doSendToPloneMeeting()
 
-        gsm.unregisterHandler(will_be_send_to_pm_handler, (zope.interface.Interface, IWillbeSendToPM))
+        gsm.unregisterHandler(will_be_send_to_pm_handler, (zope.interface.Interface, IWillbeSendToPMEvent))
 
     def test_SentToPM_event(self):
         """
@@ -87,13 +87,13 @@ class testEvents(WS4PMCLIENTTestCase):
             raise FailTest("the SentToPm event should be raised after sending the item to PM")
 
         gsm = getGlobalSiteManager()
-        gsm.registerHandler(sent_to_pm_handler, (zope.interface.Interface, ISentToPM))
+        gsm.registerHandler(sent_to_pm_handler, (zope.interface.Interface, ISentToPMEvent))
 
         #send the element to pm, the event handler should raise the exception
         with self.assertRaises(SentToPm):
             self.sending_view._doSendToPloneMeeting()
 
-        gsm.unregisterHandler(sent_to_pm_handler, (zope.interface.Interface, ISentToPM))
+        gsm.unregisterHandler(sent_to_pm_handler, (zope.interface.Interface, ISentToPMEvent))
 
     def _setup_sending_view(self):
         setCorrectSettingsConfig(self.portal)

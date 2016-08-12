@@ -31,8 +31,8 @@ from imio.pm.wsclient import PMMessageFactory as _PM
 from imio.pm.wsclient.config import ALREADY_SENT_TO_PM_ERROR, UNABLE_TO_CONNECT_ERROR, \
     NO_USER_INFOS_ERROR, NO_PROPOSING_GROUP_ERROR, CORRECTLY_SENT_TO_PM_INFO, \
     WS4PMCLIENT_ANNOTATION_KEY, TAL_EVAL_FIELD_ERROR, SEND_WITHOUT_SUFFICIENT_FIELD_MAPPINGS_DEFINED_WARNING
-from imio.pm.wsclient.events import SentToPM
-from imio.pm.wsclient.events import WillbeSendToPM
+from imio.pm.wsclient.events import SentToPMEvent
+from imio.pm.wsclient.events import WillbeSendToPMEvent
 from imio.pm.wsclient.interfaces import IRedirect
 
 
@@ -248,7 +248,7 @@ class SendToPloneMeetingForm(form.Form):
         client = self.ws4pmSettings._soap_connectToPloneMeeting()
         creation_data = self._getCreationData(client)
 
-        notify(WillbeSendToPM(self.context))
+        notify(WillbeSendToPMEvent(self.context))
 
         # call the SOAP method actually creating the item
         res = self.ws4pmSettings._soap_createItem(self.meetingConfigId,
@@ -275,7 +275,7 @@ class SendToPloneMeetingForm(form.Form):
                 annotations[WS4PMCLIENT_ANNOTATION_KEY] = existingAnnotations
             self._finishedSent = True
 
-            notify(SentToPM(self.context))
+            notify(SentToPMEvent(self.context))
 
             return True
         return False

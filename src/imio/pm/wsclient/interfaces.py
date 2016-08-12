@@ -29,13 +29,13 @@ class IPMWSClientEvent(IObjectEvent):
     """
 
 
-class IWillbeSendToPM(IPMWSClientEvent):
+class IWillbeSendToPMEvent(IPMWSClientEvent):
     """
-      An item will be sent to pm.
+      An item will be send to pm.
     """
 
 
-class ISentToPM(IPMWSClientEvent):
+class ISentToPMEvent(IPMWSClientEvent):
     """
       An item has been sent to pm.
     """
