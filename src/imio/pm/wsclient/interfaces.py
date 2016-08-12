@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from zope.component.interfaces import IObjectEvent
 from zope.interface import Interface
 from zope.publisher.interfaces.browser import IBrowserRequest
 
@@ -16,3 +17,25 @@ class IRedirect(Interface):
         """
           Redirect to the right place in case we use plone.app.jquerytools overlays
         """
+
+
+#
+# Events interfaces
+#
+
+class IPMWSClientEvent(IObjectEvent):
+    """
+      All pm ws events should inherit from this class
+    """
+
+
+class IWillbeSendToPM(IPMWSClientEvent):
+    """
+      An item will be sent to pm.
+    """
+
+
+class ISentToPM(IPMWSClientEvent):
+    """
+      An item has been sent to pm.
+    """

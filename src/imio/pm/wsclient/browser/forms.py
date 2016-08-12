@@ -12,6 +12,7 @@ from zope.annotation import IAnnotations
 from zope.component.hooks import getSite
 from zope.component import queryUtility, getMultiAdapter
 from zope.contentprovider.provider import ContentProviderBase
+from zope.event import notify
 from zope.i18n import translate
 from zope import interface, schema
 from zope.interface import implements
@@ -30,6 +31,8 @@ from imio.pm.wsclient import PMMessageFactory as _PM
 from imio.pm.wsclient.config import ALREADY_SENT_TO_PM_ERROR, UNABLE_TO_CONNECT_ERROR, \
     NO_USER_INFOS_ERROR, NO_PROPOSING_GROUP_ERROR, CORRECTLY_SENT_TO_PM_INFO, \
     WS4PMCLIENT_ANNOTATION_KEY, TAL_EVAL_FIELD_ERROR, SEND_WITHOUT_SUFFICIENT_FIELD_MAPPINGS_DEFINED_WARNING
+from imio.pm.wsclient.events import SentToPM
+from imio.pm.wsclient.events import WillbeSendToPM
 from imio.pm.wsclient.interfaces import IRedirect
 
 
@@ -244,6 +247,9 @@ class SendToPloneMeetingForm(form.Form):
         # build the creationData
         client = self.ws4pmSettings._soap_connectToPloneMeeting()
         creation_data = self._getCreationData(client)
+
+        notify(WillbeSendToPM(self.context))
+
         # call the SOAP method actually creating the item
         res = self.ws4pmSettings._soap_createItem(self.meetingConfigId,
                                                   self.proposingGroupId,
@@ -268,6 +274,9 @@ class SendToPloneMeetingForm(form.Form):
                 existingAnnotations.append(self.meetingConfigId)
                 annotations[WS4PMCLIENT_ANNOTATION_KEY] = existingAnnotations
             self._finishedSent = True
+
+            notify(SentToPM(self.context))
+
             return True
         return False
 
