@@ -33,6 +33,10 @@ import transaction
 import zope
 
 
+class FailTest(Exception):
+    """ Raised when the ws event is not notified at the right moment """
+
+
 class testEvents(WS4PMCLIENTTestCase):
     """
         Tests the browser.settings SOAP client methods
@@ -49,18 +53,21 @@ class testEvents(WS4PMCLIENTTestCase):
         """
             Test notification of WillbeSendToPM event when calling _doSendToPloneMeeting.
         """
+        sending_view = self.sending_view
 
         # register a handler raising a dummy exception for this event
-        class WillBeSendToPmException(Exception):
+        class WillBeSendToPm(Exception):
             """ """
         def will_be_send_to_pm_handler(obj, event):
-            raise WillBeSendToPmException
+            if not sending_view._finishedSent:
+                raise WillBeSendToPm
+            raise FailTest("the WillBeSendToPm event should be raised before sending the item to PM")
 
         gsm = getGlobalSiteManager()
         gsm.registerHandler(will_be_send_to_pm_handler, (zope.interface.Interface, IWillbeSendToPM))
 
         #send the element to pm, the event handler should raise the exception
-        with self.assertRaises(WillBeSendToPmException):
+        with self.assertRaises(WillBeSendToPm):
             self.sending_view._doSendToPloneMeeting()
 
         gsm.unregisterHandler(will_be_send_to_pm_handler, (zope.interface.Interface, IWillbeSendToPM))
@@ -69,18 +76,21 @@ class testEvents(WS4PMCLIENTTestCase):
         """
             Test notification of SentToPM event when calling _doSendToPloneMeeting.
         """
+        sending_view = self.sending_view
 
         # register a handler raising a dummy exception for this event
-        class SentToPmException(Exception):
+        class SentToPm(Exception):
             """ """
         def sent_to_pm_handler(obj, event):
-            raise SentToPmException
+            if sending_view._finishedSent:
+                raise SentToPm
+            raise FailTest("the SentToPm event should be raised after sending the item to PM")
 
         gsm = getGlobalSiteManager()
         gsm.registerHandler(sent_to_pm_handler, (zope.interface.Interface, ISentToPM))
 
         #send the element to pm, the event handler should raise the exception
-        with self.assertRaises(SentToPmException):
+        with self.assertRaises(SentToPm):
             self.sending_view._doSendToPloneMeeting()
 
         gsm.unregisterHandler(sent_to_pm_handler, (zope.interface.Interface, ISentToPM))
