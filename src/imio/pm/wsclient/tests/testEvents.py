@@ -24,6 +24,7 @@
 
 from zope.component import getGlobalSiteManager
 
+from imio.pm.wsclient.interfaces import ISentToPM
 from imio.pm.wsclient.interfaces import IWillbeSendToPM
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, \
     setCorrectSettingsConfig, createDocument, SEND_TO_PM_VIEW_NAME
@@ -37,34 +38,68 @@ class testEvents(WS4PMCLIENTTestCase):
         Tests the browser.settings SOAP client methods
     """
 
+    def setUp(self):
+        """
+           Set a ws sending view.
+        """
+        super(testEvents, self).setUp()
+        self.sending_view = self._setup_sending_view()
+
     def test_WillBeSendToPM_event(self):
         """
             Test notification of WillbeSendToPM event when calling _doSendToPloneMeeting.
         """
-        event_triggered = False
+
+        # register a handler raising a dummy exception for this event
+        class WillBeSendToPmException(Exception):
+            """ """
+        def will_be_send_to_pm_handler(obj, event):
+            raise WillBeSendToPmException
+
+        gsm = getGlobalSiteManager()
+        gsm.registerHandler(will_be_send_to_pm_handler, (zope.interface.Interface, IWillbeSendToPM))
+
+        #send the element to pm, the event handler should raise the exception
+        with self.assertRaises(WillBeSendToPmException):
+            self.sending_view._doSendToPloneMeeting()
+
+        gsm.unregisterHandler(will_be_send_to_pm_handler, (zope.interface.Interface, IWillbeSendToPM))
+
+    def test_SentToPM_event(self):
+        """
+            Test notification of SentToPM event when calling _doSendToPloneMeeting.
+        """
+
+        # register a handler raising a dummy exception for this event
+        class SentToPmException(Exception):
+            """ """
+        def sent_to_pm_handler(obj, event):
+            raise SentToPmException
+
+        gsm = getGlobalSiteManager()
+        gsm.registerHandler(sent_to_pm_handler, (zope.interface.Interface, ISentToPM))
+
+        #send the element to pm, the event handler should raise the exception
+        with self.assertRaises(SentToPmException):
+            self.sending_view._doSendToPloneMeeting()
+
+        gsm.unregisterHandler(sent_to_pm_handler, (zope.interface.Interface, ISentToPM))
+
+    def _setup_sending_view(self):
         setCorrectSettingsConfig(self.portal)
         self.changeUser('pmCreator1')
         # create an element to send...
         document = createDocument(self.portal.Members.pmCreator1)
-        self._configureRequestForView(document)
+        self.request.set('URL', document.absolute_url())
+        self.request.set('ACTUAL_URL', document.absolute_url() + '/%s' % SEND_TO_PM_VIEW_NAME)
+        self.request.set('meetingConfigId', 'plonemeeting-assembly')
         view = document.restrictedTraverse(SEND_TO_PM_VIEW_NAME).form_instance
         self.tool.getPloneMeetingFolder('plonemeeting-assembly', 'pmCreator1')
         # we have to commit() here or portal used behing the SOAP call
         # does not have the freshly created member area...
         transaction.commit()
         view.proposingGroupId = 'developers'
-
-        # register a dummy handler for this event
-        def will_be_send_to_pm_handler(event):
-            event_triggered = True
-            return event_triggered
-        gsm = getGlobalSiteManager()
-        gsm.registerHandler(will_be_send_to_pm_handler, (zope.interface.Interface, IWillbeSendToPM))
-
-        self.assertFalse(event_triggered)
-        #send the element to pm
-        view._doSendToPloneMeeting()
-        self.assertTrue(event_triggered)
+        return view
 
 
 def test_suite():
