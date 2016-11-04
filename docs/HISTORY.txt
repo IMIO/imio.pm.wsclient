@@ -4,7 +4,8 @@ Changelog
 1.4 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Add zope events WillbeSendToPMEvent and SentToPMEvent.
+ [sdelcourt]
 
 
 1.3 (2016-08-03)
