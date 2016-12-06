@@ -22,15 +22,15 @@
 # 02110-1301, USA.
 #
 
+import transaction
 from zope.component import getGlobalSiteManager
-
+from zope.interface import Interface
 from imio.pm.wsclient.interfaces import ISentToPMEvent
 from imio.pm.wsclient.interfaces import IWillbeSendToPMEvent
-from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, \
-    setCorrectSettingsConfig, createDocument, SEND_TO_PM_VIEW_NAME
-
-import transaction
-import zope
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import createDocument
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import SEND_TO_PM_VIEW_NAME
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
 
 
 class FailTest(Exception):
@@ -64,13 +64,13 @@ class testEvents(WS4PMCLIENTTestCase):
             raise FailTest("the WillBeSendToPm event should be raised before sending the item to PM")
 
         gsm = getGlobalSiteManager()
-        gsm.registerHandler(will_be_send_to_pm_handler, (zope.interface.Interface, IWillbeSendToPMEvent))
+        gsm.registerHandler(will_be_send_to_pm_handler, (Interface, IWillbeSendToPMEvent))
 
-        #send the element to pm, the event handler should raise the exception
+        # send the element to pm, the event handler should raise the exception
         with self.assertRaises(WillBeSendToPm):
             self.sending_view._doSendToPloneMeeting()
 
-        gsm.unregisterHandler(will_be_send_to_pm_handler, (zope.interface.Interface, IWillbeSendToPMEvent))
+        gsm.unregisterHandler(will_be_send_to_pm_handler, (Interface, IWillbeSendToPMEvent))
 
     def test_SentToPM_event(self):
         """
@@ -87,13 +87,13 @@ class testEvents(WS4PMCLIENTTestCase):
             raise FailTest("the SentToPm event should be raised after sending the item to PM")
 
         gsm = getGlobalSiteManager()
-        gsm.registerHandler(sent_to_pm_handler, (zope.interface.Interface, ISentToPMEvent))
+        gsm.registerHandler(sent_to_pm_handler, (Interface, ISentToPMEvent))
 
         #send the element to pm, the event handler should raise the exception
         with self.assertRaises(SentToPm):
             self.sending_view._doSendToPloneMeeting()
 
-        gsm.unregisterHandler(sent_to_pm_handler, (zope.interface.Interface, ISentToPMEvent))
+        gsm.unregisterHandler(sent_to_pm_handler, (Interface, ISentToPMEvent))
 
     def _setup_sending_view(self):
         setCorrectSettingsConfig(self.portal)

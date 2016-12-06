@@ -67,10 +67,10 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         self.assertTrue('MeetingConfig' in [configInfo.type for configInfo in configInfos])
         self.assertTrue('MeetingGroup' in [configInfo.type for configInfo in configInfos])
         # by default, no categories
-        self.assertFalse(hasattr(configInfos[0], 'categories'))
+        self.assertFalse(hasattr(configInfos[1], 'categories'))
         # we can ask categories by passing a showCategories=True to _soap_getConfigInfos
         configInfos = ws4pmSettings._soap_getConfigInfos(showCategories=True)
-        self.assertTrue(hasattr(configInfos[0], 'categories'))
+        self.assertTrue(hasattr(configInfos[1], 'categories'))
 
     def test_soap_getItemCreationAvailableData(self):
         """Check that we receive the list of available data for creating an item."""
