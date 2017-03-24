@@ -243,7 +243,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
 
     @memoize
     def _soap_getUserInfos(self, showGroups=False, suffix=''):
-        """Query the getConfigInfos SOAP server method."""
+        """Query the getUserInfos SOAP server method."""
         client = self._soap_connectToPloneMeeting()
         if client is not None:
             # get the inTheNameOf userid if it was not already set
@@ -304,7 +304,10 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 # we create an item inTheNameOf the currently connected member
                 # _getUserIdToCreateWith returns None if the settings defined username creates the item
                 inTheNameOf = self._getUserIdToUseInTheNameOfWith()
-                res = client.service.createItem(meetingConfigId, proposingGroupId, creationData, inTheNameOf)
+                res = client.service.createItem(meetingConfigId,
+                                                proposingGroupId,
+                                                creationData,
+                                                inTheNameOf=inTheNameOf)
                 # return 'UID' and 'warnings' if any current user is a Manager
                 warnings = []
                 if self.context.portal_membership.getAuthenticatedMember().has_role('Manager'):

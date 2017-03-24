@@ -24,9 +24,7 @@ class pm_meeting_config_id_vocabulary(object):
         pmConfigInfos = settings._soap_getConfigInfos()
         terms = []
         if pmConfigInfos:
-            for pmConfigInfo in pmConfigInfos:
-                if not pmConfigInfo['type'] == 'MeetingConfig':
-                    continue
+            for pmConfigInfo in pmConfigInfos.configInfo:
                 terms.append(SimpleTerm(unicode(pmConfigInfo['id']),
                                         unicode(pmConfigInfo['id']),
                                         unicode(pmConfigInfo['title']),))
@@ -193,7 +191,7 @@ class categories_for_user_vocabulary(object):
             return SimpleVocabulary([])
         categories = []
         # find categories for given meetingConfigId
-        for configInfo in configInfos:
+        for configInfo in configInfos.configInfo:
             if configInfo.id == meetingConfigId:
                 categories = hasattr(configInfo, 'categories') and configInfo.categories or ()
                 break
