@@ -63,14 +63,14 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         setCorrectSettingsConfig(self.portal, minimal=True)
         configInfos = ws4pmSettings._soap_getConfigInfos()
-        # check taht we received elements like MeetingConfig and MeetingGroups
-        self.assertTrue('MeetingConfig' in [configInfo.type for configInfo in configInfos])
-        self.assertTrue('MeetingGroup' in [configInfo.type for configInfo in configInfos])
+        # check thatt we received elements like MeetingConfig and MeetingGroups
+        self.assertTrue(configInfos.configInfo)
+        self.assertTrue(configInfos.groupInfo)
         # by default, no categories
-        self.assertFalse(hasattr(configInfos[1], 'categories'))
+        self.assertFalse(hasattr(configInfos.configInfo[0], 'categories'))
         # we can ask categories by passing a showCategories=True to _soap_getConfigInfos
         configInfos = ws4pmSettings._soap_getConfigInfos(showCategories=True)
-        self.assertTrue(hasattr(configInfos[1], 'categories'))
+        self.assertTrue(hasattr(configInfos.configInfo[1], 'categories'))
 
     def test_soap_getItemCreationAvailableData(self):
         """Check that we receive the list of available data for creating an item."""
