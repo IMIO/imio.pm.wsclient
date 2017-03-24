@@ -251,7 +251,6 @@ class SendToPloneMeetingForm(form.Form):
         notify(WillbeSendToPMEvent(self.context))
 
         # call the SOAP method actually creating the item
-        import ipdb; ipdb.set_trace()
         res = self.ws4pmSettings._soap_createItem(self.meetingConfigId,
                                                   self.proposingGroupId,
                                                   creation_data)
