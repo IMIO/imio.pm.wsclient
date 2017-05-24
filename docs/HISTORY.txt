@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.6 (unreleased)
+1.6 (2017-05-24)
 ----------------
 
 - Adapted regarding changes in imio.pm.ws for Products.PloneMeeting 4.0.
