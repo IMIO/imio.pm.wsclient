@@ -4,7 +4,8 @@ Changelog
 1.6 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Adapted regarding changes in imio.pm.ws for Products.PloneMeeting 4.0.
+ [gbastien]
 
 
 1.5 (2016-11-04)
