@@ -39,3 +39,21 @@ class ISentToPMEvent(IPMWSClientEvent):
     """
       An item has been sent to pm.
     """
+
+
+class ISendableAnnexesToPM(Interface):
+    """
+    Adapts a context into a list of annexes to send to pm
+    """
+    def get():
+        """
+        Return a list of dicts representing annexes following the format:
+        [
+            ...,
+            {
+                'title': <str>,
+                'UID': <UID>,
+            },
+            ...,
+        ]
+        """

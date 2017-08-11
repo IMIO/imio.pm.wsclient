@@ -1,4 +1,5 @@
 from zope.component import getMultiAdapter
+from zope.component import queryAdapter
 from zope.component.hooks import getSite
 from zope.interface import implements
 from zope.schema.interfaces import IVocabularyFactory
@@ -8,6 +9,7 @@ from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import TAL_EVAL_FIELD_ERROR, NO_FIELD_MAPPINGS_ERROR, \
     CAN_NOT_CREATE_FOR_PROPOSING_GROUP_ERROR, NO_USER_INFOS_ERROR, NO_CONFIG_INFOS_ERROR, \
     CAN_NOT_CREATE_WITH_CATEGORY_ERROR
+from imio.pm.wsclient.interfaces import ISendableAnnexesToPM
 
 
 class pm_meeting_config_id_vocabulary(object):
@@ -220,3 +222,20 @@ class categories_for_user_vocabulary(object):
             return SimpleVocabulary([])
         return SimpleVocabulary(terms)
 categories_for_user_vocabularyFactory = categories_for_user_vocabulary()
+
+
+class annexes_for_user_vocabulary(object):
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        """Query every available data we can use to create an item in the distant PloneMeeting."""
+        terms = []
+        to_annexes = queryAdapter(context, ISendableAnnexesToPM)
+
+        if to_annexes:
+            for annex in to_annexes.get():
+                terms.append(SimpleTerm(annex['UID'],
+                                        annex['UID'],
+                                        annex['title'],))
+        return SimpleVocabulary(terms)
+annexes_for_user_vocabularyFactory = annexes_for_user_vocabulary()

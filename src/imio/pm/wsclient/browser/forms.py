@@ -10,9 +10,10 @@ from AccessControl import Unauthorized
 
 from zope.annotation import IAnnotations
 from zope.component.hooks import getSite
-from zope.component import queryUtility, getMultiAdapter
+from zope.component import queryUtility, getMultiAdapter, getAdapter
 from zope.contentprovider.provider import ContentProviderBase
 from zope.event import notify
+from zope.filerepresentation.interfaces import IRawReadFile
 from zope.i18n import translate
 from zope import interface, schema
 from zope.interface import implements
@@ -35,6 +36,10 @@ from imio.pm.wsclient.events import SentToPMEvent
 from imio.pm.wsclient.events import WillbeSendToPMEvent
 from imio.pm.wsclient.interfaces import IRedirect
 
+from plone import api
+
+import base64
+
 
 class ISendToPloneMeeting(interface.Interface):
     meetingConfigId = schema.TextLine(title=_(u"Meeting config id"))
@@ -47,6 +52,10 @@ class ISendToPloneMeeting(interface.Interface):
                              description=_(u"Select the category to use for the created item item in PloneMeeting"),
                              required=True,
                              vocabulary=u'imio.pm.wsclient.categories_for_user_vocabulary')
+    annexes = schema.List(title=_PM(u"PloneMeeting_label_annexes"),
+                          description=_(u"Select the annexes to send"),
+                          required=False,
+                          value_type=schema.Choice(vocabulary=u'imio.pm.wsclient.annexes_for_user_vocabulary'))
 
 
 class DisplayDataToSendProvider(ContentProviderBase):
@@ -69,6 +78,8 @@ class DisplayDataToSendProvider(ContentProviderBase):
         data = self.__parent__.form._buildDataDict()
         if 'externalIdentifier' in data:
             data.pop('externalIdentifier')
+        if 'annexes' in data:
+            data.pop('annexes')
         for elt in data:
             # remove empty data but keep category and proposingGroup even if empty
             value = isinstance(data[elt], str) and data[elt].strip() or data[elt]
@@ -84,9 +95,6 @@ class DisplayDataToSendProvider(ContentProviderBase):
                     extraAttr['value']) for extraAttr in data[elt]]
                 data[elt] = '<br />'.join(res)
 
-            if elt == 'annexes':
-                res = ['{0} ({1})'.format(annex['title'], annex['filename']) for annex in data[elt]]
-                data[elt] = '<br />'.join(res)
         if not 'title' in data:
             IStatusMessage(self.request).addStatusMessage(_(SEND_WITHOUT_SUFFICIENT_FIELD_MAPPINGS_DEFINED_WARNING),
                                                           'warning')
@@ -307,6 +315,8 @@ class SendToPloneMeetingForm(form.Form):
         """
         data = OrderedDict()
         settings = self.ws4pmSettings.settings()
+        # initialize annexes field from the form, not the field_mappings
+        data['annexes'] = self._buildAnnexesData()
         # initialize category field in case it is not defined in field_mappings
         data['category'] = self.request.form.get('form.widgets.category', [u'', ])[0]
         # if category is '--NOVALUE--', consider it empty
@@ -340,6 +350,25 @@ class SendToPloneMeetingForm(form.Form):
                     "error")
                 return self.request.RESPONSE.redirect(self.context.absolute_url())
         return data
+
+    def _buildAnnexesData(self):
+        catalog = api.portal.get_tool('portal_catalog')
+        plone_utils = api.portal.get_tool('plone_utils')
+        annexes_data = []
+        selected_annexes = self.request.form.get('form.widgets.annexes', [])
+        for selected_annex in selected_annexes:
+            annex_brains = catalog(UID=selected_annex)
+            if annex_brains:
+                annex = annex_brains[0].getObject()
+                annex_file = getAdapter(annex, IRawReadFile)
+                annexes_data.append(
+                    {
+                        'title': plone_utils.normalizeString(annex.title),
+                        'filename': plone_utils.normalizeString(annex_file.name.encode('utf-8')),
+                        'file': base64.b64encode(annex_file.read()),
+                    }
+                )
+        return annexes_data
 
     def _getCategoriesVocab(self):
         """Return the vocabulary used for the categories field"""

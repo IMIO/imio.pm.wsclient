@@ -100,6 +100,12 @@
       name="imio.pm.wsclient.categories_for_user_vocabulary"
     />
 
+    <utility
+      provides="zope.schema.interfaces.IVocabularyFactory"
+      component=".vocabularies.annexes_for_user_vocabularyFactory"
+      name="imio.pm.wsclient.annexes_for_user_vocabulary"
+    />
+
     <!-- Resource directory for images -->
     <browser:resourceDirectory
         name="imio.pm.wsclient.images"
