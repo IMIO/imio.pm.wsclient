@@ -15,6 +15,12 @@
         factory=".redirect.Redirect"
         />
 
+    <adapter
+        for="Products.ATContentTypes.interfaces.file.IATFile"
+        factory=".annexes.ATRawReadFile"
+        provides="zope.filerepresentation.interfaces.IRawReadFile"
+    />
+
     <!-- special view that make it possible to redirect from an overlay and show status messages afterward -->
     <browser:page
         for="*"

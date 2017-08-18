@@ -124,9 +124,6 @@ def setCorrectSettingsConfig(portal, setConnectionParams=True, minimal=False, wi
              'expression': u'object/getText'},
             {'field_name': u'externalIdentifier',
              'expression': u'object/UID'},
-            {'field_name': u'annexes',
-             'expression': u"python:[{'title': 'My annex title', 'file': 'MTIzNDU2', 'filename': 'annex.txt'},"
-                           u"{'title': 'Le courrier', 'file': 'MTIzNDU2', 'filename': 'courrier.txt'}]"},
         ]
         settings.generated_actions = kwargs.get('generated_actions', None) or [
             {'pm_meeting_config_id': 'plonegov-assembly',
@@ -144,6 +141,7 @@ def setCorrectSettingsConfig(portal, setConnectionParams=True, minimal=False, wi
             {'pm_meeting_config_id': 'plonemeeting-assembly',
              'condition': u'python:True',
              'permissions': u'Manage portal'}
+
         ]
     if not withValidation:
         AbstractCollection._validate = old_validate
@@ -160,6 +158,19 @@ def createDocument(placeToCreate):
     document = getattr(placeToCreate, documentId)
     document.reindexObject()
     return document
+
+
+def createAnnex(placeToCreate):
+    """
+      Helper method for creating an annex object
+    """
+    data = {'title': 'Annexe oubliée',
+            'file': 'hello\n'}
+    annexId = placeToCreate.invokeFactory('File', id='annex', **data)
+    annex = getattr(placeToCreate, annexId)
+    annex.getFile().setFilename('annexe oubliée.txt')
+    annex.reindexObject()
+    return annex
 
 
 def cleanMemoize(request, obj=None):

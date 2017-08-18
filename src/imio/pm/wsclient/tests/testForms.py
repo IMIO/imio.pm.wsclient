@@ -34,7 +34,7 @@ from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY, UNABLE_TO_CONNECT_ERROR, \
     CORRECTLY_SENT_TO_PM_INFO, ALREADY_SENT_TO_PM_ERROR, NO_PROPOSING_GROUP_ERROR
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, \
-    setCorrectSettingsConfig, createDocument, SEND_TO_PM_VIEW_NAME
+    setCorrectSettingsConfig, createDocument, createAnnex, SEND_TO_PM_VIEW_NAME
 
 
 class testForms(WS4PMCLIENTTestCase):
@@ -92,6 +92,8 @@ class testForms(WS4PMCLIENTTestCase):
         document = createDocument(self.portal.Members.pmCreator1)
         self._configureRequestForView(document)
         view = document.restrictedTraverse(SEND_TO_PM_VIEW_NAME).form_instance
+        # create an annex to send...
+        annex = createAnnex(self.portal.Members.pmCreator1)
         # before sending, no item is linked to the document
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 0)
@@ -110,6 +112,7 @@ class testForms(WS4PMCLIENTTestCase):
         self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 0)
         # now send the element to PM
         view.proposingGroupId = 'developers'
+        view.request.form['form.widgets.annexes'] = [annex.UID()]
         # view._doSendToPloneMeeting returns True if the element was actually sent
         self.assertTrue(view._doSendToPloneMeeting())
         # while the element is sent, the view will return nothing...
@@ -117,9 +120,9 @@ class testForms(WS4PMCLIENTTestCase):
         # now that the element has been sent, an item is linked to the document
         items = ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})
         self.assertTrue(len(items) == 1)
-        # moreover, as defined in the configuration, 2 annexes were added to the item
+        # moreover, as defined in the configuration, 1 annex were added to the item
         itemInfos = ws4pmSettings._soap_getItemInfos({'UID': items[0]['UID'], 'showAnnexes': True})[0]
-        self.assertTrue(len(itemInfos['annexes']) == 2)
+        self.assertTrue(len(itemInfos['annexes']) == 1)
 
     def test_canNotSendIfInNoPMCreatorGroup(self):
         """

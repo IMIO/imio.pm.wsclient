@@ -38,6 +38,8 @@ from imio.pm.wsclient.interfaces import IRedirect
 
 from plone import api
 
+from unidecode import unidecode
+
 import base64
 
 
@@ -353,7 +355,6 @@ class SendToPloneMeetingForm(form.Form):
 
     def _buildAnnexesData(self):
         catalog = api.portal.get_tool('portal_catalog')
-        plone_utils = api.portal.get_tool('plone_utils')
         annexes_data = []
         selected_annexes = self.request.form.get('form.widgets.annexes', [])
         for selected_annex in selected_annexes:
@@ -363,8 +364,8 @@ class SendToPloneMeetingForm(form.Form):
                 annex_file = getAdapter(annex, IRawReadFile)
                 annexes_data.append(
                     {
-                        'title': plone_utils.normalizeString(annex.title),
-                        'filename': plone_utils.normalizeString(annex_file.name.encode('utf-8')),
+                        'title': unidecode(annex.title.decode('utf-8')),
+                        'filename': unidecode(annex_file.name.decode('utf-8')),
                         'file': base64.b64encode(annex_file.read()),
                     }
                 )
