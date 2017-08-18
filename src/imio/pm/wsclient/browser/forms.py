@@ -38,7 +38,6 @@ from imio.pm.wsclient.events import WillbeSendToPMEvent
 from imio.pm.wsclient.interfaces import IRedirect
 
 from plone import api
-from plone import directives
 
 from unidecode import unidecode
 
@@ -56,7 +55,6 @@ class ISendToPloneMeeting(interface.Interface):
                              description=_(u"Select the category to use for the created item item in PloneMeeting"),
                              required=True,
                              vocabulary=u'imio.pm.wsclient.categories_for_user_vocabulary')
-    directives.form.widget(annexes=CheckBoxFieldWidget)
     annexes = schema.List(title=_PM(u"PloneMeeting_label_annexes"),
                           description=_(u"Select the annexes to send"),
                           required=False,
@@ -113,6 +111,8 @@ class SendToPloneMeetingForm(form.Form):
     implements(IFieldsAndContentProvidersForm)
 
     fields = field.Fields(ISendToPloneMeeting)
+    fields['annexes'].widgetFactory = CheckBoxFieldWidget
+
     ignoreContext = True  # don't use context to get widget data
 
     contentProviders = ContentProviders()
