@@ -19,6 +19,7 @@ from zope import interface, schema
 from zope.interface import implements
 from zope.schema.interfaces import IVocabularyFactory
 from z3c.form import form, field, button
+from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from z3c.form.interfaces import HIDDEN_MODE
 from z3c.form.interfaces import IFieldsAndContentProvidersForm
 from z3c.form.contentprovider import ContentProviders
@@ -37,6 +38,7 @@ from imio.pm.wsclient.events import WillbeSendToPMEvent
 from imio.pm.wsclient.interfaces import IRedirect
 
 from plone import api
+from plone import directives
 
 from unidecode import unidecode
 
@@ -54,6 +56,7 @@ class ISendToPloneMeeting(interface.Interface):
                              description=_(u"Select the category to use for the created item item in PloneMeeting"),
                              required=True,
                              vocabulary=u'imio.pm.wsclient.categories_for_user_vocabulary')
+    directives.form.widget(annexes=CheckBoxFieldWidget)
     annexes = schema.List(title=_PM(u"PloneMeeting_label_annexes"),
                           description=_(u"Select the annexes to send"),
                           required=False,
