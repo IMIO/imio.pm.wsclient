@@ -122,6 +122,10 @@ msgstr "PloneMeeting username to use"
 msgid "Save"
 msgstr ""
 
+#. Default: "Select the proposing group to use for the created item in PloneMeeting"
+msgid "Select the annexes to send"
+msgstr ""
+
 #. Default: "Select the category to use for the created item item in PloneMeeting"
 msgid "Select the category to use for the created item item in PloneMeeting"
 msgstr "Select the category to use for the created item item in PloneMeeting"
@@ -217,4 +221,3 @@ msgstr "Here is a resume of what will be sent to PloneMeeting"
 #. Default: "Please specify the proposingGroup to use"
 msgid "send_to_plonemeeting_specify_proposing_group"
 msgstr "Please specify the proposingGroup to use"
-

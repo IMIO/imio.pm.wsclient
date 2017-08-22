@@ -109,6 +109,10 @@ msgid "send_to_plonemeeting_descr"
 msgstr ""
 
 #. Default: "Select the proposing group to use for the created item in PloneMeeting"
+msgid "Select the annexes to send"
+msgstr ""
+
+#. Default: "Select the proposing group to use for the created item in PloneMeeting"
 msgid "Select the proposing group to use for the created item in PloneMeeting"
 msgstr ""
 

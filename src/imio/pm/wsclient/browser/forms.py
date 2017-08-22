@@ -55,7 +55,7 @@ class ISendToPloneMeeting(interface.Interface):
                              description=_(u"Select the category to use for the created item item in PloneMeeting"),
                              required=True,
                              vocabulary=u'imio.pm.wsclient.categories_for_user_vocabulary')
-    annexes = schema.List(title=_PM(u"PloneMeeting_label_annexes"),
+    annexes = schema.List(title=_PM(u"annexes"),
                           description=_(u"Select the annexes to send"),
                           required=False,
                           value_type=schema.Choice(vocabulary=u'imio.pm.wsclient.annexes_for_user_vocabulary'))
