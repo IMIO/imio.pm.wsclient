@@ -55,6 +55,10 @@ class ISendToPloneMeeting(interface.Interface):
                              description=_(u"Select the category to use for the created item item in PloneMeeting"),
                              required=True,
                              vocabulary=u'imio.pm.wsclient.categories_for_user_vocabulary')
+    preferredMeeting = schema.Choice(title=_PM(u"PloneMeeting_label_preferredMeeting"),
+                                     description=_(u"Select the desired meeting date for the created item in PloneMeeting"),
+                                     required=False,
+                                     vocabulary=u'imio.pm.wsclient.possible_meetingdates_vocabulary')
     annexes = schema.List(title=_PM(u"annexes"),
                           description=_(u"Select the annexes to send"),
                           required=False,
@@ -322,6 +326,7 @@ class SendToPloneMeetingForm(form.Form):
         settings = self.ws4pmSettings.settings()
         # initialize annexes field from the form, not the field_mappings
         data['annexes'] = self._buildAnnexesData()
+        data['preferredMeeting'] = self.request.form.get('form.widgets.preferredMeeting', [u'', ])[0]
         # initialize category field in case it is not defined in field_mappings
         data['category'] = self.request.form.get('form.widgets.category', [u'', ])[0]
         # if category is '--NOVALUE--', consider it empty

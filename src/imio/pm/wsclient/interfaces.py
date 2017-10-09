@@ -57,3 +57,21 @@ class ISendableAnnexesToPM(Interface):
             ...,
         ]
         """
+
+
+class IAllowedDesiredMeetings(Interface):
+    """
+    Adapts a context and a list of possible meetings to filter them.
+    """
+    def get():
+        """
+        Return a list of dicts representing meeting UID's and dates following the format:
+        [
+            ...,
+            {
+                'UID': <UID>,
+                'date': <str>,
+            },
+            ...,
+        ]
+        """

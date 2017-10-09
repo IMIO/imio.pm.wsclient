@@ -130,6 +130,9 @@ msgstr ""
 msgid "Select the category to use for the created item item in PloneMeeting"
 msgstr "Select the category to use for the created item item in PloneMeeting"
 
+msgid "Select the desired meeting date for the created item in PloneMeeting"
+msgstr ""
+
 #. Default: "Select the proposing group to use for the created item in PloneMeeting"
 msgid "Select the proposing group to use for the created item in PloneMeeting"
 msgstr "Select the proposing group to use for the created item in PloneMeeting"

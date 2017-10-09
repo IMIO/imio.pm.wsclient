@@ -112,6 +112,9 @@ msgstr ""
 msgid "Select the annexes to send"
 msgstr ""
 
+msgid "Select the desired meeting date for the created item in PloneMeeting"
+msgstr ""
+
 #. Default: "Select the proposing group to use for the created item in PloneMeeting"
 msgid "Select the proposing group to use for the created item in PloneMeeting"
 msgstr ""

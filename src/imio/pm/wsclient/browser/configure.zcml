@@ -108,6 +108,12 @@
 
     <utility
       provides="zope.schema.interfaces.IVocabularyFactory"
+      component=".vocabularies.desired_meetingdates_vocabularyFactory"
+      name="imio.pm.wsclient.possible_meetingdates_vocabulary"
+    />
+
+    <utility
+      provides="zope.schema.interfaces.IVocabularyFactory"
       component=".vocabularies.annexes_for_user_vocabularyFactory"
       name="imio.pm.wsclient.annexes_for_user_vocabulary"
     />
