@@ -33,6 +33,8 @@ from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import cleanMemoize
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
 
+from DateTime import DateTime
+
 
 class testSOAPMethods(WS4PMCLIENTTestCase):
     """
@@ -143,9 +145,13 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
            to create the item regarding the _getUserIdToUseInTheNameOfWith."""
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         setCorrectSettingsConfig(self.portal, minimal=True)
+        self.changeUser('pmManager')
+        meetingConfig = self.meetingConfig2
+        test_meeting = self.create('Meeting', meetingConfig=meetingConfig, date=DateTime())
+        self.freezeMeeting(test_meeting)
         self.changeUser('pmCreator1')
         # create the 'pmCreator1' member area to be able to create an item
-        pmFolder = self.tool.getPloneMeetingFolder('plonegov-assembly', 'pmCreator1')
+        pmFolder = self.tool.getPloneMeetingFolder(meetingConfig.id, 'pmCreator1')
         # we have to commit() here or portal used behing the SOAP call
         # does not have the freshly created item...
         transaction.commit()
@@ -155,10 +161,11 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
                 'description': u'<p>My description</p>',
                 # also use accents, this was failing with suds-jurko 0.5
                 'decision': u'<p>My d\xe9cision</p>',
+                'preferredMeeting':  test_meeting.UID(),
                 'externalIdentifier': u'my-external-identifier',
                 'extraAttrs': [{'key': 'internalNotes',
                                 'value': '<p>Internal notes</p>'}]}
-        result = ws4pmSettings._soap_createItem('plonegov-assembly', 'developers', data)
+        result = ws4pmSettings._soap_createItem(meetingConfig.id, 'developers', data)
         # commit again so the item is really created
         transaction.commit()
         # the item is created and his UID is returned
@@ -172,6 +179,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         self.assertEqual(item.getCategory(), data['category'])
         self.assertEqual(item.Description(), data['description'])
         self.assertEqual(item.getDecision(), data['decision'].encode('utf-8'))
+        self.assertEqual(item.getPreferredMeeting(), data['preferredMeeting'])
         self.assertEqual(item.externalIdentifier, data['externalIdentifier'])
         # extraAttrs
         self.assertEqual(item.getInternalNotes(), data['extraAttrs'][0]['value'])
