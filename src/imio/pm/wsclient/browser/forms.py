@@ -327,6 +327,9 @@ class SendToPloneMeetingForm(form.Form):
         # initialize annexes field from the form, not the field_mappings
         data['annexes'] = self._buildAnnexesData()
         data['preferredMeeting'] = self.request.form.get('form.widgets.preferredMeeting', [u'', ])[0]
+        # if preferredMeeting is '--NOVALUE--',  remove it from data to send
+        if data['preferredMeeting'] == '--NOVALUE--':
+            data.pop('preferredMeeting')
         # initialize category field in case it is not defined in field_mappings
         data['category'] = self.request.form.get('form.widgets.category', [u'', ])[0]
         # if category is '--NOVALUE--', consider it empty
