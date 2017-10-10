@@ -59,7 +59,7 @@ class ISendableAnnexesToPM(Interface):
         """
 
 
-class IAllowedDesiredMeetings(Interface):
+class IPreferredMeetings(Interface):
     """
     Adapts a context and a list of possible meetings to filter them.
     """

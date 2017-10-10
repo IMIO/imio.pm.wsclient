@@ -10,7 +10,7 @@ from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import TAL_EVAL_FIELD_ERROR, NO_FIELD_MAPPINGS_ERROR, \
     CAN_NOT_CREATE_FOR_PROPOSING_GROUP_ERROR, NO_USER_INFOS_ERROR, NO_CONFIG_INFOS_ERROR, \
     CAN_NOT_CREATE_WITH_CATEGORY_ERROR
-from imio.pm.wsclient.interfaces import IAllowedDesiredMeetings
+from imio.pm.wsclient.interfaces import IPreferredMeetings
 from imio.pm.wsclient.interfaces import ISendableAnnexesToPM
 
 from plone import api
@@ -251,7 +251,7 @@ class desired_meetingdates_vocabulary(object):
         data = {'meetingConfigId': meeting_config_id}
         possible_meetings = ws4pmsettings._soap_getMeetingsAcceptingItems(data)
         terms = []
-        allowed_meetings = queryMultiAdapter((context, possible_meetings), IAllowedDesiredMeetings)
+        allowed_meetings = queryMultiAdapter((context, possible_meetings), IPreferredMeetings)
         meetings = allowed_meetings and allowed_meetings.get() or possible_meetings
         for meeting_info in meetings:
             terms.append(SimpleTerm(unicode(meeting_info['UID']),
