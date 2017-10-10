@@ -1,10 +1,11 @@
 Changelog
 =========
 
-1.9 (unreleased)
+1.9 (2017-10-10)
 ----------------
 
-- Nothing changed yet.
+- Add preferred meeting selection in the send form.
+  [sdelcourt]
 
 
 1.8 (2017-08-22)
