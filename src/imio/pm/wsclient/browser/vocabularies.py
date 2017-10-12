@@ -15,6 +15,8 @@ from imio.pm.wsclient.interfaces import ISendableAnnexesToPM
 
 from plone import api
 
+import pytz
+
 
 class pm_meeting_config_id_vocabulary(object):
     implements(IVocabularyFactory)
@@ -250,6 +252,9 @@ class desired_meetingdates_vocabulary(object):
         meeting_config_id = request.get('meetingConfigId', request.form.get('form.widgets.meetingConfigId'))
         data = {'meetingConfigId': meeting_config_id}
         possible_meetings = ws4pmsettings._soap_getMeetingsAcceptingItems(data)
+        local = pytz.timezone("Europe/Brussels")
+        for meeting in possible_meetings:
+            meeting['date'] = meeting['date'].astimezone(local)
         terms = []
         allowed_meetings = queryMultiAdapter((context, possible_meetings), IPreferredMeetings)
         meetings = allowed_meetings and allowed_meetings.get() or possible_meetings
