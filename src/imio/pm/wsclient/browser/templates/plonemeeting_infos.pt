@@ -21,6 +21,7 @@
                <th i18n:translate="MeetingConfig" i18n:domain="plone">Meeting config</th>
                <th i18n:translate="State">Review state</th>
                <th i18n:translate="MeetingCategory" i18n:domain="plone">Category or proposing group</th>
+               <th i18n:translate="PreferredMeeting" >Preferred meeting date</th>
                <th i18n:translate="Meeting" i18n:domain="plone">Related meeting date</th>
                <th i18n:translate="doc">Documents</th>
             </thead>
@@ -32,6 +33,7 @@
                    <td tal:content="item/extraInfos/meeting_config_title">Meeting config title</td>
                    <td tal:content="item/extraInfos/review_state_translated" i18n:domain="plone" i18n:translate="">Review state</td>
                    <td tal:content="item/extraInfos/category_title" i18n:domain="plone" i18n:translate="">Category title</td>
+                   <td tal:content="python: view.displayMeetingDate(item['preferred_meeting_date'])">Preferred meeting date</td>
                    <td tal:content="python: view.displayMeetingDate(item['meeting_date'])">Related meeting date</td>
                    <td>
                      <span class="discreet" style="position: relative;"

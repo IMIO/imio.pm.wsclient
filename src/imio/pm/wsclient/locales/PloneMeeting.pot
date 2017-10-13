@@ -19,3 +19,6 @@ msgstr ""
 #. Default: "Extra attributes"
 msgid "PloneMeeting_label_extraAttrs"
 msgstr ""
+
+msgid "PreferredMeeting"
+msgstr ""
