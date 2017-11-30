@@ -167,9 +167,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
                 'externalIdentifier': u'my-external-identifier',
                 'extraAttrs': [{'key': 'internalNotes',
                                 'value': '<p>Internal notes</p>'}]}
-        import ipdb; ipdb.set_trace()
         result = ws4pmSettings._soap_createItem(cfg2Id, 'developers', data)
-        
         # commit again so the item is really created
         transaction.commit()
         # the item is created and his UID is returned
@@ -183,7 +181,6 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         self.assertEqual(item.getCategory(), data['category'])
         self.assertEqual(item.Description(), data['description'])
         self.assertEqual(item.getDecision(), data['decision'].encode('utf-8'))
-        import ipdb; ipdb.set_trace()
         self.assertEqual(item.getPreferredMeeting(), test_meeting.UID(), data['preferredMeeting'])
         self.assertEqual(item.externalIdentifier, data['externalIdentifier'])
         # extraAttrs
