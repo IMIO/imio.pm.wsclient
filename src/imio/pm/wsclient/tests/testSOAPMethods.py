@@ -143,15 +143,17 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         """Check item creation.
            Item creation will automatically use currently connected user
            to create the item regarding the _getUserIdToUseInTheNameOfWith."""
+        cfg2 = self.meetingConfig2
+        cfg2Id = cfg2.getId()
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         setCorrectSettingsConfig(self.portal, minimal=True)
         self.changeUser('pmManager')
-        meetingConfig = self.meetingConfig2
-        test_meeting = self.create('Meeting', meetingConfig=meetingConfig, date=DateTime())
+        self.setMeetingConfig(cfg2Id)
+        test_meeting = self.create('Meeting', date=DateTime())
         self.freezeMeeting(test_meeting)
         self.changeUser('pmCreator1')
         # create the 'pmCreator1' member area to be able to create an item
-        pmFolder = self.tool.getPloneMeetingFolder(meetingConfig.id, 'pmCreator1')
+        pmFolder = self.tool.getPloneMeetingFolder(cfg2Id)
         # we have to commit() here or portal used behing the SOAP call
         # does not have the freshly created item...
         transaction.commit()
@@ -165,7 +167,9 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
                 'externalIdentifier': u'my-external-identifier',
                 'extraAttrs': [{'key': 'internalNotes',
                                 'value': '<p>Internal notes</p>'}]}
-        result = ws4pmSettings._soap_createItem(meetingConfig.id, 'developers', data)
+        import ipdb; ipdb.set_trace()
+        result = ws4pmSettings._soap_createItem(cfg2Id, 'developers', data)
+        
         # commit again so the item is really created
         transaction.commit()
         # the item is created and his UID is returned
@@ -179,7 +183,8 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         self.assertEqual(item.getCategory(), data['category'])
         self.assertEqual(item.Description(), data['description'])
         self.assertEqual(item.getDecision(), data['decision'].encode('utf-8'))
-        self.assertEqual(item.getPreferredMeeting(), data['preferredMeeting'])
+        import ipdb; ipdb.set_trace()
+        self.assertEqual(item.getPreferredMeeting(), test_meeting.UID(), data['preferredMeeting'])
         self.assertEqual(item.externalIdentifier, data['externalIdentifier'])
         # extraAttrs
         self.assertEqual(item.getInternalNotes(), data['extraAttrs'][0]['value'])
@@ -188,7 +193,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         # that is displayed to the user creating the item
         data['category'] = 'unexisting-category-id'
         result = ws4pmSettings._soap_createItem('plonegov-assembly', 'developers', data)
-        self.assertTrue(result is None)
+        self.assertIsNone(result)
         messages = IStatusMessage(self.request)
         # a message is displayed
         self.assertEquals(messages.show()[-1].message,
