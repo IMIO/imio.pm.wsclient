@@ -4,7 +4,9 @@ Changelog
 1.12 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Fixed tests now that the create() testing helper method 
+  does not accept 'meetingConfig' paramter anymore.
+  [gbastien]
 
 
 1.11 (2017-10-13)
