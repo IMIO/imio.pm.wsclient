@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from suds.client import Client
 from suds.xsd.doctor import ImportDoctor, Import
 from suds.transport.http import HttpAuthenticated
@@ -99,7 +101,8 @@ class IWS4PMClientSettings(Interface):
         description=_("Enter a TAL expression that will be evaluated to check if the viewlet displaying "
                       "informations about the created items in PloneMeeting should be displayed. "
                       "If empty, the viewlet will only be displayed if an item is actually linked to it. "
-                      "The 'isLinked' variable representing this default behaviour is available in the TAL expression."),
+                      "The 'isLinked' variable representing this default behaviour is available "
+                      "in the TAL expression."),
         required=False,)
     field_mappings = schema.List(
         title=_("Field accessor mappings"),
@@ -163,7 +166,7 @@ class WS4PMClientSettingsEditForm(RegistryEditForm):
             field_mappings.mode = 'display'
         else:
             if generated_actions_field.mode == 'display' and \
-               not 'form.buttons.save' in self.request.form.keys():
+               'form.buttons.save' not in self.request.form.keys():
                 # only change mode while not in the "saving" process (that calls updateFields, but why?)
                 # because it leads to loosing generated_actions because a [] is returned by extractDate here above
                 self.fields.get('generated_actions').mode = 'input'
@@ -258,7 +261,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         client = self._soap_connectToPloneMeeting()
         if client is not None:
             # get the inTheNameOf userid if it was not already set
-            if not 'inTheNameOf' in data:
+            if 'inTheNameOf' not in data:
                 data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
             return client.service.searchItems(**data)
 
@@ -267,7 +270,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         client = self._soap_connectToPloneMeeting()
         if client is not None:
             # get the inTheNameOf userid if it was not already set
-            if not 'inTheNameOf' in data:
+            if 'inTheNameOf' not in data:
                 data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
             return client.service.getItemInfos(**data)
 
@@ -281,7 +284,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         """Query the getItemTemplate SOAP server method."""
         client = self._soap_connectToPloneMeeting()
         if client is not None:
-            if not 'inTheNameOf' in data:
+            if 'inTheNameOf' not in data:
                 data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
             try:
                 return client.service.getItemTemplate(**data)
@@ -459,22 +462,23 @@ def notify_configuration_changed(event):
             ws4pmSettings = getMultiAdapter((portal, portal.REQUEST), name='ws4pmclient-settings')
             for actToGen in event.record.value:
                 actionId = "%s%d" % (ACTION_SUFFIX, i)
-                action = Action(actionId,
-                                title=translate(
-                                    'Send to',
-                                    domain='imio.pm.wsclient',
-                                    mapping={
-                                        'meetingConfigTitle':
-                                        ws4pmSettings.getMeetingConfigTitle(actToGen['pm_meeting_config_id']),
-                                    },
-                                    context=portal.REQUEST),
-                                description='', i18n_domain='imio.pm.wsclient',
-                                url_expr='string:${object_url}/@@send_to_plonemeeting_form?meetingConfigId=%s'
-                                         % actToGen['pm_meeting_config_id'],
-                                icon_expr='string:${portal_url}/++resource++imio.pm.wsclient.images/send_to_plonemeeting.png',
-                                available_expr=actToGen['condition'] or '',
-                                # make sure we have a tuple as permissions value
-                                permissions=actToGen['permissions'] and (actToGen['permissions'], ) or ('View', ),
-                                visible=True)
+                action = Action(
+                    actionId,
+                    title=translate(
+                        'Send to',
+                        domain='imio.pm.wsclient',
+                        mapping={
+                            'meetingConfigTitle':
+                            ws4pmSettings.getMeetingConfigTitle(actToGen['pm_meeting_config_id']),
+                        },
+                        context=portal.REQUEST),
+                    description='', i18n_domain='imio.pm.wsclient',
+                    url_expr='string:${object_url}/@@send_to_plonemeeting_form?meetingConfigId=%s'
+                             % actToGen['pm_meeting_config_id'],
+                    icon_expr='string:${portal_url}/++resource++imio.pm.wsclient.images/send_to_plonemeeting.png',
+                    available_expr=actToGen['condition'] or '',
+                    # make sure we have a tuple as permissions value
+                    permissions=actToGen['permissions'] and (actToGen['permissions'], ) or ('View', ),
+                    visible=True)
                 object_buttons._setObject(actionId, action)
                 i = i + 1

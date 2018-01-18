@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
+
 import base64
 import logging
-logger = logging.getLogger('imio.pm.wsclient')
 
 from zope.component import getMultiAdapter
 from Products.Five import BrowserView
@@ -9,6 +10,8 @@ from Products.statusmessages.interfaces import IStatusMessage
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR, UNABLE_TO_DETECT_MIMETYPE_ERROR, \
     FILENAME_MANDATORY_ERROR
+
+logger = logging.getLogger('imio.pm.wsclient')
 
 
 class GenerateItemTemplateView(BrowserView):

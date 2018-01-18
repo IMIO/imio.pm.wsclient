@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from zope.component import getMultiAdapter
 from zope.component import queryAdapter
 from zope.component import queryMultiAdapter
@@ -118,7 +120,7 @@ class proposing_groups_for_user_vocabulary(object):
                     return SimpleVocabulary([])
         # even if we get a forcedProposingGroup, double check that the current user can actually use it
         userInfos = ws4pmsettings._soap_getUserInfos(showGroups=True, suffix='creators')
-        if not userInfos or not 'groups' in userInfos:
+        if not userInfos or 'groups' not in userInfos:
             portal.REQUEST.set('error_in_vocabularies', True)
             # add a status message if the main error is not the fact that we can not connect to the WS
             if userInfos is not None:

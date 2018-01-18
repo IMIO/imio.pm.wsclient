@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from dateutil import tz
 
 from zope.component import getMultiAdapter, queryUtility
@@ -101,7 +103,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
             # XXX special case if something went wrong and there is an item in PM
             # that is not in the context sent_to annotation
             lastAddedItemMeetingConfigId = str(lastAddedItem['extraInfos']['meeting_config_id'])
-            if not lastAddedItemMeetingConfigId in sent_to:
+            if lastAddedItemMeetingConfigId not in sent_to:
                 existingSentTo = list(sent_to)
                 existingSentTo.append(lastAddedItemMeetingConfigId)
                 annotations[WS4PMCLIENT_ANNOTATION_KEY] = existingSentTo
@@ -115,7 +117,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
             meetingConfigVocab = factory(self.portal_state.portal())
             # add special result
             for sent in annotations[WS4PMCLIENT_ANNOTATION_KEY]:
-                if not sent in shownItemsMeetingConfigId:
+                if sent not in shownItemsMeetingConfigId:
                     # append a special result : nothing else but the meeting_config_id and title
                     # in extraInfos so sort here under works correctly
                     # in the linked viewlet template, we test if there is a 'UID' in the given infos, if not

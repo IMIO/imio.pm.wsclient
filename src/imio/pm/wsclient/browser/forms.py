@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
+
+import base64
 import logging
-logger = logging.getLogger('imio.pm.wsclient')
 try:
     from collections import OrderedDict
 except ImportError:
@@ -38,10 +40,11 @@ from imio.pm.wsclient.events import WillbeSendToPMEvent
 from imio.pm.wsclient.interfaces import IRedirect
 
 from plone import api
+from plone.z3cform.layout import wrap_form
 
 from unidecode import unidecode
 
-import base64
+logger = logging.getLogger('imio.pm.wsclient')
 
 
 class ISendToPloneMeeting(interface.Interface):
@@ -56,7 +59,8 @@ class ISendToPloneMeeting(interface.Interface):
                              required=True,
                              vocabulary=u'imio.pm.wsclient.categories_for_user_vocabulary')
     preferredMeeting = schema.Choice(title=_PM(u"PloneMeeting_label_preferredMeeting"),
-                                     description=_(u"Select the desired meeting date for the created item in PloneMeeting"),
+                                     description=_(u"Select the desired meeting date for the created "
+                                                   u"item in PloneMeeting"),
                                      required=False,
                                      vocabulary=u'imio.pm.wsclient.possible_meetingdates_vocabulary')
     annexes = schema.List(title=_PM(u"annexes"),
@@ -90,7 +94,7 @@ class DisplayDataToSendProvider(ContentProviderBase):
         for elt in data:
             # remove empty data but keep category and proposingGroup even if empty
             value = isinstance(data[elt], str) and data[elt].strip() or data[elt]
-            if not value and not elt in ['category', 'proposingGroup', ]:
+            if not value and elt not in ['category', 'proposingGroup', ]:
                 data.pop(elt)
                 continue
 
@@ -102,7 +106,7 @@ class DisplayDataToSendProvider(ContentProviderBase):
                     extraAttr['value']) for extraAttr in data[elt]]
                 data[elt] = '<br />'.join(res)
 
-        if not 'title' in data:
+        if 'title' not in data:
             IStatusMessage(self.request).addStatusMessage(_(SEND_WITHOUT_SUFFICIENT_FIELD_MAPPINGS_DEFINED_WARNING),
                                                           'warning')
         return data
@@ -183,7 +187,7 @@ class SendToPloneMeetingForm(form.Form):
         # do not go further if current user can not create an item in
         # PloneMeeting with any proposingGroup
         userInfos = self.ws4pmSettings._soap_getUserInfos(showGroups=True, suffix='creators')
-        if not userInfos or not 'groups' in userInfos:
+        if not userInfos or 'groups' not in userInfos:
             userThatWillCreate = self.ws4pmSettings._getUserIdToUseInTheNameOfWith()
             if not userInfos:
                 IStatusMessage(self.request).addStatusMessage(
@@ -282,7 +286,7 @@ class SendToPloneMeetingForm(form.Form):
                     IStatusMessage(self.request).addStatusMessage(_(warning), 'warning')
             # finally save in the self.context annotation that the item has been sent
             annotations = IAnnotations(self.context)
-            if not WS4PMCLIENT_ANNOTATION_KEY in annotations:
+            if WS4PMCLIENT_ANNOTATION_KEY not in annotations:
                 annotations[WS4PMCLIENT_ANNOTATION_KEY] = [self.meetingConfigId, ]
             else:
                 # do not use .append directly on the annotations or it does not save
@@ -405,5 +409,4 @@ class SendToPloneMeetingForm(form.Form):
         super(SendToPloneMeetingForm, self).update()
 
 
-from plone.z3cform.layout import wrap_form
 SendToPloneMeetingWrapper = wrap_form(SendToPloneMeetingForm)
