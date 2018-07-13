@@ -164,6 +164,7 @@ class testForms(WS4PMCLIENTTestCase):
         view.proposingGroupId = 'developers'
         # create the 'pmCreator1' member area to be able to create an item
         self.tool.getPloneMeetingFolder('plonemeeting-assembly', 'pmCreator1')
+        self.tool.getPloneMeetingFolder('plonegov-assembly', 'pmCreator1')
         # we have to commit() here or portal used behing the SOAP call
         # does not have the freshly created member area...
         transaction.commit()
