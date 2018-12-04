@@ -134,7 +134,7 @@ class testForms(WS4PMCLIENTTestCase):
         pmCreator2 = self.portal.portal_membership.getMemberById('pmCreator2')
         self.assertTrue([group for group in self.portal.acl_users.source_groups.getGroupsForPrincipal(pmCreator2)
                          if group.endswith('_creators')])
-        self.portal.portal_groups.removePrincipalFromGroup('pmCreator2', 'vendors_creators')
+        self.portal.portal_groups.removePrincipalFromGroup('pmCreator2', self.vendors_creators)
         # pmCreator2 is no more in a _creators group
         self.assertFalse([group for group in self.portal.acl_users.source_groups.getGroupsForPrincipal(pmCreator2)
                          if group.endswith('_creators')])
@@ -147,7 +147,7 @@ class testForms(WS4PMCLIENTTestCase):
         document = createDocument(self.portal.Members.pmCreator2)
         messages = IStatusMessage(self.request)
         # if no item is created, _sendToPloneMeeting returns None
-        self.assertFalse(self._sendToPloneMeeting(document, user='pmCreator2', proposingGroup='vendors'))
+        self.assertFalse(self._sendToPloneMeeting(document, user='pmCreator2', proposingGroup=self.vendors_uid))
         msg = _(NO_PROPOSING_GROUP_ERROR, mapping={'userId': 'pmCreator2'})
         self.assertEqual(messages.show()[-3].message, translate(msg))
 

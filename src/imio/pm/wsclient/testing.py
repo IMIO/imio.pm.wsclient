@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
 from plone.testing import z2, zca
 from plone.app.testing import PloneWithPackageLayer
-from plone.app.testing import IntegrationTesting, FunctionalTesting
+from plone.app.testing import FunctionalTesting
+from plone.app.testing import IntegrationTesting
 import imio.pm.ws
+from Products.PloneMeeting.testing import PMLayer
+
+
+class WSCLIENTLayer(PMLayer):
+    """ """
 
 
 WS4PMCLIENT_ZCML = zca.ZCMLSandbox(filename="testing.zcml",
@@ -22,7 +28,7 @@ WS4PMCLIENT = PloneWithPackageLayer(
     gs_profile_id='imio.pm.wsclient:testing',
     name="WS4PMCLIENT")
 
-WS4PMCLIENT_PM_TESTING_PROFILE = PloneWithPackageLayer(
+WS4PMCLIENT_PM_TESTING_PROFILE = WSCLIENTLayer(
     bases=(WS4PMCLIENT, ),
     zcml_filename="testing.zcml",
     zcml_package=imio.pm.wsclient,
