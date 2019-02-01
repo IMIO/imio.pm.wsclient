@@ -237,6 +237,10 @@ class SendToPloneMeetingForm(form.Form):
         category_field.field.required = bool(self._getCategoriesVocab()) and True or False
         # XXX manipulate self.fields BEFORE doing form.Form.updateWidgets
         form.Form.updateWidgets(self)
+        # hide annexes if nothing in vocabulary
+        annexes_wdg = self.widgets.get('annexes')
+        if len(annexes_wdg.terms) == 0:
+            annexes_wdg.mode = HIDDEN_MODE
         # add a 'Choose a value...'
         self.widgets.get('proposingGroup').prompt = True
         self.widgets.get('category').prompt = True
