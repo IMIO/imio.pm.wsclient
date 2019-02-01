@@ -96,6 +96,10 @@ class IWS4PMClientSettings(Interface):
     pm_password = schema.Password(
         title=_("PloneMeeting password to use"),
         required=True,)
+    only_one_sending = schema.Bool(
+        title=_("An element can be sent one time only"),
+        default=True,
+        required=True,)
     viewlet_display_condition = schema.TextLine(
         title=_("Viewlet display condition"),
         description=_("Enter a TAL expression that will be evaluated to check if the viewlet displaying "

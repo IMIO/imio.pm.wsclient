@@ -6,6 +6,8 @@ Changelog
 
 - Hide annexes field when there is no annex.
   [sgeulette]
+- Can choose in settings to send multiple times an element
+  [sgeulette]
 
 1.12 (2018-12-04)
 -----------------

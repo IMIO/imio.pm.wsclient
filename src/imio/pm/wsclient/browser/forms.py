@@ -169,14 +169,15 @@ class SendToPloneMeetingForm(form.Form):
         # True if already sent
         # False if not already sent, in this case we can proceed...
         alreadySent = self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context, (self.meetingConfigId,))
-        if alreadySent:
+        settings = self.ws4pmSettings.settings()
+        if alreadySent and settings.only_one_sending:
             IStatusMessage(self.request).addStatusMessage(_(ALREADY_SENT_TO_PM_ERROR), "error")
             self._changeFormForErrors()
             return
-        elif alreadySent in (None, False):
+        else:
             # None means that it was already sent but that it could not connect to PloneMeeting
             # False means that is was not sent, so no connection test is made to PloneMeeting for performance reason
-            if alreadySent is False:
+            if alreadySent is not None:
                 # now connect to PloneMeeting
                 client = self.ws4pmSettings._soap_connectToPloneMeeting()
             if alreadySent is None or not client:
@@ -267,7 +268,9 @@ class SendToPloneMeetingForm(form.Form):
         """
         # check again if already sent before sending
         # this avoid double sent from 2 opened form to send
-        if self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context, (self.meetingConfigId,)):
+        settings = self.ws4pmSettings.settings()
+        if (self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context, (self.meetingConfigId,)) and
+                settings.only_one_sending):
             return False
         # build the creationData
         client = self.ws4pmSettings._soap_connectToPloneMeeting()

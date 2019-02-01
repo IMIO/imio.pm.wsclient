@@ -26,6 +26,10 @@ msgstr "Un nom de fichier est obligatoire pour générer un document! Contactez 
 msgid "Actions to send an item to PloneMeeting can be generated. First enter a 'TAL condition' evaluated to show the action then choose permission(s) the user must have to see the action. Finally, choose the meetingConfig the item will be sent to."
 msgstr "Des actions pour faciliter l'envoi d'un point vers PloneMeeting peuvent être générées.  Elle apparaîtront par défaut dans la liste déroulante 'Actions'.  Vous pouvez définir une 'Expression au format TAL' et choisir une 'Permission' pour protéger l'action.  Pour finir, définissez dans quelle configuration de séance le point correspondant sera créé."
 
+#. Default: "An element can be sent one time only"
+msgid "An element can be sent one time only"
+msgstr "Un élément ne peut être envoyé qu'une seule fois"
+
 #. Default: "An error occured during the item creation in PloneMeeting! The error message was : ${error}"
 msgid "An error occured during the item creation in PloneMeeting! The error message was : ${error}"
 msgstr "Une erreur est survenue lors de l'envoi vers PloneMeeting!  L'erreur est : ${error}"

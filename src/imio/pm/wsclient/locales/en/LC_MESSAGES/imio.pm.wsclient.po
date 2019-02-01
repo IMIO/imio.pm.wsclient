@@ -26,6 +26,10 @@ msgstr "A filename is mandatory while generating a document! Please contact syst
 msgid "Actions to send an item to PloneMeeting can be generated. First enter a 'TAL condition' evaluated to show the action then choose permission(s) the user must have to see the action. Finally, choose the meetingConfig the item will be sent to."
 msgstr "Actions to send an item to PloneMeeting can be generated. First enter a 'TAL condition' evaluated to show the action then choose permission(s) the user must have to see the action. Finally, choose the meetingConfig the item will be sent to."
 
+#. Default: "An element can be sent one time only"
+msgid "An element can be sent one time only"
+msgstr ""
+
 #. Default: "An error occured during the item creation in PloneMeeting! The error message was : ${error}"
 msgid "An error occured during the item creation in PloneMeeting! The error message was : ${error}"
 msgstr "An error occured during the item creation in PloneMeeting! The error message was : ${error}"

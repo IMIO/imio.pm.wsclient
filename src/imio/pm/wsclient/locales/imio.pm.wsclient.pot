@@ -40,6 +40,10 @@ msgstr ""
 msgid "PloneMeeting password to use"
 msgstr ""
 
+#. Default: "An element can be sent one time only"
+msgid "An element can be sent one time only"
+msgstr ""
+
 #. Default: "Viewlet display condition"
 msgid "Viewlet display condition"
 msgstr ""
