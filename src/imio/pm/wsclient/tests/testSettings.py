@@ -67,6 +67,7 @@ class testSettings(unittest2.TestCase):
         fields.sort()
         self.assertEquals(fields, ['field_mappings',
                                    'generated_actions',
+                                   'only_one_sending',
                                    'pm_password',
                                    'pm_timeout',
                                    'pm_url',
