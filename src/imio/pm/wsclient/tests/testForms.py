@@ -22,19 +22,24 @@
 # 02110-1301, USA.
 #
 
-import transaction
 from AccessControl import Unauthorized
+from imio.pm.wsclient import WS4PMClientMessageFactory as _
+from imio.pm.wsclient.config import ALREADY_SENT_TO_PM_ERROR
+from imio.pm.wsclient.config import CORRECTLY_SENT_TO_PM_INFO
+from imio.pm.wsclient.config import NO_PROPOSING_GROUP_ERROR
+from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR
+from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import createAnnex
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import createDocument
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import SEND_TO_PM_VIEW_NAME
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
+from Products.statusmessages.interfaces import IStatusMessage
 from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
 from zope.i18n import translate
 
-from Products.statusmessages.interfaces import IStatusMessage
-
-from imio.pm.wsclient import WS4PMClientMessageFactory as _
-from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY, UNABLE_TO_CONNECT_ERROR, \
-    CORRECTLY_SENT_TO_PM_INFO, ALREADY_SENT_TO_PM_ERROR, NO_PROPOSING_GROUP_ERROR
-from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, \
-    setCorrectSettingsConfig, createDocument, createAnnex, SEND_TO_PM_VIEW_NAME
+import transaction
 
 
 class testForms(WS4PMCLIENTTestCase):
@@ -156,6 +161,7 @@ class testForms(WS4PMCLIENTTestCase):
            It check also that relevant annotation wipe out works correctly."""
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         setCorrectSettingsConfig(self.portal)
+        settings = ws4pmSettings.settings()
         self.changeUser('pmCreator1')
         # create an element to send...
         document = createDocument(self.portal.Members.pmCreator1)
@@ -186,13 +192,21 @@ class testForms(WS4PMCLIENTTestCase):
         self.assertEquals(shownMessages[-1].message, CORRECTLY_SENT_TO_PM_INFO)
         # call form again, it will display relevant status messages
         # the rendered form is u''
+        self.assertTrue(settings.only_one_sending)
         self.assertTrue(view() == u'')
         # the item is not created again
         # is still linked to one item
         self.assertTrue(annotations[WS4PMCLIENT_ANNOTATION_KEY] == [self.request.get('meetingConfigId'), ])
         self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 1)
         # a warning is displayed to the user
+        self.request.response.status = 200  # if status in 300, messages are not deleted with show
         self.assertEquals(messages.show()[-1].message, ALREADY_SENT_TO_PM_ERROR)
+        settings.only_one_sending = False
+        self.assertFalse(settings.only_one_sending)
+        view._finishedSent = False
+        self.request.response.status = 200  # if status in 300, render is not called by z3cform
+        self.assertIn('Send to PloneMeeting Assembly', view())
+        self.assertEqual(len(messages.show()), 0)
         # if we remove the item in PloneMeeting, the view is aware of it
         itemUID = str(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})[0]['UID'])
         transaction.commit()
