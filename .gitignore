@@ -1,11 +1,8 @@
-#
-# taken into account by: svn propset svn:ignore -F svn.ignore .
-#
 .installed.cfg
-bin
-var
-devel
+.coverage
 .mr.developer.cfg
+htmlcov
+bin
 develop-eggs
 downloads
 eggs
@@ -16,5 +13,8 @@ logrotate.conf
 parts
 python-eggs
 src
+var
 versions-picked.cfg
-*.egg-info
+pip-selfcheck.json
+uuid.txt
+.idea/

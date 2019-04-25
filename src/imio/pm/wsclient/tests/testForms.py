@@ -209,6 +209,9 @@ class testForms(WS4PMCLIENTTestCase):
         self.assertEqual(len(messages.show()), 0)
         # if we remove the item in PloneMeeting, the view is aware of it
         itemUID = str(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})[0]['UID'])
+        # avoid weird ConflictError while committing because of
+        # self.portal._volatile_cache_keys PersistentMapping
+        self.portal._volatile_cache_keys._p_changed = False
         transaction.commit()
         item = self.portal.uid_catalog(UID=itemUID)[0].getObject()
         # remove the item
@@ -217,8 +220,10 @@ class testForms(WS4PMCLIENTTestCase):
         # checkAlreadySentToPloneMeeting will wipe out inconsistent annotations
         # for now, annotations are inconsistent
         self.assertTrue(annotations[WS4PMCLIENT_ANNOTATION_KEY] == [self.request.get('meetingConfigId'), ])
-        self.assertFalse(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
-                        (self.request.get('meetingConfigId'),)))
+        self.assertFalse(
+            view.ws4pmSettings.checkAlreadySentToPloneMeeting(
+                document,
+                (self.request.get('meetingConfigId'),)))
         # now it is consistent
         self.assertFalse(WS4PMCLIENT_ANNOTATION_KEY in annotations)
         self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 0)
@@ -231,8 +236,10 @@ class testForms(WS4PMCLIENTTestCase):
         self.request.set('meetingConfigId', 'plonegov-assembly')
         view = document.restrictedTraverse(SEND_TO_PM_VIEW_NAME).form_instance
         view.proposingGroupId = 'developers'
-        self.assertFalse(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
-                        (self.request.get('meetingConfigId'),)))
+        self.assertFalse(
+            view.ws4pmSettings.checkAlreadySentToPloneMeeting(
+                document,
+                (self.request.get('meetingConfigId'),)))
         self.request.form['form.widgets.category'] = [u'deployment', ]
         self.assertTrue(view._doSendToPloneMeeting())
         self.assertTrue(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
