@@ -5,12 +5,12 @@ all: run
 .PHONY: bootstrap
 bootstrap:
 	virtualenv-2.7 .
-	./bin/python bootstrap.py
+	bin/python bin/pip install -r requirements.txt
 
 .PHONY: buildout
 buildout:
 	if ! test -f bin/buildout;then make bootstrap;fi
-	bin/buildout
+	bin/python bin/buildout
 
 .PHONY: run
 run:
@@ -19,4 +19,4 @@ run:
 
 .PHONY: cleanall
 cleanall:
-	rm -fr develop-eggs downloads eggs parts .installed.cfg
+	rm -fr develop-eggs downloads eggs parts .installed.cfg include lib
