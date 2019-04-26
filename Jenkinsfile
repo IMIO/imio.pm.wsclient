@@ -10,6 +10,10 @@ pipeline {
         parallelsAlwaysFailFast()
     }
 
+    environment{
+        ZSERVER_PORT="32555"
+    }
+
     stages {
         stage('Build') {
             steps {
