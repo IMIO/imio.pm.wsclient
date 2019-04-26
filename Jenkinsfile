@@ -10,6 +10,10 @@ pipeline {
         parallelsAlwaysFailFast()
     }
 
+    environment{
+        ZSERVER_PORT="32555"
+    }
+
     stages {
         stage('Build') {
             steps {
@@ -23,6 +27,11 @@ pipeline {
                 }
                 stash 'workspace'
             }
+        }
+
+        environment{
+            String number = "3$BUILD_NUMBER"
+            ZSERVER_PORT="5" + date +%s$BUILD_NUMBER | tail -c 5
         }
 
         stage('Run Tests') {
