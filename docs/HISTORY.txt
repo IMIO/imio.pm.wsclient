@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.13 (unreleased)
+1.13 (2019-06-23)
 -----------------
 
 - Hide annexes field when there is no annex.
