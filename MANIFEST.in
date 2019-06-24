@@ -6,7 +6,7 @@ include .coveragerc
 include .travis.yml
 include Makefile
 include *.conf
-include *.txt
+include requirements.txt
 include Jenkinsfile
 exclude *.ignore
 exclude .installed.cfg
