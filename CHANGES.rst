@@ -4,8 +4,9 @@ Changelog
 1.14 (unreleased)
 -----------------
 
-- Nothing changed yet.
-
+- Fixed tests as imio.pm.ws availableData to create an item now includes
+  'associatedGroups' and 'groupsInCharge'.
+  [gbastien]
 
 1.13 (2019-06-23)
 -----------------

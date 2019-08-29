@@ -1,8 +1,5 @@
-Introduction
-============
+README.txt
+==========
 
+This extension for Products.PloneMeeting add a SOAP Client to access imio.pm.ws SOAP server
 
-
-This product may contain traces of nuts.
-
-For more informations, read docs/README.txt

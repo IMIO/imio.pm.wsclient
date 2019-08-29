@@ -7,7 +7,7 @@ setup(name='imio.pm.wsclient',
       version=version,
       description="WebServices Client for PloneMeeting",
       long_description=open("README.txt").read() + "\n\n" +
-                       open(os.path.join("docs", "HISTORY.txt")).read(),
+                       open(os.path.join("CHANGES.rst")).read(),
       # Get more strings from
       # http://pypi.python.org/pypi?:action=list_classifiers
       classifiers=[
