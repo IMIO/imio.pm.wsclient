@@ -1,26 +1,4 @@
 # -*- coding: utf-8 -*-
-#
-# File: testSOAPMethods.py
-#
-# Copyright (c) 2013 by Imio
-#
-# GNU General Public License (GPL)
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# 02110-1301, USA.
-#
 
 import transaction
 from zope.component import getMultiAdapter
@@ -81,12 +59,14 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         availableData = ws4pmSettings._soap_getItemCreationAvailableData()
         availableData.sort()
         self.assertEquals(availableData, ['annexes',
+                                          'associatedGroups',
                                           'category',
                                           'decision',
                                           'description',
                                           'detailedDescription',
                                           'externalIdentifier',
                                           'extraAttrs',
+                                          'groupsInCharge',
                                           'motivation',
                                           'preferredMeeting',
                                           'proposingGroup',
@@ -163,7 +143,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
                 'description': u'<p>My description</p>',
                 # also use accents, this was failing with suds-jurko 0.5
                 'decision': u'<p>My d\xe9cision</p>',
-                'preferredMeeting':  test_meeting.UID(),
+                'preferredMeeting': test_meeting.UID(),
                 'externalIdentifier': u'my-external-identifier',
                 'extraAttrs': [{'key': 'internalNotes',
                                 'value': '<p>Internal notes</p>'}]}
