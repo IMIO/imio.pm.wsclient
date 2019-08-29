@@ -1,22 +1,25 @@
 from setuptools import setup, find_packages
 import os
 
-version = '1.13.dev0'
+version = '1.14.dev0'
 
 setup(name='imio.pm.wsclient',
       version=version,
       description="WebServices Client for PloneMeeting",
-      long_description=open("README.txt").read() + "\n" +
+      long_description=open("README.txt").read() + "\n\n" +
                        open(os.path.join("docs", "HISTORY.txt")).read(),
       # Get more strings from
       # http://pypi.python.org/pypi?:action=list_classifiers
       classifiers=[
-        "Programming Language :: Python",
+        "License :: OSI Approved :: GNU General Public License (GPL)",
         "Framework :: Plone",
+        "Framework :: Plone :: 4.3",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2.7",
         ],
       keywords='',
-      author='',
-      author_email='',
+      author='Gauthier Bastien',
+      author_email='devs@imio.be',
       url='http://svn.communesplone.org/svn/communesplone/imio.pm.wsclient/',
       license='GPL',
       packages=find_packages('src'),

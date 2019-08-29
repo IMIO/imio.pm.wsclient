@@ -1,7 +1,13 @@
 Changelog
 =========
 
-1.13 (unreleased)
+1.14 (unreleased)
+-----------------
+
+- Nothing changed yet.
+
+
+1.13 (2019-06-23)
 -----------------
 
 - Hide annexes field when there is no annex.
@@ -56,7 +62,7 @@ Changelog
 ----------------
 
 - Adapted regarding changes in imio.pm.ws for Products.PloneMeeting 4.0.
- [gbastien]
+  [gbastien]
 
 
 1.5 (2016-11-04)
@@ -70,7 +76,7 @@ Changelog
 ----------------
 
 - Add zope events WillbeSendToPMEvent and SentToPMEvent.
- [sdelcourt]
+  [sdelcourt]
 
 
 1.3 (2016-08-03)
