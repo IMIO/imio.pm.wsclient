@@ -68,6 +68,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
                                           'extraAttrs',
                                           'groupsInCharge',
                                           'motivation',
+                                          'optionalAdvisers',
                                           'preferredMeeting',
                                           'proposingGroup',
                                           'title'])
