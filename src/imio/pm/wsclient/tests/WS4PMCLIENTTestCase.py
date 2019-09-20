@@ -125,6 +125,7 @@ def setCorrectSettingsConfig(portal, setConnectionParams=True, minimal=False, wi
             {'field_name': u'externalIdentifier',
              'expression': u'object/UID'},
         ]
+        settings.allowed_annexes_types = kwargs.get('allowed_annexes_types', None) or []
         settings.generated_actions = kwargs.get('generated_actions', None) or [
             {'pm_meeting_config_id': 'plonegov-assembly',
              'condition': u'python:True',
