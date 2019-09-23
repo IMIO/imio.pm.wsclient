@@ -65,7 +65,8 @@ class testSettings(unittest2.TestCase):
         settings = ws4pmSettings.settings()
         fields = settings.__schema__._InterfaceClass__attrs.keys()
         fields.sort()
-        self.assertEquals(fields, ['field_mappings',
+        self.assertEquals(fields, ['allowed_annexes_types',
+                                   'field_mappings',
                                    'generated_actions',
                                    'only_one_sending',
                                    'pm_password',
