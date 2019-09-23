@@ -89,8 +89,8 @@ class DownloadAnnexFromItemView(BaseDownloadFromItemView):
         """ """
         ws_error = super(DownloadAnnexFromItemView, self).__call__()
         if ws_error:
-
             return ws_error
+
         response = self.request.RESPONSE
 
         if not self.annex_id:
