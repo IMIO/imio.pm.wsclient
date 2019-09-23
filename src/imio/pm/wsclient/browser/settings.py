@@ -64,6 +64,13 @@ class IFieldMappingsSchema(Interface):
         required=True,)
 
 
+class IAllowedAnnexTypesSchema(Interface):
+    """Schema used for the datagrid field 'allowed_annex_type' of IWS4PMClientSettings."""
+    annex_type = schema.TextLine(
+        title=_("Annex type"),
+        required=True)
+
+
 class IUserMappingsSchema(Interface):
     """Schema used for the datagrid field 'user_mappings' of IWS4PMClientSettings."""
     local_userid = schema.TextLine(
@@ -120,6 +127,13 @@ class IWS4PMClientSettings(Interface):
                            schema=IFieldMappingsSchema,
                            required=False),
         required=False,)
+    allowed_annexes_types = schema.List(
+        title=_("Allowed annexes types"),
+        description=_("List here the annexes types allowed to be display in the linked meeting item viewlet"),
+        value_type=DictRow(title=_("Allowed annex type"),
+                           schema=IAllowedAnnexTypesSchema,
+                           required=False),
+        required=False,)
     user_mappings = schema.List(
         title=_("User ids mappings"),
         description=_("By default, while sending an element to PloneMeeting, the user id of the logged in user "
@@ -153,6 +167,7 @@ class WS4PMClientSettingsEditForm(RegistryEditForm):
     fields = field.Fields(IWS4PMClientSettings)
     fields['generated_actions'].widgetFactory = DataGridFieldFactory
     fields['field_mappings'].widgetFactory = DataGridFieldFactory
+    fields['allowed_annexes_types'].widgetFactory = DataGridFieldFactory
     fields['user_mappings'].widgetFactory = DataGridFieldFactory
 
     def updateFields(self):
