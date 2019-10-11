@@ -8,6 +8,7 @@ from Products.statusmessages.interfaces import IStatusMessage
 from imio.pm.ws.config import POD_TEMPLATE_ID_PATTERN
 
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import cleanMemoize
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import createAnnex
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
 
@@ -91,6 +92,17 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         self.assertTrue(len(ws4pmSettings._soap_getItemInfos({'UID': item.UID()})) == 1)
         self.changeUser('pmCreator2')
         self.assertTrue(len(ws4pmSettings._soap_getItemInfos({'UID': item.UID()})) == 0)
+        # check annexes attribute
+        self.changeUser('pmCreator1')
+        item_infos = ws4pmSettings._soap_getItemInfos({'UID': item.UID()})
+        # so far no annexes on items infos
+        self.assertFalse(hasattr(item_infos, 'annexes'))
+        # create an annex
+        annex = createAnnex(item)
+        item_infos = ws4pmSettings._soap_getItemInfos({'UID': item.UID()})
+        # the annex should now appear in itemInfos
+        self.assertTrue(hasattr(item_infos, 'annexes'))
+        self.assertEqual(annex, item_infos['annexes'][0])
 
     def test_soap_searchItems(self):
         """Check the fact of searching items informations about existing items."""
