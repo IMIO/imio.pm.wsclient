@@ -95,7 +95,6 @@ class PloneMeetingInfosViewlet(ViewletBase):
         # for current user, save the infos actually shown...
         settings = self.ws4pmSettings.settings()
         allowed_annexes_types = [line.values()[0] for line in settings.allowed_annexes_types]
-        allowed_annexes_types = []
         shownItemsMeetingConfigId = []
         for item in items:
             res.append(self.ws4pmSettings._soap_getItemInfos({'UID': item['UID'],
