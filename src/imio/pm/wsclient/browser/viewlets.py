@@ -93,9 +93,15 @@ class PloneMeetingInfosViewlet(ViewletBase):
         res = []
         # to be able to know if some infos in PloneMeeting where not found
         # for current user, save the infos actually shown...
+        settings = self.ws4pmSettings.settings()
+        allowed_annexes_types = [line.values()[0] for line in settings.allowed_annexes_types]
         shownItemsMeetingConfigId = []
         for item in items:
             res.append(self.ws4pmSettings._soap_getItemInfos({'UID': item['UID'],
+                                                              'showExtraInfos': True,
+                                                              'showAnnexes': True,
+                                                              'allowed_annexes_types': allowed_annexes_types,
+                                                              'include_annex_binary': False,
                                                               'showExtraInfos': True,
                                                               'showTemplates': True})[0])
             lastAddedItem = res[-1]

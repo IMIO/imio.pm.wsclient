@@ -66,6 +66,15 @@
         permission="zope2.SOAPClientAccess"
       />
 
+    <!-- View that downaload an annex of an item -->
+    <browser:page
+        for="*"
+        layer="imio.pm.wsclient.interfaces.IWS4PMClientLayer"
+        name="download_annex_from_plonemeeting"
+        class=".views.DownloadAnnexFromItemView"
+        permission="zope2.SOAPClientAccess"
+      />
+
     <!-- Viewlets -->
     <browser:viewlet
         name="imio.pm.wsclient.pminfos"

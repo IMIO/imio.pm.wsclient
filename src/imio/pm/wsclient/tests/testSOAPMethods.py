@@ -8,6 +8,7 @@ from Products.statusmessages.interfaces import IStatusMessage
 from imio.pm.ws.config import POD_TEMPLATE_ID_PATTERN
 
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import cleanMemoize
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import createAnnex
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
 
