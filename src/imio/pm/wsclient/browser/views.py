@@ -114,6 +114,7 @@ class DownloadAnnexFromItemView(BaseDownloadFromItemView):
         if annex_info:
             annex_info = annex_info[0]
             annex = annex_info.file
-            response.setHeader('Content-Type', annex_info.filename.split('.')[-1])
+            mimetype = self.portal.mimetypes_registry.lookupExtension(annex_info.filename.split('.')[-1].lower())
+            response.setHeader('Content-Type', mimetype)
             response.setHeader('Content-Disposition', 'inline;filename="%s"' % annex_info.filename)
             return base64.b64decode(annex)
