@@ -24,7 +24,7 @@ msgstr "Un nom de fichier est obligatoire pour générer un document! Contactez 
 
 #. Default: "Actions to send an item to PloneMeeting can be generated. First enter a 'TAL condition' evaluated to show the action then choose permission(s) the user must have to see the action. Finally, choose the meetingConfig the item will be sent to."
 msgid "Actions to send an item to PloneMeeting can be generated. First enter a 'TAL condition' evaluated to show the action then choose permission(s) the user must have to see the action. Finally, choose the meetingConfig the item will be sent to."
-msgstr "Des actions pour faciliter l'envoi d'un point vers PloneMeeting peuvent être générées.  Elle apparaîtront par défaut dans la liste déroulante 'Actions'.  Vous pouvez définir une 'Expression au format TAL' et choisir une 'Permission' pour protéger l'action.  Pour finir, définissez dans quelle configuration de séance le point correspondant sera créé."
+msgstr "Des actions pour faciliter l'envoi d'un point vers iA.Delib peuvent être générées.  Elle apparaîtront par défaut dans la liste déroulante 'Actions'.  Vous pouvez définir une 'Expression au format TAL' et choisir une 'Permission' pour protéger l'action.  Pour finir, définissez dans quelle configuration de séance le point correspondant sera créé."
 
 #. Default: "An element can be sent one time only"
 msgid "An element can be sent one time only"
@@ -32,11 +32,11 @@ msgstr "Un élément ne peut être envoyé qu'une seule fois"
 
 #. Default: "An error occured during the item creation in PloneMeeting! The error message was : ${error}"
 msgid "An error occured during the item creation in PloneMeeting! The error message was : ${error}"
-msgstr "Une erreur est survenue lors de l'envoi vers PloneMeeting!  L'erreur est : ${error}"
+msgstr "Une erreur est survenue lors de l'envoi vers iA.Delib!  L'erreur est : ${error}"
 
 #. Default: "By default, while sending an element to PloneMeeting, the user id of the logged in user is used and a binding is made to the same user id in PloneMeeting. If the local user id does not exist in PloneMeeting, you can define here the user mappings to use. For example : 'jdoe' in 'Local user id' of the current application correspond to 'johndoe' in PloneMeeting."
 msgid "By default, while sending an element to PloneMeeting, the user id of the logged in user is used and a binding is made to the same user id in PloneMeeting. If the local user id does not exist in PloneMeeting, you can define here the user mappings to use. For example : 'jdoe' in 'Local user id' of the current application correspond to 'johndoe' in PloneMeeting."
-msgstr "Par défaut lors de l'envoi d'un point vers PloneMeeting, le nom d'utilisateur de l'utilisateur couramment connecté est utilisé.  Si le nom d'utilisteur local est différent du nom d'utilisateur dans PloneMeeting, vous pouvez les définir ci-dessous.  Par exemple 'jdoe' dans l'application courante a un utilisateur correspondant 'johndoe' dans PloneMeeting."
+msgstr "Par défaut lors de l'envoi d'un point vers iA.Delib, le nom d'utilisateur de l'utilisateur couramment connecté est utilisé.  Si le nom d'utilisteur local est différent du nom d'utilisateur dans iA.Delib, vous pouvez les définir ci-dessous.  Par exemple 'jdoe' dans l'application courante a un utilisateur correspondant 'johndoe' dans iA.Delib."
 
 #. Default: "Cancel"
 msgid "Cancel"
@@ -48,15 +48,15 @@ msgstr "Impossible de détecter le type MIME pour le document à générer!  Con
 
 #. Default: "Could not get userInfos in PloneMeeting for user '${userId}'!"
 msgid "Could not get userInfos in PloneMeeting for user '${userId}'!"
-msgstr "Impossible d'obtenir des informations sur l'utilisateur '${userId}' dans PloneMeeting!"
+msgstr "Impossible d'obtenir des informations sur l'utilisateur '${userId}' dans iA.Delib!"
 
 #. Default: "Enter a TAL expression that will be evaluated to check if the viewlet displaying informations about the created items in PloneMeeting should be displayed. If empty, the viewlet will only be displayed if an item is actually linked to it. The 'isLinked' variable representing this default behaviour is available in the TAL expression."
 msgid "Enter a TAL expression that will be evaluated to check if the viewlet displaying informations about the created items in PloneMeeting should be displayed. If empty, the viewlet will only be displayed if an item is actually linked to it. The 'isLinked' variable representing this default behaviour is available in the TAL expression."
-msgstr "Entrez une expression au format TAL qui sera évaluée pour vérifier si le viewlet affichant les informations dans PloneMeeting doit être montré ou non.  Par défaut, si aucune expression n'est entrée ci-dessous, le viewlet sera montré s'il y a effectivement un point correspondant dans PloneMeeting.  La variable 'isLinked' est disponible pour l'expression TAL."
+msgstr "Entrez une expression au format TAL qui sera évaluée pour vérifier si le viewlet affichant les informations dans iA.Delib doit être montré ou non.  Par défaut, si aucune expression n'est entrée ci-dessous, le viewlet sera montré s'il y a effectivement un point correspondant dans iA.Delib.  La variable 'isLinked' est disponible pour l'expression TAL."
 
 #. Default: "Enter the timeout while connecting to PloneMeeting. Do not set a too high timeout because it will impact the load of the viewlet showing PM infos on a sent element if PM is not available. Default is '10' seconds."
 msgid "Enter the timeout while connecting to PloneMeeting. Do not set a too high timeout because it will impact the load of the viewlet showing PM infos on a sent element if PM is not available. Default is '10' seconds."
-msgstr "Entrez le timeout de connexion à PloneMeeting.  Attention, ne pas mettre une valeurs trop importe car si PloneMeeting n'est pas disponible, cela influera sur la vitesse d'affichage d'une page dans laquelle le viewlet affichant les infos PloneMeeting est montré."
+msgstr "Entrez le timeout de connexion à iA.Delib.  Attention, ne pas mettre une valeurs trop importe car si iA.Delib n'est pas disponible, cela influera sur la vitesse d'affichage d'une page dans laquelle le viewlet affichant les infos iA.Delib est montré."
 
 #. Default: "Field accessor mappings"
 msgid "Field accessor mappings"
@@ -64,7 +64,7 @@ msgstr "Correspondances pour les champs"
 
 #. Default: "For every available data you can send, define in the mapping a TAL expression that will be executed to obtain the correct value to send. The 'meetingConfigId' and 'proposingGroupId' variables are also available for the expression. Special case for the 'proposingGroup' and 'category' fields, you can 'force' the use of a particular value by defining it here. If not defined the user will be able to use every 'proposingGroup' or 'category' he is allowed to use in PloneMeeting."
 msgid "For every available data you can send, define in the mapping a TAL expression that will be executed to obtain the correct value to send. The 'meetingConfigId' and 'proposingGroupId' variables are also available for the expression. Special case for the 'proposingGroup' and 'category' fields, you can 'force' the use of a particular value by defining it here. If not defined the user will be able to use every 'proposingGroup' or 'category' he is allowed to use in PloneMeeting."
-msgstr "Pour chaque données à envoyer, définissez une expression TAL qui fait correspondre à l'élément à envoyer, la valeur à utiliser pour un champ dans PloneMeeting. Les variables 'meetingConfigId' et 'proposingGroupId' sont disponibles pour l'expression TAL.  Pour les champs 'proposingGroup' et 'category', si vous définissez une valeur ici, cela 'forcera' l'utilisation de ces valeurs.  Sinon l'utilisateur pourra utiluser les 'groupes proposants' et 'catégories' qu'il peut habituellement utiliser dans PloneMeeting."
+msgstr "Pour chaque données à envoyer, définissez une expression TAL qui fait correspondre à l'élément à envoyer, la valeur à utiliser pour un champ dans iA.Delib. Les variables 'meetingConfigId' et 'proposingGroupId' sont disponibles pour l'expression TAL.  Pour les champs 'proposingGroup' et 'category', si vous définissez une valeur ici, cela 'forcera' l'utilisation de ces valeurs.  Sinon l'utilisateur pourra utiluser les 'groupes proposants' et 'catégories' qu'il peut habituellement utiliser dans iA.Delib."
 
 #. Default: "Generated actions"
 msgid "Generated actions"
@@ -76,11 +76,11 @@ msgstr "Nom d'utilisateur local"
 
 #. Default: "No configuration informations found!"
 msgid "No configuration informations found!"
-msgstr "Aucune information de configuration n'a été trouvée dans PloneMeeting!"
+msgstr "Aucune information de configuration n'a été trouvée dans iA.Delib!"
 
 #. Default: "No field_mappings defined in the WS4PMClient configuration!"
 msgid "No field_mappings defined in the WS4PMClient configuration!"
-msgstr "Aucune correspondance de champs définie dans la configuration des webservices PloneMeeting!"
+msgstr "Aucune correspondance de champs définie dans la configuration des webservices iA.Delib!"
 
 #. Default: "No sufficient field mappings are defined in the configuration. It is recommended to define at least the 'title' mapping, but 'description' and 'decision' should also be defined. It will ne be possible to create the item in PloneMeeting."
 msgid "No sufficient field mappings are defined in the configuration. It is recommended to define at least the 'title' mapping, but 'description' and 'decision' should also be defined. It will ne be possible to create the item in PloneMeeting."
@@ -88,39 +88,39 @@ msgstr "Les 'Correspondances pour les champs' définies dans la configuration ne
 
 #. Default: "No user informations found for current user or the current user is not a creator in PloneMeeting!"
 msgid "No user informations found for current user or the current user is not a creator in PloneMeeting!"
-msgstr "Pas d'informations trouvées pour l'utilisateur courant ou l'utilisateur courant n'est pas un créateur dans PloneMeeting!"
+msgstr "Pas d'informations trouvées pour l'utilisateur courant ou l'utilisateur courant n'est pas un créateur dans iA.Delib!"
 
 #. Default: "PloneMeeting WSDL URL"
 msgid "PloneMeeting WSDL URL"
-msgstr "URL du fichier WSDL PloneMeeting"
+msgstr "URL du fichier WSDL iA.Delib"
 
 #. Default: "PloneMeeting connection timeout"
 msgid "PloneMeeting connection timeout"
-msgstr "Timeout de connexion à PloneMeeting"
+msgstr "Timeout de connexion à iA.Delib"
 
 #. Default: "PloneMeeting corresponding user id"
 msgid "PloneMeeting corresponding user id"
-msgstr "Nom d'utilisateur correspondant dans PloneMeeting"
+msgstr "Nom d'utilisateur correspondant dans iA.Delib"
 
 #. Default: "PloneMeeting field name"
 msgid "PloneMeeting field name"
-msgstr "Nom du champ dans PloneMeeting"
+msgstr "Nom du champ dans iA.Delib"
 
 #. Default: "PloneMeeting informations"
 msgid "PloneMeeting informations"
-msgstr "Informations provenant de PloneMeeting"
+msgstr "Informations provenant de iA.Delib"
 
 #. Default: "PloneMeeting meetingConfig id"
 msgid "PloneMeeting meetingConfig id"
-msgstr "Identifiant de configuration de séance dans PloneMeeting"
+msgstr "Identifiant de configuration de séance dans iA.Delib"
 
 #. Default: "PloneMeeting password to use"
 msgid "PloneMeeting password to use"
-msgstr "Mot de passe à utiliser dans PloneMeeting"
+msgstr "Mot de passe à utiliser dans iA.Delib"
 
 #. Default: "PloneMeeting username to use"
 msgid "PloneMeeting username to use"
-msgstr "Nom d'utilisateur à utiliser dans PloneMeeting"
+msgstr "Nom d'utilisateur à utiliser dans iA.Delib"
 
 #. Default: "Save"
 msgid "Save"
@@ -132,14 +132,14 @@ msgstr "Sélectionnez les annexes à envoyer"
 
 #. Default: "Select the category to use for the created item item in PloneMeeting"
 msgid "Select the category to use for the created item item in PloneMeeting"
-msgstr "Sélectionnez la catégorie avec laquelle le point sera créé dans PloneMeeting"
+msgstr "Sélectionnez la catégorie avec laquelle le point sera créé dans iA.Delib"
 
 msgid "Select the desired meeting date for the created item in PloneMeeting"
 msgstr "Sélectionnez la date de séance souhaitée"
 
 #. Default: "Select the proposing group to use for the created item in PloneMeeting"
 msgid "Select the proposing group to use for the created item in PloneMeeting"
-msgstr "Sélectionnez le groupe proposant avec lequel le point sera créé dans PloneMeeting"
+msgstr "Sélectionnez le groupe proposant avec lequel le point sera créé dans iA.Delib"
 
 #. Default: "Send"
 msgid "Send"
@@ -151,7 +151,7 @@ msgstr "Envoyer vers ${meetingConfigTitle}"
 
 #. Default: "Send to PloneMeeting"
 msgid "Send to PloneMeeting"
-msgstr "Envoyer vers PloneMeeting"
+msgstr "Envoyer vers iA.Delib"
 
 #. Default: "TAL Condition"
 msgid "TAL Condition"
@@ -159,11 +159,11 @@ msgstr "Condition au format TAL"
 
 #. Default: "TAL expression to evaluate for the corresponding PloneMeeting field name"
 msgid "TAL expression to evaluate for the corresponding PloneMeeting field name"
-msgstr "Expression TAL à évaluer pour le champ PloneMeeting correspondant"
+msgstr "Expression TAL à évaluer pour le champ iA.Delib correspondant"
 
 #. Default: "The configuration specify that user '${userId}' will create the item in PloneMeeting but this user can not create item for any proposingGroup in PloneMeeting!"
 msgid "The configuration specify that user '${userId}' will create the item in PloneMeeting but this user can not create item for any proposingGroup in PloneMeeting!"
-msgstr "La configuration specifie que l'utilisateur '${userId}' va créer le point dans PloneMeeting mais cet utilisateur ne peut pas créer de points dans PloneMeeting!"
+msgstr "La configuration specifie que l'utilisateur '${userId}' va créer le point dans iA.Delib mais cet utilisateur ne peut pas créer de points dans iA.Delib!"
 
 #. Default: "The current user can not create an item with the category forced thru the configuration! Please contact system administrator!"
 msgid "The current user can not create an item with the category forced thru the configuration! Please contact system administrator!"
@@ -175,11 +175,11 @@ msgstr "L'utilisateur courant ne peut créer de point pour le groupe proposant f
 
 #. Default: "The item has been correctly sent to PloneMeeting."
 msgid "The item has been correctly sent to PloneMeeting."
-msgstr "L'élément a été correctement envoyé vers PloneMeeting."
+msgstr "L'élément a été correctement envoyé vers iA.Delib."
 
 #. Default: "The user must be at least a 'MeetingManager'. Nevertheless, items will be created regarding the <i>User ids mappings</i> defined here under."
 msgid "The user must be at least a 'MeetingManager'. Nevertheless, items will be created regarding the <i>User ids mappings</i> defined here under."
-msgstr "L'utilisateur renseigné doit être au moins 'MeetingManager'. Néanmoins, les points créés dans PloneMeeting le seront en fonction de ce qui est défini dans le champ 'Correspondance pour les utilisateurs' ci-dessous."
+msgstr "L'utilisateur renseigné doit être au moins 'MeetingManager'. Néanmoins, les points créés dans iA.Delib le seront en fonction de ce qui est défini dans le champ 'Correspondance pour les utilisateurs' ci-dessous."
 
 #. Default: "There was an error evaluating the TAL expression '${expr}' for the field '${field_name}'! The error was : ${error}. Please contact system administrator."
 msgid "There was an error evaluating the TAL expression '${expr}' for the field '${field_name}'! The error was : ${error}. Please contact system administrator."
@@ -187,19 +187,19 @@ msgstr "Une erreur s'est produite lors de l'évaluation de l'expression TAL '${e
 
 #. Default: "This element has already been sent to PloneMeeting!"
 msgid "This element has already been sent to PloneMeeting!"
-msgstr "Cet élément a déjà été envoyé vers PloneMeeting!"
+msgstr "Cet élément a déjà été envoyé vers iA.Delib!"
 
 #. Default: "This element is linked to item(s) in PloneMeeting but your are not allowed to see it."
 msgid "This element is linked to item(s) in PloneMeeting but your are not allowed to see it."
-msgstr "Cet élément est lié à un(des) point(s) dans PloneMeeting mais vous n'avez pas l'autorisation des le(s) voir."
+msgstr "Cet élément est lié à un(des) point(s) dans iA.Delib mais vous n'avez pas l'autorisation des le(s) voir."
 
 #. Default: "Unable to connect to PloneMeeting! Please contact system administrator!"
 msgid "Unable to connect to PloneMeeting! Please contact system administrator!"
-msgstr "Impossible de se connecter à PloneMeeting!  Contactez votre administrateur système!"
+msgstr "Impossible de se connecter à iA.Delib!  Contactez votre administrateur système!"
 
 #. Default: "Unable to connect to PloneMeeting! The error message was : ${error}!"
 msgid "Unable to connect to PloneMeeting! The error message was : ${error}!"
-msgstr "Impossible de se conneter à PloneMeeting!  Le message d'erreur est : ${error}!"
+msgstr "Impossible de se conneter à iA.Delib!  Le message d'erreur est : ${error}!"
 
 #. Default: "Unable to display informations about the potentially linked item in PloneMeeting because there was an error evaluating the TAL expression '${expr}' for the field '${field_name}'! The error was : '${error}'.  Please contact system administrator."
 msgid "Unable to display informations about the potentially linked item in PloneMeeting because there was an error evaluating the TAL expression '${expr}' for the field '${field_name}'! The error was : '${error}'.  Please contact system administrator."
@@ -215,11 +215,11 @@ msgstr "Condition d'affichage du viewlet"
 
 #. Default: "WS4PM Client settings"
 msgid "WS4PM Client settings"
-msgstr "Client webservices PloneMeeting"
+msgstr "Client webservices iA.Delib"
 
 #. Default: "You see these informations because the current element has been sent to PloneMeeting."
 msgid "pm_informations_help"
-msgstr "Vous voyez ces informations car cet élément a été envoyé vers PloneMeeting."
+msgstr "Vous voyez ces informations car cet élément a été envoyé vers iA.delib."
 
 #. Default: "Here is a resume of what will be sent to PloneMeeting"
 msgid "send_to_plonemeeting_descr"
