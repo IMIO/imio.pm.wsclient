@@ -5,7 +5,7 @@ Changelog
 -----------------
 
 - Fixed tests as imio.pm.ws availableData to create an item now includes
-  'associatedGroups', 'groupsInCharge' and 'optionalAdvisers'.
+  'associatedGroups', 'groupsInCharge', 'optionalAdvisers' and 'toDiscuss'.
   [gbastien]
 
 1.13 (2019-06-23)
