@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.14 (unreleased)
+1.14 (2020-02-25)
 -----------------
 
 - Fixed tests as imio.pm.ws availableData to create an item now includes
