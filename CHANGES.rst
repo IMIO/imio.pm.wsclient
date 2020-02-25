@@ -7,6 +7,8 @@ Changelog
 - Fixed tests as imio.pm.ws availableData to create an item now includes
   'associatedGroups', 'groupsInCharge', 'optionalAdvisers' and 'toDiscuss'.
   [gbastien]
+- Replaced Plonemeeting by iA.delib in french translations.
+  [sgeulette]
 
 1.13 (2019-06-23)
 -----------------
