@@ -63,19 +63,19 @@ pipeline {
             mail to: 'pm-interne@imio.be',
                  subject: "Aborted Pipeline: ${currentBuild.fullDisplayName}",
                  body: "The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} was aborted (${env.BUILD_URL})"
-            
+
             googlechatnotification url: 'https://chat.googleapis.com/v1/spaces/AAAAKFKCVkI/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=7-3IdQIwDPDY_UVSgWDzn-J_TzFxCJ7k5QgT-WzmgYE%3D',
                                    message: 'The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>) was aborted',
-                                   notifyAborted: 'true',
+                                   notifyAborted: 'true'
         }
         regression{
             mail to: 'pm-interne@imio.be',
                  subject: "Broken Pipeline: ${currentBuild.fullDisplayName}",
                  body: "The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} is broken (${env.BUILD_URL})"
-            
+
             googlechatnotification url: 'https://chat.googleapis.com/v1/spaces/AAAAKFKCVkI/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=7-3IdQIwDPDY_UVSgWDzn-J_TzFxCJ7k5QgT-WzmgYE%3D',
                                    message: 'The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>) is broken',
-                                   notifyUnstable: 'true',
+                                   notifyUnstable: 'true'
         }
         fixed{
             mail to: 'pm-interne@imio.be',
@@ -93,7 +93,7 @@ pipeline {
 
             googlechatnotification url: 'https://chat.googleapis.com/v1/spaces/AAAAKFKCVkI/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=7-3IdQIwDPDY_UVSgWDzn-J_TzFxCJ7k5QgT-WzmgYE%3D',
                                    message: 'The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>) failed',
-                                   notifyFailure: 'true',
+                                   notifyFailure: 'true'
         }
         cleanup{
              deleteDir()
