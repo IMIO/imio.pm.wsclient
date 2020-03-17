@@ -49,54 +49,54 @@ pipeline {
         }
     }
     post{
-            always{
-                googlechatnotification url: 'https://chat.googleapis.com/v1/spaces/AAAAKFKCVkI/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=7-3IdQIwDPDY_UVSgWDzn-J_TzFxCJ7k5QgT-WzmgYE%3D',
-                                       message: 'The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)',
-                                       notifyAborted: 'true',
-                                       notifyFailure: 'true',
-                                       notifyNotBuilt: 'true',
-                                       notifySuccess: 'true',
-                                       notifyUnstable: 'true',
-                                       notifyBackToNormal: 'true'
-            }
-            aborted{
-                mail to: 'pm-interne@imio.be',
-                     subject: "Aborted Pipeline: ${currentBuild.fullDisplayName}",
-                     body: "The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} was aborted (${env.BUILD_URL})"
-
-                googlechatnotification url: 'https://chat.googleapis.com/v1/spaces/AAAAKFKCVkI/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=7-3IdQIwDPDY_UVSgWDzn-J_TzFxCJ7k5QgT-WzmgYE%3D',
-                                       message: 'The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>) was aborted',
-                                       notifyAborted: 'true',
-            }
-            regression{
-                mail to: 'pm-interne@imio.be',
-                     subject: "Broken Pipeline: ${currentBuild.fullDisplayName}",
-                     body: "The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} is broken (${env.BUILD_URL})"
-
-                googlechatnotification url: 'https://chat.googleapis.com/v1/spaces/AAAAKFKCVkI/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=7-3IdQIwDPDY_UVSgWDzn-J_TzFxCJ7k5QgT-WzmgYE%3D',
-                                       message: 'The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>) is broken',
-                                       notifyUnstable: 'true',
-            }
-            fixed{
-                mail to: 'pm-interne@imio.be',
-                     subject: "Fixed Pipeline: ${currentBuild.fullDisplayName}",
-                     body: "The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} is back to normal (${env.BUILD_URL})"
-
-                googlechatnotification url: 'https://chat.googleapis.com/v1/spaces/AAAAKFKCVkI/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=7-3IdQIwDPDY_UVSgWDzn-J_TzFxCJ7k5QgT-WzmgYE%3D',
-                                       message: 'The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>) is fixed',
-                                       notifyBackToNormal: 'true'
-            }
-            failure{
-                mail to: 'pm-interne@imio.be',
-                     subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
-                     body: "The pipeline${env.JOB_NAME} ${env.BUILD_NUMBER} failed (${env.BUILD_URL})"
-
-                googlechatnotification url: 'https://chat.googleapis.com/v1/spaces/AAAAKFKCVkI/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=7-3IdQIwDPDY_UVSgWDzn-J_TzFxCJ7k5QgT-WzmgYE%3D',
-                                       message: 'The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>) failed',
-                                       notifyFailure: 'true',
-            }
-            cleanup{
-                 deleteDir()
-            }
+        always{
+            googlechatnotification url: 'https://chat.googleapis.com/v1/spaces/AAAAKFKCVkI/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=7-3IdQIwDPDY_UVSgWDzn-J_TzFxCJ7k5QgT-WzmgYE%3D',
+                                   message: 'The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)',
+                                   notifyAborted: 'true',
+                                   notifyFailure: 'true',
+                                   notifyNotBuilt: 'true',
+                                   notifySuccess: 'true',
+                                   notifyUnstable: 'true',
+                                   notifyBackToNormal: 'true'
         }
+        aborted{
+            mail to: 'pm-interne@imio.be',
+                 subject: "Aborted Pipeline: ${currentBuild.fullDisplayName}",
+                 body: "The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} was aborted (${env.BUILD_URL})"
+            
+            googlechatnotification url: 'https://chat.googleapis.com/v1/spaces/AAAAKFKCVkI/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=7-3IdQIwDPDY_UVSgWDzn-J_TzFxCJ7k5QgT-WzmgYE%3D',
+                                   message: 'The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>) was aborted',
+                                   notifyAborted: 'true',
+        }
+        regression{
+            mail to: 'pm-interne@imio.be',
+                 subject: "Broken Pipeline: ${currentBuild.fullDisplayName}",
+                 body: "The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} is broken (${env.BUILD_URL})"
+            
+            googlechatnotification url: 'https://chat.googleapis.com/v1/spaces/AAAAKFKCVkI/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=7-3IdQIwDPDY_UVSgWDzn-J_TzFxCJ7k5QgT-WzmgYE%3D',
+                                   message: 'The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>) is broken',
+                                   notifyUnstable: 'true',
+        }
+        fixed{
+            mail to: 'pm-interne@imio.be',
+                 subject: "Fixed Pipeline: ${currentBuild.fullDisplayName}",
+                 body: "The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} is back to normal (${env.BUILD_URL})"
+
+            googlechatnotification url: 'https://chat.googleapis.com/v1/spaces/AAAAKFKCVkI/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=7-3IdQIwDPDY_UVSgWDzn-J_TzFxCJ7k5QgT-WzmgYE%3D',
+                                   message: 'The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>) is fixed',
+                                   notifyBackToNormal: 'true'
+        }
+        failure{
+            mail to: 'pm-interne@imio.be',
+                 subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
+                 body: "The pipeline${env.JOB_NAME} ${env.BUILD_NUMBER} failed (${env.BUILD_URL})"
+
+            googlechatnotification url: 'https://chat.googleapis.com/v1/spaces/AAAAKFKCVkI/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=7-3IdQIwDPDY_UVSgWDzn-J_TzFxCJ7k5QgT-WzmgYE%3D',
+                                   message: 'The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>) failed',
+                                   notifyFailure: 'true',
+        }
+        cleanup{
+             deleteDir()
+        }
+    }
 }
