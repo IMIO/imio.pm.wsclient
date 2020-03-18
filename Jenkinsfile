@@ -49,23 +49,33 @@ pipeline {
         }
     }
     post{
-        always{
-            	hangoutsNotify message: "Lorem Ipsum is simply dummy text",
-                    threadByJob: false
+        aborted{
+            mail to: 'pm-interne@imio.be',
+                 subject: "Aborted Pipeline: ${currentBuild.fullDisplayName}",
+                 body: "The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} was aborted (${env.BUILD_URL})"
 
-                hangoutsNotifySuccess threadByJob: false
+            hangoutsNotifyAborted threadByJob: true
+        }
+        regression{
+            mail to: 'pm-interne@imio.be',
+                 subject: "Broken Pipeline: ${currentBuild.fullDisplayName}",
+                 body: "The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} is broken (${env.BUILD_URL})"
 
-                hangoutsNotifyFailure threadByJob: true
+            hangoutsNotifyUnstable threadByJob: true
+        }
+        fixed{
+            mail to: 'pm-interne@imio.be',
+                 subject: "Fixed Pipeline: ${currentBuild.fullDisplayName}",
+                 body: "The pipeline ${env.JOB_NAME} ${env.BUILD_NUMBER} is back to normal (${env.BUILD_URL})"
 
-                hangoutsNotifyBuildStart threadByJob: true
+            hangoutsNotifyBackToNormal threadByJob: true
+        }
+        failure{
+            mail to: 'pm-interne@imio.be',
+                 subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
+                 body: "The pipeline${env.JOB_NAME} ${env.BUILD_NUMBER} failed (${env.BUILD_URL})"
 
-                hangoutsNotifyBackToNormal threadByJob: true
-
-                hangoutsNotifyAborted threadByJob: true
-
-                hangoutsNotifyNotBuilt threadByJob: true
-
-                hangoutsNotifyUnstable threadByJob: true
+            hangoutsNotifyFailure threadByJob: true
         }
         cleanup{
              deleteDir()
