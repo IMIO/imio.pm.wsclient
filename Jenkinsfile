@@ -49,8 +49,6 @@ pipeline {
         }
     }
     post{
-        always{
-        }
         aborted{
             mail to: 'pm-interne@imio.be',
                  subject: "Aborted Pipeline: ${currentBuild.fullDisplayName}",
