@@ -4,8 +4,9 @@ Changelog
 1.15 (unreleased)
 -----------------
 
-- Nothing changed yet.
-
+- Use WSCLIENTLayer that inherits from PMLayer for WS4PMCLIENT
+  so the amqp config is defined.
+  [gbastien]
 
 1.14 (2020-02-25)
 -----------------
