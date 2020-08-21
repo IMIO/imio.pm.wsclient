@@ -1,2 +1,3 @@
-setuptools == 38.2.4
-zc.buildout == 2.13.1
+# using buildout.pm
+#setuptools == 38.2.4
+#zc.buildout == 2.13.1

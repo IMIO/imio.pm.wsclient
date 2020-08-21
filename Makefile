@@ -5,7 +5,7 @@ all: run
 .PHONY: bootstrap
 bootstrap:
 	virtualenv-2.7 .
-	bin/python bin/pip install -r requirements.txt
+	bin/python bin/pip install -r https://raw.githubusercontent.com/IMIO/buildout.pm/master/requirements.txt
 
 .PHONY: buildout
 buildout:
