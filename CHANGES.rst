@@ -7,6 +7,8 @@ Changelog
 - Use WSCLIENTLayer that inherits from PMLayer for WS4PMCLIENT
   so the amqp config is defined.
   [gbastien]
+- Set correctly context in `renderTALExpression`
+  [sgeulette]
 
 1.14 (2020-02-25)
 -----------------

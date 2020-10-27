@@ -441,6 +441,8 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             ctx = createExprContext(context.aq_inner.aq_parent, portal, context)
             vars['context'] = context
             ctx.vars.update(vars)
+            for k, v in vars.items():
+                ctx.setContext(k, v)
             res = Expression(expression)(ctx)
         # make sure we do not return None because it breaks SOAP call
         if res is None:
