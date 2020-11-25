@@ -5,6 +5,7 @@ htmlcov
 bin
 develop-eggs
 downloads
+dist/
 eggs
 fake-eggs
 include
