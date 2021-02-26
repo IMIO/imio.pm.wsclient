@@ -2,24 +2,7 @@
 #
 # File: testItemMethods.py
 #
-# Copyright (c) 2012 by CommunesPlone
-#
 # GNU General Public License (GPL)
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# 02110-1301, USA.
 #
 
 from imio.pm.ws.config import POD_TEMPLATE_ID_PATTERN
@@ -51,7 +34,7 @@ class testViews(WS4PMCLIENTTestCase):
         self.assertFalse(view() != DOCUMENT_ABSOLUTE_URL)
         self.assertTrue(len(messages.show()) == 1)
         self.assertTrue(messages.show()[0].message == UNABLE_TO_CONNECT_ERROR)
-        #_soap_connectToPloneMeeting is memoized...
+        # _soap_connectToPloneMeeting is memoized...
         cleanMemoize(self.request)
         item = self._sendToPloneMeeting(document)
         # a statusmessage for having created the item successfully

@@ -9,6 +9,10 @@ Changelog
   [gbastien]
 - Set correctly context in `renderTALExpression`
   [sgeulette]
+- Do not rely on `unittest2` anymore.
+  [gbastien]
+- Fixed tests regarding `Meeting` moved from AT to DX.
+  [gbastien]
 
 1.14 (2020-02-25)
 -----------------

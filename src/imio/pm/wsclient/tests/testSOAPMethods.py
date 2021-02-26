@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from DateTime import DateTime
 from imio.pm.ws.config import POD_TEMPLATE_ID_PATTERN
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import cleanMemoize
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
@@ -128,7 +127,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         setCorrectSettingsConfig(self.portal, minimal=True)
         self.changeUser('pmManager')
         self.setMeetingConfig(cfg2Id)
-        test_meeting = self.create('Meeting', date=DateTime())
+        test_meeting = self.create('Meeting')
         self.freezeMeeting(test_meeting)
         self.changeUser('pmCreator1')
         # create the 'pmCreator1' member area to be able to create an item

@@ -24,6 +24,7 @@ import pytz
 
 
 class pm_meeting_config_id_vocabulary(object):
+
     implements(IVocabularyFactory)
 
     def __call__(self, context):
@@ -42,6 +43,8 @@ class pm_meeting_config_id_vocabulary(object):
                                         unicode(pmConfigInfo['id']),
                                         unicode(pmConfigInfo['title']),))
         return SimpleVocabulary(terms)
+
+
 pm_meeting_config_id_vocabularyFactory = pm_meeting_config_id_vocabulary()
 
 
@@ -58,6 +61,8 @@ class possible_permissions_vocabulary(object):
         for possible_permission in portal.acl_users.portal_role_manager.possible_permissions():
             terms.append(SimpleTerm(possible_permission, possible_permission, possible_permission))
         return SimpleVocabulary(terms)
+
+
 possible_permissions_vocabularyFactory = possible_permissions_vocabulary()
 
 
@@ -81,6 +86,8 @@ class pm_item_data_vocabulary(object):
                                         unicode(availableData),
                                         unicode(availableData),))
         return SimpleVocabulary(terms)
+
+
 pm_item_data_vocabularyFactory = pm_item_data_vocabulary()
 
 
@@ -151,6 +158,8 @@ class proposing_groups_for_user_vocabulary(object):
                 'error')
             return SimpleVocabulary([])
         return SimpleVocabulary(terms)
+
+
 proposing_groups_for_user_vocabularyFactory = proposing_groups_for_user_vocabulary()
 
 
@@ -232,6 +241,8 @@ class categories_for_user_vocabulary(object):
                 'error')
             return SimpleVocabulary([])
         return SimpleVocabulary(terms)
+
+
 categories_for_user_vocabularyFactory = categories_for_user_vocabulary()
 
 
@@ -269,6 +280,7 @@ class desired_meetingdates_vocabulary(object):
                                     unicode(meeting_info['date']),))
         return SimpleVocabulary(terms)
 
+
 desired_meetingdates_vocabularyFactory = desired_meetingdates_vocabulary()
 
 
@@ -286,4 +298,6 @@ class annexes_for_user_vocabulary(object):
                                         annex['UID'],
                                         annex['title'],))
         return SimpleVocabulary(terms)
+
+
 annexes_for_user_vocabularyFactory = annexes_for_user_vocabulary()

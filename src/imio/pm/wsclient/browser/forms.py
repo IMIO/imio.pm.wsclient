@@ -52,11 +52,6 @@ except ImportError:
     from ordereddict import OrderedDict
 
 
-
-
-
-
-
 logger = logging.getLogger('imio.pm.wsclient')
 
 
@@ -282,8 +277,8 @@ class SendToPloneMeetingForm(form.Form):
         # check again if already sent before sending
         # this avoid double sent from 2 opened form to send
         settings = self.ws4pmSettings.settings()
-        if (self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context, (self.meetingConfigId,)) and
-                settings.only_one_sending):
+        if self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context, (self.meetingConfigId,)) and \
+                settings.only_one_sending:
             return False
         # build the creationData
         client = self.ws4pmSettings._soap_connectToPloneMeeting()

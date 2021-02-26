@@ -5,7 +5,6 @@
 # GNU General Public License (GPL)
 #
 
-from DateTime import DateTime
 from datetime import datetime
 from dateutil import tz
 from imio.pm.wsclient.browser.viewlets import PloneMeetingInfosViewlet
@@ -185,13 +184,14 @@ class testViewlets(WS4PMCLIENTTestCase):
         # create a meeting and present the item
         self.changeUser('pmManager')
         # use a date in GMT+1
-        meeting = self.create('Meeting', date=DateTime('2013/03/03'))
-        self.assertTrue(meeting.getDate().timezone() == 'GMT+1')
+        meeting = self.create('Meeting', date=datetime(2013, 3, 3))
         self.presentItem(item)
         transaction.commit()
         viewlet = PloneMeetingInfosViewlet(document, self.request, None, None)
         viewlet.update()
         meeting_date = viewlet.getPloneMeetingLinkedInfos()[0]['meeting_date']
+        # date TZ naive, uses UTC
+        self.assertEqual(meeting_date.tzname(), 'UTC')
         self.assertEquals((meeting_date.year,
                            meeting_date.month,
                            meeting_date.day,
@@ -199,12 +199,12 @@ class testViewlets(WS4PMCLIENTTestCase):
                            meeting_date.minute),
                           (2013, 3, 2, 23, 0))
         # change meeting date, use a date in GMT+2
-        meeting.setDate(DateTime('2013/08/08'))
-        self.assertTrue(meeting.getDate().timezone() == 'GMT+2')
+        meeting.date = datetime(2013, 8, 8)
         transaction.commit()
         viewlet = PloneMeetingInfosViewlet(document, self.request, None, None)
         viewlet.update()
         meeting_date = viewlet.getPloneMeetingLinkedInfos()[0]['meeting_date']
+        self.assertEqual(meeting_date.tzname(), 'UTC')
         self.assertEquals((meeting_date.year,
                            meeting_date.month,
                            meeting_date.day,

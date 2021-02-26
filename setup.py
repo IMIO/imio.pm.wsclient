@@ -34,7 +34,7 @@ setup(name='imio.pm.wsclient',
           # -*- Extra requirements: -*-
           'suds-jurko',
       ],
-      extras_require={'test': ['plone.app.testing', 'unittest2', 'imio.pm.ws']},
+      extras_require={'test': ['plone.app.testing', 'imio.pm.ws']},
       entry_points="""
       # -*- Entry points: -*-
       """,

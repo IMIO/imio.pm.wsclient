@@ -302,9 +302,9 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             try:
                 return client.service.getItemTemplate(**data)
             except Exception, exc:
-                    IStatusMessage(self.request).addStatusMessage(
-                        _(u"An error occured while generating the document in PloneMeeting!  "
-                          "The error message was : %s" % exc), "error")
+                IStatusMessage(self.request).addStatusMessage(
+                    _(u"An error occured while generating the document in PloneMeeting!  "
+                      "The error message was : %s" % exc), "error")
 
     @memoize
     def _soap_getItemCreationAvailableData(self):

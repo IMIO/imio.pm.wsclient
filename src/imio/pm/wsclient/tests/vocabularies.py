@@ -19,4 +19,6 @@ class pm_meeting_config_id_vocabulary(object):
         terms.append(SimpleTerm(u'plonegov-assembly', u'plonegov-assembly', u'PloneGov Assembly', ))
         terms.append(SimpleTerm(u'plonemeeting-assembly', u'plonemeeting-assembly', u'PloneMeeting Assembly', ))
         return SimpleVocabulary(terms)
+
+
 pm_meeting_config_id_vocabularyFactory = pm_meeting_config_id_vocabulary()
