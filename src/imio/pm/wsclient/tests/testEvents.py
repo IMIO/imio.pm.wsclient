@@ -22,15 +22,16 @@
 # 02110-1301, USA.
 #
 
-import transaction
-from zope.component import getGlobalSiteManager
-from zope.interface import Interface
 from imio.pm.wsclient.interfaces import ISentToPMEvent
 from imio.pm.wsclient.interfaces import IWillbeSendToPMEvent
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import createDocument
-from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import SEND_TO_PM_VIEW_NAME
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
+from zope.component import getGlobalSiteManager
+from zope.interface import Interface
+
+import transaction
 
 
 class FailTest(Exception):

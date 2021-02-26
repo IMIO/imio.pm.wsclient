@@ -8,6 +8,8 @@
 #
 
 import logging
+
+
 logger = logging.getLogger('imio.pm.wsclient: setuphandlers')
 
 __author__ = """Gauthier Bastien <gauthier@imio.be>"""

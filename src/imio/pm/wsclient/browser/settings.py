@@ -1,41 +1,35 @@
 # -*- coding: utf-8 -*-
 
-from suds.client import Client
-from suds.xsd.doctor import ImportDoctor, Import
-from suds.transport.http import HttpAuthenticated
-
-from zope.annotation import IAnnotations
-
-from zope.component import getMultiAdapter, queryUtility
-from zope.component.hooks import getSite
-
-from zope.interface import Interface
-from zope import schema
-from zope.schema.interfaces import IVocabularyFactory
-
-from zope.i18n import translate
-
-from z3c.form import button
-from z3c.form import field
-
-from Products.CMFCore.Expression import Expression, createExprContext
-
-from plone.memoize.view import memoize
-
-from plone.registry.interfaces import IRegistry, IRecordModifiedEvent
-
-from plone.app.registry.browser.controlpanel import RegistryEditForm
-from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
-
 from collective.z3cform.datagridfield import DataGridFieldFactory
 from collective.z3cform.datagridfield.registry import DictRow
-
-from Products.CMFCore.ActionInformation import Action
-from Products.statusmessages.interfaces import IStatusMessage
-
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
-from imio.pm.wsclient.config import ACTION_SUFFIX, WS4PMCLIENT_ANNOTATION_KEY, \
-    CONFIG_UNABLE_TO_CONNECT_ERROR, CONFIG_CREATE_ITEM_PM_ERROR
+from imio.pm.wsclient.config import ACTION_SUFFIX
+from imio.pm.wsclient.config import CONFIG_CREATE_ITEM_PM_ERROR
+from imio.pm.wsclient.config import CONFIG_UNABLE_TO_CONNECT_ERROR
+from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY
+from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
+from plone.app.registry.browser.controlpanel import RegistryEditForm
+from plone.memoize.view import memoize
+from plone.registry.interfaces import IRecordModifiedEvent
+from plone.registry.interfaces import IRegistry
+from Products.CMFCore.ActionInformation import Action
+from Products.CMFCore.Expression import createExprContext
+from Products.CMFCore.Expression import Expression
+from Products.statusmessages.interfaces import IStatusMessage
+from suds.client import Client
+from suds.transport.http import HttpAuthenticated
+from suds.xsd.doctor import Import
+from suds.xsd.doctor import ImportDoctor
+from z3c.form import button
+from z3c.form import field
+from zope import schema
+from zope.annotation import IAnnotations
+from zope.component import getMultiAdapter
+from zope.component import queryUtility
+from zope.component.hooks import getSite
+from zope.i18n import translate
+from zope.interface import Interface
+from zope.schema.interfaces import IVocabularyFactory
 
 
 class IGeneratedActionsSchema(Interface):

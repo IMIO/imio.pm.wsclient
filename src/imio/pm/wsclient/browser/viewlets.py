@@ -1,21 +1,18 @@
 # -*- coding: utf-8 -*-
 
 from dateutil import tz
-
-from zope.component import getMultiAdapter, queryUtility
-from zope.annotation import IAnnotations
-from zope.schema.interfaces import IVocabularyFactory
-
-from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
-
-from plone.memoize.instance import memoize
-from plone.app.layout.viewlets.common import ViewletBase
-
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
-from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY, \
-    UNABLE_TO_CONNECT_ERROR, \
-    UNABLE_TO_DISPLAY_VIEWLET_ERROR, \
-    CAN_NOT_SEE_LINKED_ITEMS_INFO
+from imio.pm.wsclient.config import CAN_NOT_SEE_LINKED_ITEMS_INFO
+from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR
+from imio.pm.wsclient.config import UNABLE_TO_DISPLAY_VIEWLET_ERROR
+from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY
+from plone.app.layout.viewlets.common import ViewletBase
+from plone.memoize.instance import memoize
+from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
+from zope.annotation import IAnnotations
+from zope.component import getMultiAdapter
+from zope.component import queryUtility
+from zope.schema.interfaces import IVocabularyFactory
 
 
 class PloneMeetingInfosViewlet(ViewletBase):

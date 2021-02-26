@@ -2,41 +2,25 @@
 #
 # File: testViewlets.py
 #
-# Copyright (c) 2013 by Imio
-#
 # GNU General Public License (GPL)
 #
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-# 02110-1301, USA.
-#
-
-from datetime import datetime
-from dateutil import tz
 
 from DateTime import DateTime
-import transaction
-from zope.annotation import IAnnotations
-from Products.statusmessages.interfaces import IStatusMessage
-
+from datetime import datetime
+from dateutil import tz
 from imio.pm.wsclient.browser.viewlets import PloneMeetingInfosViewlet
-from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY, CORRECTLY_SENT_TO_PM_INFO, \
-    UNABLE_TO_CONNECT_ERROR, CAN_NOT_SEE_LINKED_ITEMS_INFO
-from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase, \
-    createDocument, \
-    cleanMemoize, \
-    setCorrectSettingsConfig
+from imio.pm.wsclient.config import CAN_NOT_SEE_LINKED_ITEMS_INFO
+from imio.pm.wsclient.config import CORRECTLY_SENT_TO_PM_INFO
+from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR
+from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import cleanMemoize
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import createDocument
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
+from Products.statusmessages.interfaces import IStatusMessage
+from zope.annotation import IAnnotations
+
+import transaction
 
 
 class testViewlets(WS4PMCLIENTTestCase):

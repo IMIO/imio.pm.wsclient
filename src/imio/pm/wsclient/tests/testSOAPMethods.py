@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import transaction
-from zope.component import getMultiAdapter
-
-from Products.statusmessages.interfaces import IStatusMessage
-
+from DateTime import DateTime
 from imio.pm.ws.config import POD_TEMPLATE_ID_PATTERN
-
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import cleanMemoize
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
+from Products.statusmessages.interfaces import IStatusMessage
+from zope.component import getMultiAdapter
 
-from DateTime import DateTime
+import transaction
 
 
 class testSOAPMethods(WS4PMCLIENTTestCase):

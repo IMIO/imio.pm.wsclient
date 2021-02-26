@@ -3,7 +3,6 @@
 from imio.pm.wsclient.interfaces import IPMWSClientEvent
 from imio.pm.wsclient.interfaces import ISentToPMEvent
 from imio.pm.wsclient.interfaces import IWillbeSendToPMEvent
-
 from zope.component.interfaces import ObjectEvent
 from zope.interface import implements
 

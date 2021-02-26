@@ -22,20 +22,21 @@
 # 02110-1301, USA.
 #
 
-import unittest2
-from plone.app.testing.interfaces import TEST_USER_ID, TEST_USER_NAME
-from plone.app.testing import login, setRoles
-
 from AccessControl import Unauthorized
+from imio.pm.wsclient.config import ACTION_SUFFIX
+from imio.pm.wsclient.testing import WS4PMCLIENT_PROFILE_FUNCTIONAL
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import createDocument
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
+from plone.app.testing import login
+from plone.app.testing import setRoles
+from plone.app.testing.interfaces import TEST_USER_ID
+from plone.app.testing.interfaces import TEST_USER_NAME
 from zope.component import getMultiAdapter
-from zope.tales.tales import CompilerError
-
 from zope.event import notify
+from zope.tales.tales import CompilerError
 from zope.traversing.interfaces import BeforeTraverseEvent
 
-from imio.pm.wsclient.config import ACTION_SUFFIX
-from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig, createDocument
-from imio.pm.wsclient.testing import WS4PMCLIENT_PROFILE_FUNCTIONAL
+import unittest2
 
 
 class testSettings(unittest2.TestCase):

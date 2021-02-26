@@ -1,48 +1,61 @@
 # -*- coding: utf-8 -*-
 
+from AccessControl import Unauthorized
+from imio.pm.wsclient import PMMessageFactory as _PM
+from imio.pm.wsclient import WS4PMClientMessageFactory as _
+from imio.pm.wsclient.config import ALREADY_SENT_TO_PM_ERROR
+from imio.pm.wsclient.config import CORRECTLY_SENT_TO_PM_INFO
+from imio.pm.wsclient.config import NO_PROPOSING_GROUP_ERROR
+from imio.pm.wsclient.config import NO_USER_INFOS_ERROR
+from imio.pm.wsclient.config import SEND_WITHOUT_SUFFICIENT_FIELD_MAPPINGS_DEFINED_WARNING
+from imio.pm.wsclient.config import TAL_EVAL_FIELD_ERROR
+from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR
+from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY
+from imio.pm.wsclient.events import SentToPMEvent
+from imio.pm.wsclient.events import WillbeSendToPMEvent
+from imio.pm.wsclient.interfaces import IRedirect
+from plone import api
+from plone.z3cform.layout import wrap_form
+from Products.CMFPlone.utils import safe_unicode
+from Products.statusmessages.interfaces import IStatusMessage
+from unidecode import unidecode
+from z3c.form import button
+from z3c.form import field
+from z3c.form import form
+from z3c.form.browser.checkbox import CheckBoxFieldWidget
+from z3c.form.contentprovider import ContentProviders
+from z3c.form.interfaces import HIDDEN_MODE
+from z3c.form.interfaces import IFieldsAndContentProvidersForm
+from zope import interface
+from zope import schema
+from zope.annotation import IAnnotations
+from zope.browserpage.viewpagetemplatefile import ViewPageTemplateFile
+from zope.component import getAdapter
+from zope.component import getMultiAdapter
+from zope.component import queryUtility
+from zope.component.hooks import getSite
+from zope.contentprovider.provider import ContentProviderBase
+from zope.event import notify
+from zope.filerepresentation.interfaces import IRawReadFile
+from zope.i18n import translate
+from zope.interface import implements
+from zope.schema.interfaces import IVocabularyFactory
+
 import base64
 import logging
+
+
 try:
     from collections import OrderedDict
 except ImportError:
     # Python < 2.7 compatibility
     from ordereddict import OrderedDict
 
-from AccessControl import Unauthorized
 
-from zope.annotation import IAnnotations
-from zope.component.hooks import getSite
-from zope.component import queryUtility, getMultiAdapter, getAdapter
-from zope.contentprovider.provider import ContentProviderBase
-from zope.event import notify
-from zope.filerepresentation.interfaces import IRawReadFile
-from zope.i18n import translate
-from zope import interface, schema
-from zope.interface import implements
-from zope.schema.interfaces import IVocabularyFactory
-from z3c.form import form, field, button
-from z3c.form.browser.checkbox import CheckBoxFieldWidget
-from z3c.form.interfaces import HIDDEN_MODE
-from z3c.form.interfaces import IFieldsAndContentProvidersForm
-from z3c.form.contentprovider import ContentProviders
 
-from zope.browserpage.viewpagetemplatefile import ViewPageTemplateFile
-from Products.CMFPlone.utils import safe_unicode
-from Products.statusmessages.interfaces import IStatusMessage
 
-from imio.pm.wsclient import WS4PMClientMessageFactory as _
-from imio.pm.wsclient import PMMessageFactory as _PM
-from imio.pm.wsclient.config import ALREADY_SENT_TO_PM_ERROR, UNABLE_TO_CONNECT_ERROR, \
-    NO_USER_INFOS_ERROR, NO_PROPOSING_GROUP_ERROR, CORRECTLY_SENT_TO_PM_INFO, \
-    WS4PMCLIENT_ANNOTATION_KEY, TAL_EVAL_FIELD_ERROR, SEND_WITHOUT_SUFFICIENT_FIELD_MAPPINGS_DEFINED_WARNING
-from imio.pm.wsclient.events import SentToPMEvent
-from imio.pm.wsclient.events import WillbeSendToPMEvent
-from imio.pm.wsclient.interfaces import IRedirect
 
-from plone import api
-from plone.z3cform.layout import wrap_form
 
-from unidecode import unidecode
 
 logger = logging.getLogger('imio.pm.wsclient')
 

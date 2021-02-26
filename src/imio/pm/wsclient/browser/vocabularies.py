@@ -1,21 +1,24 @@
 # -*- coding: utf-8 -*-
 
+from imio.pm.wsclient import WS4PMClientMessageFactory as _
+from imio.pm.wsclient.config import CAN_NOT_CREATE_FOR_PROPOSING_GROUP_ERROR
+from imio.pm.wsclient.config import CAN_NOT_CREATE_WITH_CATEGORY_ERROR
+from imio.pm.wsclient.config import NO_CONFIG_INFOS_ERROR
+from imio.pm.wsclient.config import NO_FIELD_MAPPINGS_ERROR
+from imio.pm.wsclient.config import NO_USER_INFOS_ERROR
+from imio.pm.wsclient.config import TAL_EVAL_FIELD_ERROR
+from imio.pm.wsclient.interfaces import IPreferredMeetings
+from imio.pm.wsclient.interfaces import ISendableAnnexesToPM
+from plone import api
+from Products.statusmessages.interfaces import IStatusMessage
 from zope.component import getMultiAdapter
 from zope.component import queryAdapter
 from zope.component import queryMultiAdapter
 from zope.component.hooks import getSite
 from zope.interface import implements
 from zope.schema.interfaces import IVocabularyFactory
-from zope.schema.vocabulary import SimpleTerm, SimpleVocabulary
-from Products.statusmessages.interfaces import IStatusMessage
-from imio.pm.wsclient import WS4PMClientMessageFactory as _
-from imio.pm.wsclient.config import TAL_EVAL_FIELD_ERROR, NO_FIELD_MAPPINGS_ERROR, \
-    CAN_NOT_CREATE_FOR_PROPOSING_GROUP_ERROR, NO_USER_INFOS_ERROR, NO_CONFIG_INFOS_ERROR, \
-    CAN_NOT_CREATE_WITH_CATEGORY_ERROR
-from imio.pm.wsclient.interfaces import IPreferredMeetings
-from imio.pm.wsclient.interfaces import ISendableAnnexesToPM
-
-from plone import api
+from zope.schema.vocabulary import SimpleTerm
+from zope.schema.vocabulary import SimpleVocabulary
 
 import pytz
 

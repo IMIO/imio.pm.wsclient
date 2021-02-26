@@ -20,15 +20,15 @@
 # 02110-1301, USA.
 #
 
-import transaction
 from Acquisition import aq_base
-
+from imio.pm.wsclient.testing import WS4PMCLIENT_PM_TESTING_PROFILE_FUNCTIONAL
+from Products.PloneMeeting.config import DEFAULT_USER_PASSWORD
+from Products.PloneMeeting.tests.PloneMeetingTestCase import PloneMeetingTestCase
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getMultiAdapter
 
-from Products.PloneMeeting.config import DEFAULT_USER_PASSWORD
-from Products.PloneMeeting.tests.PloneMeetingTestCase import PloneMeetingTestCase
-from imio.pm.wsclient.testing import WS4PMCLIENT_PM_TESTING_PROFILE_FUNCTIONAL
+import transaction
+
 
 SEND_TO_PM_VIEW_NAME = '@@send_to_plonemeeting_form'
 

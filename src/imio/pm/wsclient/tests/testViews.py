@@ -22,10 +22,7 @@
 # 02110-1301, USA.
 #
 
-from Products.statusmessages.interfaces import IStatusMessage
-
 from imio.pm.ws.config import POD_TEMPLATE_ID_PATTERN
-
 from imio.pm.wsclient.config import CORRECTLY_SENT_TO_PM_INFO
 from imio.pm.wsclient.config import FILENAME_MANDATORY_ERROR
 from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR
@@ -33,6 +30,7 @@ from imio.pm.wsclient.config import UNABLE_TO_DETECT_MIMETYPE_ERROR
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import cleanMemoize
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import createDocument
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
+from Products.statusmessages.interfaces import IStatusMessage
 
 
 class testViews(WS4PMCLIENTTestCase):
