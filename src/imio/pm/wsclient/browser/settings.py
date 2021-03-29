@@ -127,6 +127,7 @@ class IWS4PMClientSettings(Interface):
         value_type=DictRow(title=_("Allowed annex type"),
                            schema=IAllowedAnnexTypesSchema,
                            required=False),
+        default=[],
         required=False,)
     user_mappings = schema.List(
         title=_("User ids mappings"),

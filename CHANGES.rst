@@ -13,6 +13,8 @@ Changelog
   [gbastien]
 - Fixed tests regarding `Meeting` moved from AT to DX.
   [gbastien]
+- Set allowed_annexes_types default value to an empty list.
+  [sdelcourt]
 
 1.14 (2020-02-25)
 -----------------
