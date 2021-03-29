@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.15 (unreleased)
+1.15 (2021-03-29)
 -----------------
 
 - Use WSCLIENTLayer that inherits from PMLayer for WS4PMCLIENT
