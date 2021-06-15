@@ -22,5 +22,8 @@ msgstr "Annexes"
 msgid "PloneMeeting_label_extraAttrs"
 msgstr "Zone(s) supplémentaire(s)"
 
+msgid "PloneMeeting_label_title"
+msgstr "Titre"
+
 msgid "PreferredMeeting"
 msgstr "Séance souhaitée"

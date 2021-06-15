@@ -20,5 +20,8 @@ msgstr ""
 msgid "PloneMeeting_label_extraAttrs"
 msgstr ""
 
+msgid "PloneMeeting_label_title"
+msgstr ""
+
 msgid "PreferredMeeting"
 msgstr ""
