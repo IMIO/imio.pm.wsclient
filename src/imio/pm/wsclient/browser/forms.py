@@ -388,14 +388,15 @@ class SendToPloneMeetingForm(form.Form):
         annexes_data = []
         selected_annexes = self.request.form.get('form.widgets.annexes', [])
         for selected_annex in selected_annexes:
-            annex_brains = catalog(UID=selected_annex)
+            annex_brains = catalog.unrestrictedSearchResults(UID=selected_annex)
             if annex_brains:
                 annex = annex_brains[0].getObject()
                 annex_file = getAdapter(annex, IRawReadFile)
+                annex_name = type(annex_file.name) in [unicode] and annex_file.name or annex_file.name.decode('utf-8')
                 annexes_data.append(
                     {
                         'title': unidecode(annex.title.decode('utf-8')),
-                        'filename': unidecode(annex_file.name.decode('utf-8')),
+                        'filename': unidecode(annex_name),
                         'file': base64.b64encode(annex_file.read()),
                     }
                 )
