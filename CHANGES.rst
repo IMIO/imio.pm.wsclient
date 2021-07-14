@@ -4,7 +4,8 @@ Changelog
 1.16 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Make sure to always find selected annexes to send with unrestricted catalog search.
+  [sdelcourt]
 
 
 1.15 (2021-03-29)
