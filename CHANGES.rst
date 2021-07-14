@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.16 (unreleased)
+1.16 (2021-07-14)
 -----------------
 
 - Make sure to always find selected annexes to send with unrestricted catalog search.
