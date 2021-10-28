@@ -4,7 +4,9 @@ Changelog
 1.17 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Cache the 'possible_meetingdates_vocabulary' vocabulary forever (daily) .
+  [sdelcourt]
+  [mdhyne]
 
 
 1.16 (2021-07-14)
