@@ -10,7 +10,7 @@ from imio.pm.wsclient.config import TAL_EVAL_FIELD_ERROR
 from imio.pm.wsclient.interfaces import IPreferredMeetings
 from imio.pm.wsclient.interfaces import ISendableAnnexesToPM
 from plone import api
-from plone.memoize.forever import memoize
+from plone.memoize import ram
 from Products.statusmessages.interfaces import IStatusMessage
 from zope.component import getMultiAdapter
 from zope.component import queryAdapter
@@ -247,10 +247,15 @@ class categories_for_user_vocabulary(object):
 categories_for_user_vocabularyFactory = categories_for_user_vocabulary()
 
 
+def desired_meetingdates_vocabulary__call___cachekey(method, self, context):
+    """Cache key for desired_meetingdates_vocabulary.__call__, valid forever."""
+    return True
+
+
 class desired_meetingdates_vocabulary(object):
     implements(IVocabularyFactory)
 
-    @memoize
+    @ram.cache(desired_meetingdates_vocabulary__call___cachekey)
     def __call__(self, context):
         """Query every available categories for current user in a distant PloneMeeting."""
         portal = getSite()
