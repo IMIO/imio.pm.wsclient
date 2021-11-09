@@ -1,6 +1,7 @@
 .installed.cfg
 .coverage
 .mr.developer.cfg
+.plone.versioncheck.tracked.json
 htmlcov
 bin
 develop-eggs
@@ -13,6 +14,7 @@ lib
 logrotate.conf
 parts
 python-eggs
+pyvenv.cfg
 src
 var
 versions-picked.cfg
