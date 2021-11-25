@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 
+import base64
+import logging
+from collections import OrderedDict
+
 from AccessControl import Unauthorized
+from Products.CMFPlone.utils import safe_unicode
+from Products.statusmessages.interfaces import IStatusMessage
 from imio.pm.wsclient import PMMessageFactory as _PM
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import ALREADY_SENT_TO_PM_ERROR
@@ -16,8 +22,6 @@ from imio.pm.wsclient.events import WillbeSendToPMEvent
 from imio.pm.wsclient.interfaces import IRedirect
 from plone import api
 from plone.z3cform.layout import wrap_form
-from Products.CMFPlone.utils import safe_unicode
-from Products.statusmessages.interfaces import IStatusMessage
 from unidecode import unidecode
 from z3c.form import button
 from z3c.form import field
@@ -38,19 +42,8 @@ from zope.contentprovider.provider import ContentProviderBase
 from zope.event import notify
 from zope.filerepresentation.interfaces import IRawReadFile
 from zope.i18n import translate
-from zope.interface import implements
+from zope.interface import implementer
 from zope.schema.interfaces import IVocabularyFactory
-
-import base64
-import logging
-
-
-try:
-    from collections import OrderedDict
-except ImportError:
-    # Python < 2.7 compatibility
-    from ordereddict import OrderedDict
-
 
 logger = logging.getLogger('imio.pm.wsclient')
 
@@ -123,8 +116,8 @@ class DisplayDataToSendProvider(ContentProviderBase):
         return self.template()
 
 
+@implementer(IFieldsAndContentProvidersForm)
 class SendToPloneMeetingForm(form.Form):
-    implements(IFieldsAndContentProvidersForm)
 
     fields = field.Fields(ISendToPloneMeeting)
     fields['annexes'].widgetFactory = CheckBoxFieldWidget
@@ -212,7 +205,7 @@ class SendToPloneMeetingForm(form.Form):
         # check that the real currentUrl is on available in object_buttons actions for the user
         availableActions = self.portal.portal_actions.listFilteredActionsFor(self.context).get('object_buttons', [])
         # rebuild real url called by the action
-        currentUrl = unicode(self.request['ACTUAL_URL'] + '?meetingConfigId=' + self.meetingConfigId, 'utf-8')
+        currentUrl = str(self.request['ACTUAL_URL'] + '?meetingConfigId=' + self.meetingConfigId, 'utf-8')
         # now check if this url is available in the actions for the user
         mayDoAction = False
         for action in availableActions:
@@ -329,7 +322,7 @@ class SendToPloneMeetingForm(form.Form):
             if elt == u'proposingGroup':
                 continue
             if isinstance(data[elt], str):
-                data[elt] = unicode(data[elt], 'utf-8')
+                data[elt] = str(data[elt], 'utf-8')
             if elt == 'extraAttrs':
                 for attr in data[elt]:
                     attr['value'] = safe_unicode(attr['value'])
@@ -374,7 +367,7 @@ class SendToPloneMeetingForm(form.Form):
                                                                           self.portal,
                                                                           expr,
                                                                           vars)
-            except Exception, e:
+            except Exception as e:
                 IStatusMessage(self.request).addStatusMessage(
                     _(TAL_EVAL_FIELD_ERROR, mapping={'expr': expr,
                                                      'field_name': field_name,
@@ -392,7 +385,7 @@ class SendToPloneMeetingForm(form.Form):
             if annex_brains:
                 annex = annex_brains[0].getObject()
                 annex_file = getAdapter(annex, IRawReadFile)
-                annex_name = type(annex_file.name) in [unicode] and annex_file.name or annex_file.name.decode('utf-8')
+                annex_name = type(annex_file.name) in [str] and annex_file.name or annex_file.name.decode('utf-8')
                 annexes_data.append(
                     {
                         'title': unidecode(annex.title.decode('utf-8')),

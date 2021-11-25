@@ -4,7 +4,8 @@ Changelog
 1.17 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Fixed py3 errors.
+  [fngaha]
 
 
 1.16 (2021-07-14)

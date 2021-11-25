@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from imio.pm.wsclient.interfaces import IRedirect
 from Products.Five import BrowserView
+from imio.pm.wsclient.interfaces import IRedirect
 from zope.component.hooks import getSite
-from zope.interface import implements
+from zope.interface import implementer
 
 
 class RedirectView(BrowserView):
@@ -20,10 +20,10 @@ class RedirectView(BrowserView):
             self.request.RESPONSE.redirect(url)
 
 
+@implementer(IRedirect)
 class Redirect(object):
     """
     """
-    implements(IRedirect)
 
     def __init__(self, request):
         self.request = request

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import pytz
+from Products.statusmessages.interfaces import IStatusMessage
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import CAN_NOT_CREATE_FOR_PROPOSING_GROUP_ERROR
 from imio.pm.wsclient.config import CAN_NOT_CREATE_WITH_CATEGORY_ERROR
@@ -10,22 +12,18 @@ from imio.pm.wsclient.config import TAL_EVAL_FIELD_ERROR
 from imio.pm.wsclient.interfaces import IPreferredMeetings
 from imio.pm.wsclient.interfaces import ISendableAnnexesToPM
 from plone import api
-from Products.statusmessages.interfaces import IStatusMessage
 from zope.component import getMultiAdapter
 from zope.component import queryAdapter
 from zope.component import queryMultiAdapter
 from zope.component.hooks import getSite
-from zope.interface import implements
+from zope.interface import implementer
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
-import pytz
 
-
+@implementer(IVocabularyFactory)
 class pm_meeting_config_id_vocabulary(object):
-
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         """Query every existing MeetingConfigs in a distant PloneMeeting."""
@@ -39,17 +37,17 @@ class pm_meeting_config_id_vocabulary(object):
         terms = []
         if pmConfigInfos:
             for pmConfigInfo in pmConfigInfos.configInfo:
-                terms.append(SimpleTerm(unicode(pmConfigInfo['id']),
-                                        unicode(pmConfigInfo['id']),
-                                        unicode(pmConfigInfo['title']),))
+                terms.append(SimpleTerm(str(pmConfigInfo['id']),
+                                        str(pmConfigInfo['id']),
+                                        str(pmConfigInfo['title']),))
         return SimpleVocabulary(terms)
 
 
 pm_meeting_config_id_vocabularyFactory = pm_meeting_config_id_vocabulary()
 
 
+@implementer(IVocabularyFactory)
 class possible_permissions_vocabulary(object):
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         """Query every existing permissions."""
@@ -66,8 +64,8 @@ class possible_permissions_vocabulary(object):
 possible_permissions_vocabularyFactory = possible_permissions_vocabulary()
 
 
+@implementer(IVocabularyFactory)
 class pm_item_data_vocabulary(object):
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         """Query every available data we can use to create an item in the distant PloneMeeting."""
@@ -82,17 +80,17 @@ class pm_item_data_vocabulary(object):
         availableDatas = settings._soap_getItemCreationAvailableData()
         if availableDatas:
             for availableData in availableDatas:
-                terms.append(SimpleTerm(unicode(availableData),
-                                        unicode(availableData),
-                                        unicode(availableData),))
+                terms.append(SimpleTerm(str(availableData),
+                                        str(availableData),
+                                        str(availableData),))
         return SimpleVocabulary(terms)
 
 
 pm_item_data_vocabularyFactory = pm_item_data_vocabulary()
 
 
+@implementer(IVocabularyFactory)
 class proposing_groups_for_user_vocabulary(object):
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         """Query every available proposingGroups for current user in a distant PloneMeeting."""
@@ -120,7 +118,7 @@ class proposing_groups_for_user_vocabulary(object):
                                                                              field_mapping['expression'],
                                                                              vars)
                     break
-                except Exception, e:
+                except Exception as e:
                     portal.REQUEST.set('error_in_vocabularies', True)
                     IStatusMessage(portal.REQUEST).addStatusMessage(
                         _(TAL_EVAL_FIELD_ERROR, mapping={'expr': field_mapping['expression'],
@@ -143,14 +141,14 @@ class proposing_groups_for_user_vocabulary(object):
         for group in userInfos['groups']:
             if forcedProposingGroup == group['id']:
                 forcedProposingGroupExists = True
-                terms.append(SimpleTerm(unicode(group['id']),
-                                        unicode(group['id']),
-                                        unicode(group['title']),))
+                terms.append(SimpleTerm(str(group['id']),
+                                        str(group['id']),
+                                        str(group['title']),))
                 break
             if not forcedProposingGroup:
-                terms.append(SimpleTerm(unicode(group['id']),
-                                        unicode(group['id']),
-                                        unicode(group['title']),))
+                terms.append(SimpleTerm(str(group['id']),
+                                        str(group['id']),
+                                        str(group['title']),))
         if not forcedProposingGroupExists:
             portal.REQUEST.set('error_in_vocabularies', True)
             IStatusMessage(portal.REQUEST).addStatusMessage(
@@ -163,8 +161,8 @@ class proposing_groups_for_user_vocabulary(object):
 proposing_groups_for_user_vocabularyFactory = proposing_groups_for_user_vocabulary()
 
 
+@implementer(IVocabularyFactory)
 class categories_for_user_vocabulary(object):
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         """Query every available categories for current user in a distant PloneMeeting."""
@@ -194,7 +192,7 @@ class categories_for_user_vocabulary(object):
                                                                        field_mapping['expression'],
                                                                        vars)
                     break
-                except Exception, e:
+                except Exception as e:
                     portal.REQUEST.set('error_in_vocabularies', True)
                     IStatusMessage(portal.REQUEST).addStatusMessage(
                         _(TAL_EVAL_FIELD_ERROR, mapping={'expr': field_mapping['expression'],
@@ -226,14 +224,14 @@ class categories_for_user_vocabulary(object):
         for category in categories:
             if forcedCategory == category.id:
                 forcedCategoryExists = True
-                terms.append(SimpleTerm(unicode(category.id),
-                                        unicode(category.id),
-                                        unicode(category.title),))
+                terms.append(SimpleTerm(str(category.id),
+                                        str(category.id),
+                                        str(category.title),))
                 break
             if not forcedCategory:
-                terms.append(SimpleTerm(unicode(category.id),
-                                        unicode(category.id),
-                                        unicode(category.title),))
+                terms.append(SimpleTerm(str(category.id),
+                                        str(category.id),
+                                        str(category.title),))
         if not forcedCategoryExists:
             portal.REQUEST.set('error_in_vocabularies', True)
             IStatusMessage(portal.REQUEST).addStatusMessage(
@@ -246,8 +244,8 @@ class categories_for_user_vocabulary(object):
 categories_for_user_vocabularyFactory = categories_for_user_vocabulary()
 
 
+@implementer(IVocabularyFactory)
 class desired_meetingdates_vocabulary(object):
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         """Query every available categories for current user in a distant PloneMeeting."""
@@ -275,17 +273,17 @@ class desired_meetingdates_vocabulary(object):
         allowed_meetings = queryMultiAdapter((context, possible_meetings), IPreferredMeetings)
         meetings = allowed_meetings and allowed_meetings.get() or possible_meetings
         for meeting_info in meetings:
-            terms.append(SimpleTerm(unicode(meeting_info['UID']),
-                                    unicode(meeting_info['UID']),
-                                    unicode(meeting_info['date']),))
+            terms.append(SimpleTerm(str(meeting_info['UID']),
+                                    str(meeting_info['UID']),
+                                    str(meeting_info['date']),))
         return SimpleVocabulary(terms)
 
 
 desired_meetingdates_vocabularyFactory = desired_meetingdates_vocabulary()
 
 
+@implementer(IVocabularyFactory)
 class annexes_for_user_vocabulary(object):
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         """Query every available data we can use to create an item in the distant PloneMeeting."""
