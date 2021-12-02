@@ -11,7 +11,7 @@ pipeline {
     }
 
     environment{
-        ZSERVER_PORT=String.valueOf(Math.abs( new Random().nextInt() % (70000 - 30000) ) + 30000)
+        ZSERVER_PORT=String.valueOf(Math.abs( new Random().nextInt() % (65534 - 30000) ) + 30000)
     }
 
     stages {
