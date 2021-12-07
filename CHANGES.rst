@@ -4,8 +4,11 @@ Changelog
 1.17 (unreleased)
 -----------------
 
-- Nothing changed yet.
-
+- Cache the 'possible_meetingdates_vocabulary' vocabulary forever (until instance restarts).
+  [sdelcourt]
+  [mdhyne]
+- By default make sure `inline_validation.js` is disabled to avoid too much calls to WS api.
+  [gbastien]
 
 1.16 (2021-07-14)
 -----------------

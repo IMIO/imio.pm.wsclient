@@ -31,6 +31,7 @@ setup(name='imio.pm.wsclient',
           'setuptools',
           'collective.z3cform.datagridfield',
           'imio.pm.locales',
+          'plone.memoize',
           # -*- Extra requirements: -*-
           'suds-jurko',
       ],

@@ -5,4 +5,7 @@
         enabled="True" inline="False" expression="" insert-after="*"
         id="++resource++imio.pm.wsclient.javascripts/popups.js" />
 
+    <!-- disable z3cform inline validation that is doing way too much calls to validators -->
+    <javascript id="inline_validation.js" enabled="False" />
+
 </object>
