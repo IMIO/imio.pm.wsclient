@@ -16,6 +16,7 @@ parts
 python-eggs
 pyvenv.cfg
 src
+!src/imio
 var
 versions-picked.cfg
 pip-selfcheck.json
