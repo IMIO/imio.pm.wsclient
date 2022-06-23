@@ -9,6 +9,8 @@ Changelog
   [mdhyne]
 - By default make sure `inline_validation.js` is disabled to avoid too much calls to WS api.
   [gbastien]
+- Added missing `docx.png`.
+  [gbastien]
 
 1.16 (2021-07-14)
 -----------------
