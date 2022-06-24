@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 from imio.pm.ws.config import POD_TEMPLATE_ID_PATTERN
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import cleanMemoize
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
+from plone import api
 from Products.statusmessages.interfaces import IStatusMessage
 from zope.component import getMultiAdapter
+
 
 import transaction
 
@@ -202,6 +205,57 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         self.assertFalse(ws4pmSettings._soap_getItemTemplate(
             {'itemUID': item.UID(),
              'templateId': POD_TEMPLATE_ID_PATTERN.format('itemTemplate', 'odt')}))
+
+    def test_soap_getMeetingAcceptingItems(self):
+        """Check getting accepting items meeting.
+           Should only return meetings in the state 'creation' and 'frozen'"""
+        ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
+        setCorrectSettingsConfig(self.portal, minimal=True)
+        cfg = self.meetingConfig
+        cfgId = cfg.getId()
+        meetings = ws4pmSettings._soap_getMeetingsAcceptingItems(
+            {'meetingConfigId': cfgId, 'inTheNameOf': 'pmCreator1'}
+        )
+        self.assertEquals(meetings, [])
+        self.changeUser('pmManager')
+        meeting_1 = self.create('Meeting', date=datetime(2013, 3, 3))
+        meeting_2 = self.create('Meeting', date=datetime(2013, 3, 3))
+        transaction.commit()
+        self.changeUser('pmCreator1')
+        meetings = ws4pmSettings._soap_getMeetingsAcceptingItems(
+            {'meetingConfigId': cfgId, 'inTheNameOf': 'pmCreator1'}
+        )
+        # so far find the two meetings
+        self.assertEquals(len(meetings), 2)
+
+        # freeze meeting_2 => it still should be in the accepting items meetings
+        self.changeUser('pmManager')
+        api.content.transition(meeting_2, 'freeze')
+        transaction.commit()
+        self.changeUser('pmCreator1')
+        meetings = ws4pmSettings._soap_getMeetingsAcceptingItems(
+            {'meetingConfigId': cfgId, 'inTheNameOf': 'pmCreator1'}
+        )
+        self.assertEquals(len(meetings), 2)
+
+        self.changeUser('pmManager')
+        api.content.transition(meeting_2, 'publish')
+        api.content.transition(meeting_2, 'decide')
+        transaction.commit()
+        # after publishing meeting_2, it should not be in the results anymore.
+        self.changeUser('pmCreator1')
+        meetings = ws4pmSettings._soap_getMeetingsAcceptingItems(
+            {'meetingConfigId': cfgId, 'inTheNameOf': 'pmCreator1'}
+        )
+        self.assertEquals(len(meetings), 1)
+        self.assertEquals(meetings[0].UID, meeting_1.UID())
+        # if no inTheNameOf param is explicitly passed, _soap_getMeetingsAcceptingItems()
+        # should set a default one.
+        meetings = ws4pmSettings._soap_getMeetingsAcceptingItems(
+            {'meetingConfigId': cfgId}
+        )
+        self.assertEquals(len(meetings), 1)
+        self.assertEquals(meetings[0].UID, meeting_1.UID())
 
 
 def test_suite():
