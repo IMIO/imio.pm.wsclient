@@ -11,6 +11,8 @@ Changelog
   [gbastien]
 - Added missing `docx.png`.
   [gbastien]
+- Add a default inTheNameOf param for method _soap_getMeetingsAcceptingItems.
+  [sdelcourt]
 
 1.16 (2021-07-14)
 -----------------
