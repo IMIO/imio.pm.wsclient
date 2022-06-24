@@ -292,6 +292,8 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         """Query the getItemInfos SOAP server method."""
         client = self._soap_connectToPloneMeeting()
         if client is not None:
+            if 'inTheNameOf' not in data:
+                data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
             return client.service.meetingsAcceptingItems(**data)
 
     def _soap_getItemTemplate(self, data):
