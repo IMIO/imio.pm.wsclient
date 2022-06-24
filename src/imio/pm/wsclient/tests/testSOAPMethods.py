@@ -257,6 +257,12 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         self.assertEquals(len(meetings), 1)
         self.assertEquals(meetings[0].UID, meeting_1.UID())
 
+        # As pmManager, we should get all the meetings
+        meetings = ws4pmSettings._soap_getMeetingsAcceptingItems(
+            {'meetingConfigId': cfgId, 'inTheNameOf': 'pmManager'}
+        )
+        self.assertEquals(len(meetings), 2)
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite
