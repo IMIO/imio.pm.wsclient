@@ -57,7 +57,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         setCorrectSettingsConfig(self.portal, minimal=True)
         availableData = ws4pmSettings._soap_getItemCreationAvailableData()
         availableData.sort()
-        self.assertEquals(availableData, ['annexes',
+        self.assertEqual(availableData, ['annexes',
                                           'associatedGroups',
                                           'category',
                                           'decision',
@@ -174,7 +174,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         self.assertIsNone(result)
         messages = IStatusMessage(self.request)
         # a message is displayed
-        self.assertEquals(messages.show()[-1].message,
+        self.assertEqual(messages.show()[-1].message,
                           u"An error occured during the item creation in PloneMeeting! "
                           "The error message was : Server raised fault: ''unexisting-category-id' "
                           "is not available for the 'developers' group!'")
@@ -216,7 +216,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         meetings = ws4pmSettings._soap_getMeetingsAcceptingItems(
             {'meetingConfigId': cfgId, 'inTheNameOf': 'pmCreator1'}
         )
-        self.assertEquals(meetings, [])
+        self.assertEqual(meetings, [])
         self.changeUser('pmManager')
         meeting_1 = self.create('Meeting', date=datetime(2013, 3, 3))
         meeting_2 = self.create('Meeting', date=datetime(2013, 3, 3))
@@ -226,7 +226,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
             {'meetingConfigId': cfgId, 'inTheNameOf': 'pmCreator1'}
         )
         # so far find the two meetings
-        self.assertEquals(len(meetings), 2)
+        self.assertEqual(len(meetings), 2)
 
         # freeze meeting_2 => it still should be in the accepting items meetings
         self.changeUser('pmManager')
@@ -236,7 +236,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         meetings = ws4pmSettings._soap_getMeetingsAcceptingItems(
             {'meetingConfigId': cfgId, 'inTheNameOf': 'pmCreator1'}
         )
-        self.assertEquals(len(meetings), 2)
+        self.assertEqual(len(meetings), 2)
 
         self.changeUser('pmManager')
         api.content.transition(meeting_2, 'publish')
@@ -247,21 +247,21 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         meetings = ws4pmSettings._soap_getMeetingsAcceptingItems(
             {'meetingConfigId': cfgId, 'inTheNameOf': 'pmCreator1'}
         )
-        self.assertEquals(len(meetings), 1)
-        self.assertEquals(meetings[0].UID, meeting_1.UID())
+        self.assertEqual(len(meetings), 1)
+        self.assertEqual(meetings[0].UID, meeting_1.UID())
         # if no inTheNameOf param is explicitly passed, _soap_getMeetingsAcceptingItems()
         # should set a default one.
         meetings = ws4pmSettings._soap_getMeetingsAcceptingItems(
             {'meetingConfigId': cfgId}
         )
-        self.assertEquals(len(meetings), 1)
-        self.assertEquals(meetings[0].UID, meeting_1.UID())
+        self.assertEqual(len(meetings), 1)
+        self.assertEqual(meetings[0].UID, meeting_1.UID())
 
         # As pmManager, we should get all the meetings
         meetings = ws4pmSettings._soap_getMeetingsAcceptingItems(
             {'meetingConfigId': cfgId, 'inTheNameOf': 'pmManager'}
         )
-        self.assertEquals(len(meetings), 2)
+        self.assertEqual(len(meetings), 2)
 
 
 def test_suite():
