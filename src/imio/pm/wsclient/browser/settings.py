@@ -249,6 +249,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
 
     def _rest_checkIsLinked(self, data):
         """Query the checkIsLinked REST server method."""
+        # XXX To be implemented in plonemeeting.restapi
         session = self._rest_connectToPloneMeeting()
         if session is not None:
             return session.service.checkIsLinked(**data)
@@ -258,12 +259,15 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         """Query the getConfigInfos REST server method."""
         session = self._rest_connectToPloneMeeting()
         if session is not None:
+            # XXX Implement @configs endpoint / extend @infos endpoint ?
+            # XXX showCategories need to be reimplemented in endpoint ?
             return session.get("{0}/@config")
             return session.service.getConfigInfos(showCategories=showCategories)
 
     @memoize
     def _rest_getUserInfos(self, showGroups=False, suffix=''):
         """Query the getUserInfos REST server method."""
+        # XXX Use @users endpoint (suffix may need to be reimplemented)
         session = self._rest_connectToPloneMeeting()
         if session is not None:
             # get the inTheNameOf userid if it was not already set
@@ -275,6 +279,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
 
     def _rest_searchItems(self, data):
         """Query the searchItems REST server method."""
+        # XXX Use @search endpoint and `in_name_of` parameter
         session = self._rest_connectToPloneMeeting()
         if session is not None:
             # get the inTheNameOf userid if it was not already set
@@ -284,6 +289,8 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
 
     def _rest_getItemInfos(self, data):
         """Query the getItemInfos REST server method."""
+        # XXX Use @get endpoint but handle `in_name_of` parameter and ensure that all
+        # required attributes are returned
         session = self._rest_connectToPloneMeeting()
         if session is not None:
             # get the inTheNameOf userid if it was not already set
@@ -293,6 +300,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
 
     def _rest_getMeetingsAcceptingItems(self, data):
         """Query the getItemInfos REST server method."""
+        # XXX use @meeting endpoint ? does this endpoint return the accepting items ?
         session = self._rest_connectToPloneMeeting()
         if session is not None:
             if 'inTheNameOf' not in data:
@@ -301,6 +309,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
 
     def _rest_getItemTemplate(self, data):
         """Query the getItemTemplate REST server method."""
+        # XXX new endpoint ? Extending @get endpoint ?
         session = self._rest_connectToPloneMeeting()
         if session is not None:
             if 'inTheNameOf' not in data:
@@ -315,6 +324,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
     @memoize
     def _rest_getItemCreationAvailableData(self):
         """Query REST WSDL to obtain the list of available fields useable while creating an item."""
+        # XXX new endpoint ? Extending @meeting endpoint ?
         session = self._rest_connectToPloneMeeting()
         if session is not None:
             # extract data from the CreationData ComplexType that is used to create an item
