@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.17 (unreleased)
+1.17 (2022-06-29)
 -----------------
 
 - Cache the 'possible_meetingdates_vocabulary' vocabulary forever (until instance restarts).
