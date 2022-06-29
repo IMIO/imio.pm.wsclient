@@ -28,7 +28,7 @@ class pm_meeting_config_id_vocabulary(object):
 
     implements(IVocabularyFactory)
 
-    def __call__(self, context):
+    def __call__(self, context=None):
         """Query every existing MeetingConfigs in a distant PloneMeeting."""
         # query existing MeetingGroups from distant PM site if the default_pm_url is defined and working
         portal = getSite()

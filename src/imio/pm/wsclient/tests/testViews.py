@@ -6,14 +6,20 @@
 #
 
 from imio.pm.ws.config import POD_TEMPLATE_ID_PATTERN
+from imio.pm.wsclient.config import ANNEXID_MANDATORY_ERROR
 from imio.pm.wsclient.config import CORRECTLY_SENT_TO_PM_INFO
 from imio.pm.wsclient.config import FILENAME_MANDATORY_ERROR
+from imio.pm.wsclient.config import MISSING_FILE_ERROR
 from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR
 from imio.pm.wsclient.config import UNABLE_TO_DETECT_MIMETYPE_ERROR
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import cleanMemoize
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import createDocument
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
+from mock import Mock
+from mock import patch
 from Products.statusmessages.interfaces import IStatusMessage
+
+import base64
 
 
 class testViews(WS4PMCLIENTTestCase):
@@ -81,6 +87,69 @@ class testViews(WS4PMCLIENTTestCase):
                           {'content-type': 'application/vnd.oasis.opendocument.text',
                            'location': '{0}/document'.format(self.portal.absolute_url()),
                            'content-disposition': 'inline;filename="filename.odt"'})
+
+    def test_DownloadAnnexFromItemView_without_annex_id(self):
+        """
+          Test the BrowserView that return the annex of an item
+        """
+        messages = IStatusMessage(self.request)
+        self.changeUser('admin')
+        download_annex = self.portal.restrictedTraverse('@@download_annex_from_plonemeeting')
+        # mock connexion to PloneMeeting
+        download_annex.ws4pmSettings._soap_connectToPloneMeeting = Mock(return_value=True)
+        download_annex()
+        self.assertEqual(messages.show()[-1].message, ANNEXID_MANDATORY_ERROR)
+
+    @patch('imio.pm.wsclient.browser.settings.WS4PMClientSettings._soap_getItemInfos')
+    def test_DownloadAnnexFromItemView_with_no_result(self, _soap_getItemInfos):
+        """
+          Test the BrowserView that return the annex of an item
+        """
+        # return no annex
+        _soap_getItemInfos.return_value = None
+        messages = IStatusMessage(self.request)
+        self.changeUser('admin')
+        document = createDocument(self.portal)
+        self.request.set('annex_id', 'my_annex')
+        download_annex = document.restrictedTraverse('@@download_annex_from_plonemeeting')
+        # mock connexion to PloneMeeting
+        download_annex.ws4pmSettings._soap_connectToPloneMeeting = Mock(return_value=True)
+        download_annex()
+        self.assertEqual(messages.show()[-1].message, MISSING_FILE_ERROR)
+
+    @patch('imio.pm.wsclient.browser.settings.WS4PMClientSettings._soap_getItemInfos')
+    def test_DownloadAnnexFromItemView(self, _soap_getItemInfos):
+        """
+          Test the BrowserView that return the annex of an item
+        """
+        # return an annex
+        annex_id = 'my_annex'
+        _soap_getItemInfos.return_value = [type(
+            'ItemInfo', (object,), {
+                'annexes': [
+                    type(
+                        'AnnexInfo', (object,), {
+                            'id': annex_id,
+                            'filename': 'my_annex.pdf',
+                            'file': base64.b64encode('Hello!')
+                        }
+                    )
+                ]
+            }
+        )]
+        self.changeUser('admin')
+        document = createDocument(self.portal)
+        self.request.set('annex_id', annex_id)
+        download_annex = document.restrictedTraverse('@@download_annex_from_plonemeeting')
+        # mock connexion to PloneMeeting
+        download_annex.ws4pmSettings._soap_connectToPloneMeeting = Mock(return_value=True)
+        annex = download_annex()
+        self.assertEqual(annex, 'Hello!')
+        self.assertEqual(self.request.RESPONSE.headers.get('content-type'), 'application/pdf')
+        self.assertEqual(
+            self.request.RESPONSE.headers.get('content-disposition'),
+            'inline;filename="my_annex.pdf"'
+        )
 
 
 def test_suite():
