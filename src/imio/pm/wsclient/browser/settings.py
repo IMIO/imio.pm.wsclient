@@ -239,7 +239,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             response = requests.get(self.url, timeout=int(timeout))
             if response.status_code != 200:
                 raise ConnectionError
-        except Exception, e:
+        except Exception as e:
             # if we are really on the configuration panel, display relevant message
             if self.request.get('URL', '').endswith('@@ws4pmclient-settings'):
                 IStatusMessage(self.request).addStatusMessage(
@@ -307,7 +307,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
             try:
                 return session.service.getItemTemplate(**data)
-            except Exception, exc:
+            except Exception as exc:
                 IStatusMessage(self.request).addStatusMessage(
                     _(u"An error occured while generating the document in PloneMeeting!  "
                       "The error message was : %s" % exc), "error")
@@ -341,7 +341,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 if self.context.portal_membership.getAuthenticatedMember().has_role('Manager'):
                     warnings = 'warnings' in res.__keylist__ and res['warnings'] or []
                 return res['UID'], warnings
-            except Exception, exc:
+            except Exception as exc:
                 IStatusMessage(self.request).addStatusMessage(_(CONFIG_CREATE_ITEM_PM_ERROR, mapping={'error': exc}),
                                                               "error")
 
