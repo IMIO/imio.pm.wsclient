@@ -187,7 +187,7 @@ class SendToPloneMeetingForm(form.Form):
             # False means that is was not sent, so no connection test is made to PloneMeeting for performance reason
             if alreadySent is not None:
                 # now connect to PloneMeeting
-                client = self.ws4pmSettings._soap_connectToPloneMeeting()
+                client = self.ws4pmSettings._rest_connectToPloneMeeting()
             if alreadySent is None or not client:
                 IStatusMessage(self.request).addStatusMessage(_(UNABLE_TO_CONNECT_ERROR), "error")
                 self._changeFormForErrors()
@@ -195,7 +195,7 @@ class SendToPloneMeetingForm(form.Form):
 
         # do not go further if current user can not create an item in
         # PloneMeeting with any proposingGroup
-        userInfos = self.ws4pmSettings._soap_getUserInfos(showGroups=True, suffix='creators')
+        userInfos = self.ws4pmSettings._rest_getUserInfos(showGroups=True, suffix='creators')
         if not userInfos or 'groups' not in userInfos:
             userThatWillCreate = self.ws4pmSettings._getUserIdToUseInTheNameOfWith()
             if not userInfos:
@@ -281,13 +281,13 @@ class SendToPloneMeetingForm(form.Form):
                 settings.only_one_sending:
             return False
         # build the creationData
-        client = self.ws4pmSettings._soap_connectToPloneMeeting()
+        client = self.ws4pmSettings._rest_connectToPloneMeeting()
         creation_data = self._getCreationData(client)
 
         notify(WillbeSendToPMEvent(self.context))
 
-        # call the SOAP method actually creating the item
-        res = self.ws4pmSettings._soap_createItem(self.meetingConfigId,
+        # call the REST method actually creating the item
+        res = self.ws4pmSettings._rest_createItem(self.meetingConfigId,
                                                   self.proposingGroupId,
                                                   creation_data)
         if res:
@@ -319,7 +319,7 @@ class SendToPloneMeetingForm(form.Form):
     def _getCreationData(self, client):
         """
           Build creationData dict that will be used to actually create
-          the item in PloneMeeting thru SOAP createItem call
+          the item in PloneMeeting thru REST createItem call
         """
         data = self._buildDataDict()
         # now that every values are evaluated, build the CreationData

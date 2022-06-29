@@ -30,7 +30,7 @@ class BaseDownloadFromItemView(BrowserView):
     def __call__(self):
         """ """
         # first check that we can connect to PloneMeeting
-        client = self.ws4pmSettings._soap_connectToPloneMeeting()
+        client = self.ws4pmSettings._rest_connectToPloneMeeting()
         if not client:
             IStatusMessage(self.request).addStatusMessage(_(UNABLE_TO_CONNECT_ERROR), "error")
             return self.request.RESPONSE.redirect(self.context.absolute_url())
@@ -68,7 +68,7 @@ class GenerateItemTemplateView(BaseDownloadFromItemView):
         response.setHeader('Content-Disposition', 'inline;filename="%s.%s"' % (self.templateFilename,
                                                                                self.templateFormat))
 
-        res = self.ws4pmSettings._soap_getItemTemplate({'itemUID': self.itemUID,
+        res = self.ws4pmSettings._rest_getItemTemplate({'itemUID': self.itemUID,
                                                         'templateId': self.templateId, })
         if not res:
             # an error occured, redirect to user to the context, a statusMessage will be displayed
@@ -100,7 +100,7 @@ class DownloadAnnexFromItemView(BaseDownloadFromItemView):
             IStatusMessage(self.request).addStatusMessage(_(ANNEXID_MANDATORY_ERROR), "error")
             return response.redirect(self.context.absolute_url())
 
-        res = self.ws4pmSettings._soap_getItemInfos(
+        res = self.ws4pmSettings._rest_getItemInfos(
             {
                 'UID': self.itemUID,
                 'showAnnexes': True,

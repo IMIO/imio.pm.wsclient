@@ -32,8 +32,7 @@ setup(name='imio.pm.wsclient',
           'collective.z3cform.datagridfield',
           'imio.pm.locales',
           'plone.memoize',
-          # -*- Extra requirements: -*-
-          'suds-jurko',
+          'requests',
       ],
       extras_require={'test': ['plone.app.testing', 'imio.pm.ws', 'mock']},
       entry_points="""

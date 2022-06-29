@@ -36,7 +36,7 @@ class pm_meeting_config_id_vocabulary(object):
         if not portal.__module__ == 'Products.CMFPlone.Portal':
             portal = portal.aq_inner.aq_parent
         settings = getMultiAdapter((portal, portal.REQUEST), name='ws4pmclient-settings')
-        pmConfigInfos = settings._soap_getConfigInfos()
+        pmConfigInfos = settings._rest_getConfigInfos()
         terms = []
         if pmConfigInfos:
             for pmConfigInfo in pmConfigInfos.configInfo:
@@ -80,7 +80,7 @@ class pm_item_data_vocabulary(object):
         if not portal.__module__ == 'Products.CMFPlone.Portal':
             portal = portal.aq_inner.aq_parent
         settings = getMultiAdapter((portal, portal.REQUEST), name='ws4pmclient-settings')
-        availableDatas = settings._soap_getItemCreationAvailableData()
+        availableDatas = settings._rest_getItemCreationAvailableData()
         if availableDatas:
             for availableData in availableDatas:
                 terms.append(SimpleTerm(unicode(availableData),
@@ -130,7 +130,7 @@ class proposing_groups_for_user_vocabulary(object):
                         'error')
                     return SimpleVocabulary([])
         # even if we get a forcedProposingGroup, double check that the current user can actually use it
-        userInfos = ws4pmsettings._soap_getUserInfos(showGroups=True, suffix='creators')
+        userInfos = ws4pmsettings._rest_getUserInfos(showGroups=True, suffix='creators')
         if not userInfos or 'groups' not in userInfos:
             portal.REQUEST.set('error_in_vocabularies', True)
             # add a status message if the main error is not the fact that we can not connect to the WS
@@ -204,7 +204,7 @@ class categories_for_user_vocabulary(object):
                         'error')
                     return SimpleVocabulary([])
 
-        configInfos = ws4pmsettings._soap_getConfigInfos(showCategories=True)
+        configInfos = ws4pmsettings._rest_getConfigInfos(showCategories=True)
         if not configInfos:
             portal.REQUEST.set('error_in_vocabularies', True)
             # add a status message if the main error is not the fact that we can not connect to the WS
@@ -263,7 +263,7 @@ class desired_meetingdates_vocabulary(object):
         if not portal.__module__ == 'Products.CMFPlone.Portal':
             portal = portal.aq_inner.aq_parent
         ws4pmsettings = getMultiAdapter((portal, portal.REQUEST), name='ws4pmclient-settings')
-        configInfos = ws4pmsettings._soap_getConfigInfos(showCategories=True)
+        configInfos = ws4pmsettings._rest_getConfigInfos(showCategories=True)
         if not configInfos:
             portal.REQUEST.set('error_in_vocabularies', True)
             # add a status message if the main error is not the fact that we can not connect to the WS
@@ -274,7 +274,7 @@ class desired_meetingdates_vocabulary(object):
         request = api.portal.getRequest()
         meeting_config_id = request.get('meetingConfigId', request.form.get('form.widgets.meetingConfigId'))
         data = {'meetingConfigId': meeting_config_id}
-        possible_meetings = ws4pmsettings._soap_getMeetingsAcceptingItems(data)
+        possible_meetings = ws4pmsettings._rest_getMeetingsAcceptingItems(data)
         local = pytz.timezone("Europe/Brussels")
         for meeting in possible_meetings:
             meeting['date'] = meeting['date'].astimezone(local)

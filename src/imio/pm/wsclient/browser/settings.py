@@ -16,10 +16,6 @@ from Products.CMFCore.ActionInformation import Action
 from Products.CMFCore.Expression import createExprContext
 from Products.CMFCore.Expression import Expression
 from Products.statusmessages.interfaces import IStatusMessage
-from suds.client import Client
-from suds.transport.http import HttpAuthenticated
-from suds.xsd.doctor import Import
-from suds.xsd.doctor import ImportDoctor
 from z3c.form import button
 from z3c.form import field
 from zope import schema
@@ -30,6 +26,8 @@ from zope.component.hooks import getSite
 from zope.i18n import translate
 from zope.interface import Interface
 from zope.schema.interfaces import IVocabularyFactory
+
+import requests
 
 
 class IGeneratedActionsSchema(Interface):
@@ -80,7 +78,7 @@ class IWS4PMClientSettings(Interface):
     Configuration of the WS4PM Client
     """
     pm_url = schema.TextLine(
-        title=_(u"PloneMeeting WSDL URL"),
+        title=_(u"PloneMeeting URL"),
         required=True,)
     pm_timeout = schema.Int(
         title=_(u"PloneMeeting connection timeout"),
@@ -175,7 +173,7 @@ class WS4PMClientSettingsEditForm(RegistryEditForm):
         # if we can not getConfigInfos from the given pm_url, we do not permit to edit other parameters
         generated_actions_field = self.fields.get('generated_actions')
         field_mappings = self.fields.get('field_mappings')
-        if not ctrl._soap_getConfigInfos():
+        if not ctrl._rest_getConfigInfos():
             generated_actions_field.mode = 'display'
             field_mappings.mode = 'display'
         else:
@@ -219,120 +217,125 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         settings = registry.forInterface(IWS4PMClientSettings, check=False)
         return settings
 
+    @property
+    def url(self):
+        """Return PloneMeeting App URL"""
+        settings = self.settings()
+        return self.request.form.get('form.widgets.pm_url') or settings.pm_url or ''
+
     @memoize
-    def _soap_connectToPloneMeeting(self):
+    def _rest_connectToPloneMeeting(self):
         """
           Connect to distant PloneMeeting.
-          Either return None or the connected client.
+          Either return None or the session
         """
         settings = self.settings()
-        url = self.request.form.get('form.widgets.pm_url') or settings.pm_url or ''
         username = self.request.form.get('form.widgets.pm_username') or settings.pm_username or ''
         password = self.request.form.get('form.widgets.pm_password') or settings.pm_password or ''
         timeout = self.request.form.get('form.widgets.pm_timeout') or settings.pm_timeout or ''
-        imp = Import('http://schemas.xmlsoap.org/soap/encoding/')
-        d = ImportDoctor(imp)
-        t = HttpAuthenticated(username=username, password=password)
         try:
-            client = Client(url, doctor=d, transport=t, timeout=int(timeout))
-            # call a SOAP server test method to check that everything is fine with given parameters
-            client.service.testConnection('')
+            session = requests.Session()
+            session.auth = (username, password)
+            response = requests.get(self.url, timeout=int(timeout))
+            if response.status_code != 200:
+                raise ConnectionError
         except Exception, e:
             # if we are really on the configuration panel, display relevant message
             if self.request.get('URL', '').endswith('@@ws4pmclient-settings'):
                 IStatusMessage(self.request).addStatusMessage(
                     _(CONFIG_UNABLE_TO_CONNECT_ERROR, mapping={'error': (e.message or str(e.reason))}), "error")
             return None
-        return client
+        return session
 
-    def _soap_checkIsLinked(self, data):
-        """Query the checkIsLinked SOAP server method."""
-        client = self._soap_connectToPloneMeeting()
-        if client is not None:
-            return client.service.checkIsLinked(**data)
-
-    @memoize
-    def _soap_getConfigInfos(self, showCategories=False):
-        """Query the getConfigInfos SOAP server method."""
-        client = self._soap_connectToPloneMeeting()
-        if client is not None:
-            return client.service.getConfigInfos(showCategories=showCategories)
+    def _rest_checkIsLinked(self, data):
+        """Query the checkIsLinked REST server method."""
+        session = self._rest_connectToPloneMeeting()
+        if session is not None:
+            return session.service.checkIsLinked(**data)
 
     @memoize
-    def _soap_getUserInfos(self, showGroups=False, suffix=''):
-        """Query the getUserInfos SOAP server method."""
-        client = self._soap_connectToPloneMeeting()
-        if client is not None:
+    def _rest_getConfigInfos(self, showCategories=False):
+        """Query the getConfigInfos REST server method."""
+        session = self._rest_connectToPloneMeeting()
+        if session is not None:
+            return session.get("{0}/@config")
+            return session.service.getConfigInfos(showCategories=showCategories)
+
+    @memoize
+    def _rest_getUserInfos(self, showGroups=False, suffix=''):
+        """Query the getUserInfos REST server method."""
+        session = self._rest_connectToPloneMeeting()
+        if session is not None:
             # get the inTheNameOf userid if it was not already set
             userId = self._getUserIdToUseInTheNameOfWith(mandatory=True)
             try:
-                return client.service.getUserInfos(userId, showGroups, suffix)
+                return session.service.getUserInfos(userId, showGroups, suffix)
             except Exception:
                 return None
 
-    def _soap_searchItems(self, data):
-        """Query the searchItems SOAP server method."""
-        client = self._soap_connectToPloneMeeting()
-        if client is not None:
+    def _rest_searchItems(self, data):
+        """Query the searchItems REST server method."""
+        session = self._rest_connectToPloneMeeting()
+        if session is not None:
             # get the inTheNameOf userid if it was not already set
             if 'inTheNameOf' not in data:
                 data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
-            return client.service.searchItems(**data)
+            return session.service.searchItems(**data)
 
-    def _soap_getItemInfos(self, data):
-        """Query the getItemInfos SOAP server method."""
-        client = self._soap_connectToPloneMeeting()
-        if client is not None:
+    def _rest_getItemInfos(self, data):
+        """Query the getItemInfos REST server method."""
+        session = self._rest_connectToPloneMeeting()
+        if session is not None:
             # get the inTheNameOf userid if it was not already set
             if 'inTheNameOf' not in data:
                 data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
-            return client.service.getItemInfos(**data)
+            return session.service.getItemInfos(**data)
 
-    def _soap_getMeetingsAcceptingItems(self, data):
-        """Query the getItemInfos SOAP server method."""
-        client = self._soap_connectToPloneMeeting()
-        if client is not None:
+    def _rest_getMeetingsAcceptingItems(self, data):
+        """Query the getItemInfos REST server method."""
+        session = self._rest_connectToPloneMeeting()
+        if session is not None:
             if 'inTheNameOf' not in data:
                 data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
-            return client.service.meetingsAcceptingItems(**data)
+            return session.service.meetingsAcceptingItems(**data)
 
-    def _soap_getItemTemplate(self, data):
-        """Query the getItemTemplate SOAP server method."""
-        client = self._soap_connectToPloneMeeting()
-        if client is not None:
+    def _rest_getItemTemplate(self, data):
+        """Query the getItemTemplate REST server method."""
+        session = self._rest_connectToPloneMeeting()
+        if session is not None:
             if 'inTheNameOf' not in data:
                 data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
             try:
-                return client.service.getItemTemplate(**data)
+                return session.service.getItemTemplate(**data)
             except Exception, exc:
                 IStatusMessage(self.request).addStatusMessage(
                     _(u"An error occured while generating the document in PloneMeeting!  "
                       "The error message was : %s" % exc), "error")
 
     @memoize
-    def _soap_getItemCreationAvailableData(self):
-        """Query SOAP WSDL to obtain the list of available fields useable while creating an item."""
-        client = self._soap_connectToPloneMeeting()
-        if client is not None:
+    def _rest_getItemCreationAvailableData(self):
+        """Query REST WSDL to obtain the list of available fields useable while creating an item."""
+        session = self._rest_connectToPloneMeeting()
+        if session is not None:
             # extract data from the CreationData ComplexType that is used to create an item
-            namespace = str(client.wsdl.tns[1])
+            namespace = str(session.wsdl.tns[1])
             res = ['proposingGroup']
             res += [str(data.name) for data in
-                    client.factory.wsdl.build_schema().types['CreationData', namespace].rawchildren[0].rawchildren]
+                    session.factory.wsdl.build_schema().types['CreationData', namespace].rawchildren[0].rawchildren]
             return res
 
-    def _soap_createItem(self, meetingConfigId, proposingGroupId, creationData):
-        """Query the createItem SOAP server method."""
-        client = self._soap_connectToPloneMeeting()
-        if client is not None:
+    def _rest_createItem(self, meetingConfigId, proposingGroupId, creationData):
+        """Query the createItem REST server method."""
+        session = self._rest_connectToPloneMeeting()
+        if session is not None:
             try:
                 # we create an item inTheNameOf the currently connected member
                 # _getUserIdToCreateWith returns None if the settings defined username creates the item
                 inTheNameOf = self._getUserIdToUseInTheNameOfWith()
-                res = client.service.createItem(meetingConfigId,
-                                                proposingGroupId,
-                                                creationData,
-                                                inTheNameOf=inTheNameOf)
+                res = session.service.createItem(meetingConfigId,
+                                                 proposingGroupId,
+                                                 creationData,
+                                                 inTheNameOf=inTheNameOf)
                 # return 'UID' and 'warnings' if any current user is a Manager
                 warnings = []
                 if self.context.portal_membership.getAuthenticatedMember().has_role('Manager'):
@@ -353,13 +356,13 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         """
         member = self.context.portal_membership.getAuthenticatedMember()
         memberId = member.getId()
-        # get username specified to connect to the SOAP distant site
+        # get username specified to connect to the REST distant site
         settings = self.settings()
-        soapUsername = settings.pm_username and settings.pm_username.strip()
+        restUsername = settings.pm_username and settings.pm_username.strip()
         # if current user is the user defined in the settings, return None
-        if memberId == soapUsername:
+        if memberId == restUsername:
             if mandatory:
-                return soapUsername
+                return restUsername
             else:
                 return None
         # check if a user_mapping exists
@@ -367,13 +370,13 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             for user_mapping in settings.user_mappings:
                 localUserId, distantUserId = user_mapping['local_userid'], user_mapping['pm_userid']
                 # if we found a mapping for the current user, check also
-                # that the distantUserId the mapping is linking to, is not the soapUsername
+                # that the distantUserId the mapping is linking to, is not the restUsername
                 if memberId == localUserId.strip():
-                    if not soapUsername == distantUserId.strip():
+                    if not restUsername == distantUserId.strip():
                         return distantUserId.strip()
                     else:
                         if mandatory:
-                            return soapUsername
+                            return restUsername
                         else:
                             return None
         return memberId
@@ -390,7 +393,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
           This script also wipe out every meetingConfigIds for wich the item does not exist anymore in PloneMeeting
         """
         annotations = IAnnotations(context)
-        # for performance reason (avoid to connect to SOAP if no annotations)
+        # for performance reason (avoid to connect to REST if no annotations)
         # if there are no relevant annotations, it means that the p_context
         # is not linked and we return False
         isLinked = False
@@ -404,7 +407,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 # this will wipe out the entire annotation
                 meetingConfigIds = list(annotations[WS4PMCLIENT_ANNOTATION_KEY])
             for meetingConfigId in meetingConfigIds:
-                res = self._soap_checkIsLinked({'externalIdentifier': context.UID(),
+                res = self._rest_checkIsLinked({'externalIdentifier': context.UID(),
                                                 'meetingConfigId': meetingConfigId, })
                 # if res is None, it means that it could not connect to PloneMeeting
                 if res is None:
@@ -441,7 +444,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             for k, v in vars.items():
                 ctx.setContext(k, v)
             res = Expression(expression)(ctx)
-        # make sure we do not return None because it breaks SOAP call
+        # make sure we do not return None because it breaks REST call
         if res is None:
             return u''
         else:

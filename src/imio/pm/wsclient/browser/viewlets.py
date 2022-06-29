@@ -75,7 +75,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
            with getConfigInfos.
            If we encounter an error, we return a tuple as 'usual' like in self.available"""
         try:
-            items = self.ws4pmSettings._soap_searchItems({'externalIdentifier': self.context.UID()})
+            items = self.ws4pmSettings._rest_searchItems({'externalIdentifier': self.context.UID()})
         except Exception, exc:
             return (_(u"An error occured while searching for linked items in PloneMeeting!  "
                       "The error message was : %s" % exc), 'error')
@@ -94,7 +94,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
         allowed_annexes_types = [line.values()[0] for line in settings.allowed_annexes_types]
         shownItemsMeetingConfigId = []
         for item in items:
-            res.append(self.ws4pmSettings._soap_getItemInfos({'UID': item['UID'],
+            res.append(self.ws4pmSettings._rest_getItemInfos({'UID': item['UID'],
                                                               'showExtraInfos': True,
                                                               'showAnnexes': True,
                                                               'allowed_annexes_types': allowed_annexes_types,
