@@ -3,7 +3,7 @@
            i18n_domain="imio.pm.wsclient">
 
    <include package="collective.z3cform.datagridfield"/>
-   <include package="imio.pm.ws" file="testing.zcml"/>
+   <include package="plonemeeting.restapi" file="testing.zcml"/>
    <include file="configure.zcml"/>
 
     <genericsetup:registerProfile
