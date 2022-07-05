@@ -16,6 +16,7 @@ from Products.CMFCore.ActionInformation import Action
 from Products.CMFCore.Expression import createExprContext
 from Products.CMFCore.Expression import Expression
 from Products.statusmessages.interfaces import IStatusMessage
+from StringIO import StringIO
 from z3c.form import button
 from z3c.form import field
 from zope import schema
@@ -27,6 +28,7 @@ from zope.i18n import translate
 from zope.interface import Interface
 from zope.schema.interfaces import IVocabularyFactory
 
+import json
 import requests
 
 
@@ -234,11 +236,14 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         password = self.request.form.get('form.widgets.pm_password') or settings.pm_password or ''
         timeout = self.request.form.get('form.widgets.pm_timeout') or settings.pm_timeout or ''
         try:
+            infos_url = "{}/@infos".format(self.url)
             session = requests.Session()
             session.auth = (username, password)
-            response = requests.get(self.url, timeout=int(timeout))
-            if response.status_code != 200:
-                raise ConnectionError
+            session.headers.update({'Accept': 'application/json', 'Content-Type': 'application/json'})
+            login = session.get(infos_url, timeout=int(timeout))
+            if login.status_code != 200:
+                response = json.load(StringIO(login.content))
+                raise ConnectionError(response['error']['message'])
         except Exception as e:
             # if we are really on the configuration panel, display relevant message
             if self.request.get('URL', '').endswith('@@ws4pmclient-settings'):
