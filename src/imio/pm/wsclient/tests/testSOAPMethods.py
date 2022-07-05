@@ -18,62 +18,62 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         Tests the browser.settings SOAP client methods
     """
 
-    def test_soap_connectToPloneMeeting(self):
+    def test_rest_connectToPloneMeeting(self):
         """Check that we can actually connect to PloneMeeting with given parameters."""
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         settings = ws4pmSettings.settings()
         setCorrectSettingsConfig(self.portal, minimal=True)
         # with valid informations, we can connect to PloneMeeting SOAP webservices
-        self.failUnless(ws4pmSettings._soap_connectToPloneMeeting())
+        self.failUnless(ws4pmSettings._rest_connectToPloneMeeting())
         # if either url or username/password is not valid, we can not connect...
         valid_url = settings.pm_url
         settings.pm_url = settings.pm_url + 'invalidEndOfURL'
         cleanMemoize(self.request)
         # with invalid url, it fails...
-        self.failIf(ws4pmSettings._soap_connectToPloneMeeting())
+        self.failIf(ws4pmSettings._rest_connectToPloneMeeting())
         settings.pm_url = valid_url
         # with valid url but wrong password, it fails...
         settings.pm_password = u'wrongPassword'
         cleanMemoize(self.request)
-        self.failIf(ws4pmSettings._soap_connectToPloneMeeting())
+        self.failIf(ws4pmSettings._rest_connectToPloneMeeting())
 
-    def test_soap_getConfigInfos(self):
+    def test_rest_getConfigInfos(self):
         """Check that we receive valid infos about the PloneMeeting's configuration."""
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         setCorrectSettingsConfig(self.portal, minimal=True)
-        configInfos = ws4pmSettings._soap_getConfigInfos()
+        configInfos = ws4pmSettings._rest_getConfigInfos()
         # check thatt we received elements like MeetingConfig and MeetingGroups
         self.assertTrue(configInfos.configInfo)
         self.assertTrue(configInfos.groupInfo)
         # by default, no categories
         self.assertFalse(hasattr(configInfos.configInfo[0], 'categories'))
-        # we can ask categories by passing a showCategories=True to _soap_getConfigInfos
-        configInfos = ws4pmSettings._soap_getConfigInfos(showCategories=True)
+        # we can ask categories by passing a showCategories=True to _rest_getConfigInfos
+        configInfos = ws4pmSettings._rest_getConfigInfos(showCategories=True)
         self.assertTrue(hasattr(configInfos.configInfo[1], 'categories'))
 
-    def test_soap_getItemCreationAvailableData(self):
+    def test_rest_getItemCreationAvailableData(self):
         """Check that we receive the list of available data for creating an item."""
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         setCorrectSettingsConfig(self.portal, minimal=True)
-        availableData = ws4pmSettings._soap_getItemCreationAvailableData()
+        availableData = ws4pmSettings._rest_getItemCreationAvailableData()
         availableData.sort()
         self.assertEqual(availableData, ['annexes',
-                                          'associatedGroups',
-                                          'category',
-                                          'decision',
-                                          'description',
-                                          'detailedDescription',
-                                          'externalIdentifier',
-                                          'extraAttrs',
-                                          'groupsInCharge',
-                                          'motivation',
-                                          'optionalAdvisers',
-                                          'preferredMeeting',
-                                          'proposingGroup',
-                                          'title',
-                                          'toDiscuss'])
+                                         'associatedGroups',
+                                         'category',
+                                         'decision',
+                                         'description',
+                                         'detailedDescription',
+                                         'externalIdentifier',
+                                         'extraAttrs',
+                                         'groupsInCharge',
+                                         'motivation',
+                                         'optionalAdvisers',
+                                         'preferredMeeting',
+                                         'proposingGroup',
+                                         'title',
+                                         'toDiscuss'])
 
-    def test_soap_getItemInfos(self):
+    def test_rest_getItemInfos(self):
         """Check the fact of getting informations about an existing item."""
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         setCorrectSettingsConfig(self.portal, minimal=True)
@@ -83,16 +83,16 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         # we have to commit() here or portal used behing the SOAP call
         # does not have the freshly created item...
         transaction.commit()
-        self.assertTrue(len(ws4pmSettings._soap_getItemInfos({'UID': item.UID()})) == 1)
+        self.assertTrue(len(ws4pmSettings._rest_getItemInfos({'UID': item.UID()})) == 1)
         # getItemInfos is called inTheNameOf the currently connected user
         # if the user (like 'pmCreator1') can see the item, he gets it in the request
         # either (like for 'pmCreator2') the item is not found
         self.changeUser('pmCreator1')
-        self.assertTrue(len(ws4pmSettings._soap_getItemInfos({'UID': item.UID()})) == 1)
+        self.assertTrue(len(ws4pmSettings._rest_getItemInfos({'UID': item.UID()})) == 1)
         self.changeUser('pmCreator2')
-        self.assertTrue(len(ws4pmSettings._soap_getItemInfos({'UID': item.UID()})) == 0)
+        self.assertTrue(len(ws4pmSettings._rest_getItemInfos({'UID': item.UID()})) == 0)
 
-    def test_soap_searchItems(self):
+    def test_rest_searchItems(self):
         """Check the fact of searching items informations about existing items."""
         SAME_TITLE = 'sameTitleForBothItems'
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
@@ -112,15 +112,15 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         transaction.commit()
         # searchItems will automatically restrict searches to the connected user
         self.changeUser('pmCreator1')
-        result = ws4pmSettings._soap_searchItems({'Title': SAME_TITLE})
+        result = ws4pmSettings._rest_searchItems({'Title': SAME_TITLE})
         self.assertTrue(len(result), 1)
         self.assertTrue(result[0].UID == item1.UID())
         self.changeUser('pmCreator2')
-        result = ws4pmSettings._soap_searchItems({'Title': SAME_TITLE})
+        result = ws4pmSettings._rest_searchItems({'Title': SAME_TITLE})
         self.assertTrue(len(result), 1)
         self.assertTrue(result[0].UID == item2.UID())
 
-    def test_soap_createItem(self):
+    def test_rest_createItem(self):
         """Check item creation.
            Item creation will automatically use currently connected user
            to create the item regarding the _getUserIdToUseInTheNameOfWith."""
@@ -148,7 +148,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
                 'externalIdentifier': u'my-external-identifier',
                 'extraAttrs': [{'key': 'internalNotes',
                                 'value': '<p>Internal notes</p>'}]}
-        result = ws4pmSettings._soap_createItem(cfg2Id, 'developers', data)
+        result = ws4pmSettings._rest_createItem(cfg2Id, 'developers', data)
         # commit again so the item is really created
         transaction.commit()
         # the item is created and his UID is returned
@@ -170,16 +170,16 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         # if we try to create with wrong data, the SOAP ws returns a response
         # that is displayed to the user creating the item
         data['category'] = 'unexisting-category-id'
-        result = ws4pmSettings._soap_createItem('plonegov-assembly', 'developers', data)
+        result = ws4pmSettings._rest_createItem('plonegov-assembly', 'developers', data)
         self.assertIsNone(result)
         messages = IStatusMessage(self.request)
         # a message is displayed
         self.assertEqual(messages.show()[-1].message,
-                          u"An error occured during the item creation in PloneMeeting! "
-                          "The error message was : Server raised fault: ''unexisting-category-id' "
-                          "is not available for the 'developers' group!'")
+                         u"An error occured during the item creation in PloneMeeting! "
+                         "The error message was : Server raised fault: ''unexisting-category-id' "
+                         "is not available for the 'developers' group!'")
 
-    def test_soap_getItemTemplate(self):
+    def test_rest_getItemTemplate(self):
         """Check while getting rendered template for an item.
            getItemTemplate will automatically use currently connected user
            to render item template regarding the _getUserIdToUseInTheNameOfWith."""
@@ -191,29 +191,29 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         # we have to commit() here or portal used behing the SOAP call
         # does not have the freshly created item...
         transaction.commit()
-        self.assertTrue(ws4pmSettings._soap_getItemTemplate(
+        self.assertTrue(ws4pmSettings._rest_getItemTemplate(
             {'itemUID': item.UID(),
              'templateId': POD_TEMPLATE_ID_PATTERN.format('itemTemplate', 'odt')}))
         # getItemTemplate is called inTheNameOf the currently connected user
         # if the user (like 'pmCreator1') can see the item, he gets the rendered template
         # either (like for 'pmCreator2') nothing is returned
         self.changeUser('pmCreator1')
-        self.assertTrue(ws4pmSettings._soap_getItemTemplate(
+        self.assertTrue(ws4pmSettings._rest_getItemTemplate(
             {'itemUID': item.UID(),
              'templateId': POD_TEMPLATE_ID_PATTERN.format('itemTemplate', 'odt')}))
         self.changeUser('pmCreator2')
-        self.assertFalse(ws4pmSettings._soap_getItemTemplate(
+        self.assertFalse(ws4pmSettings._rest_getItemTemplate(
             {'itemUID': item.UID(),
              'templateId': POD_TEMPLATE_ID_PATTERN.format('itemTemplate', 'odt')}))
 
-    def test_soap_getMeetingAcceptingItems(self):
+    def test_rest_getMeetingAcceptingItems(self):
         """Check getting accepting items meeting.
            Should only return meetings in the state 'creation' and 'frozen'"""
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         setCorrectSettingsConfig(self.portal, minimal=True)
         cfg = self.meetingConfig
         cfgId = cfg.getId()
-        meetings = ws4pmSettings._soap_getMeetingsAcceptingItems(
+        meetings = ws4pmSettings._rest_getMeetingsAcceptingItems(
             {'meetingConfigId': cfgId, 'inTheNameOf': 'pmCreator1'}
         )
         self.assertEqual(meetings, [])
@@ -222,7 +222,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         meeting_2 = self.create('Meeting', date=datetime(2013, 3, 3))
         transaction.commit()
         self.changeUser('pmCreator1')
-        meetings = ws4pmSettings._soap_getMeetingsAcceptingItems(
+        meetings = ws4pmSettings._rest_getMeetingsAcceptingItems(
             {'meetingConfigId': cfgId, 'inTheNameOf': 'pmCreator1'}
         )
         # so far find the two meetings
@@ -233,7 +233,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         api.content.transition(meeting_2, 'freeze')
         transaction.commit()
         self.changeUser('pmCreator1')
-        meetings = ws4pmSettings._soap_getMeetingsAcceptingItems(
+        meetings = ws4pmSettings._rest_getMeetingsAcceptingItems(
             {'meetingConfigId': cfgId, 'inTheNameOf': 'pmCreator1'}
         )
         self.assertEqual(len(meetings), 2)
@@ -244,21 +244,21 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         transaction.commit()
         # after publishing meeting_2, it should not be in the results anymore.
         self.changeUser('pmCreator1')
-        meetings = ws4pmSettings._soap_getMeetingsAcceptingItems(
+        meetings = ws4pmSettings._rest_getMeetingsAcceptingItems(
             {'meetingConfigId': cfgId, 'inTheNameOf': 'pmCreator1'}
         )
         self.assertEqual(len(meetings), 1)
         self.assertEqual(meetings[0].UID, meeting_1.UID())
-        # if no inTheNameOf param is explicitly passed, _soap_getMeetingsAcceptingItems()
+        # if no inTheNameOf param is explicitly passed, _rest_getMeetingsAcceptingItems()
         # should set a default one.
-        meetings = ws4pmSettings._soap_getMeetingsAcceptingItems(
+        meetings = ws4pmSettings._rest_getMeetingsAcceptingItems(
             {'meetingConfigId': cfgId}
         )
         self.assertEqual(len(meetings), 1)
         self.assertEqual(meetings[0].UID, meeting_1.UID())
 
         # As pmManager, we should get all the meetings
-        meetings = ws4pmSettings._soap_getMeetingsAcceptingItems(
+        meetings = ws4pmSettings._rest_getMeetingsAcceptingItems(
             {'meetingConfigId': cfgId, 'inTheNameOf': 'pmManager'}
         )
         self.assertEqual(len(meetings), 2)
