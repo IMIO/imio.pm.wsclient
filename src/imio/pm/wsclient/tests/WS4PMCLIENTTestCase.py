@@ -21,9 +21,9 @@
 #
 
 from Acquisition import aq_base
+from imio.pm.ws.tests.WS4PMTestCase import WS4PMTestCase
 from imio.pm.wsclient.testing import WS4PMCLIENT_PM_TESTING_PROFILE_FUNCTIONAL
 from Products.PloneMeeting.config import DEFAULT_USER_PASSWORD
-from Products.PloneMeeting.tests.PloneMeetingTestCase import PloneMeetingTestCase
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getMultiAdapter
 
@@ -33,7 +33,7 @@ import transaction
 SEND_TO_PM_VIEW_NAME = '@@send_to_plonemeeting_form'
 
 
-class WS4PMCLIENTTestCase(PloneMeetingTestCase):
+class WS4PMCLIENTTestCase(WS4PMTestCase):
     '''Base class for defining WS4PMCLIENT test cases.'''
 
     # define PM base TestCase test file that we will not launch from here
@@ -48,7 +48,7 @@ class WS4PMCLIENTTestCase(PloneMeetingTestCase):
 
     def setUp(self):
         """ """
-        PloneMeetingTestCase.setUp(self)
+        WS4PMTestCase.setUp(self)
 
     def _sendToPloneMeeting(self, obj, user='pmCreator1', proposingGroup='developers',
                             meetingConfigId='plonemeeting-assembly', category=''):
@@ -96,7 +96,7 @@ def setCorrectSettingsConfig(portal, setConnectionParams=True, minimal=False, wi
     ws4pmSettings = getMultiAdapter((portal, portal.REQUEST), name='ws4pmclient-settings')
     settings = ws4pmSettings.settings()
     if setConnectionParams:
-        settings.pm_url = kwargs.get('pm_url', None) or u'%s/ws4pm.wsdl' % portal.absolute_url()
+        settings.pm_url = kwargs.get('pm_url', None) or portal.absolute_url().decode('utf-8')
         settings.pm_username = kwargs.get('pm_username', None) or u'pmManager'
         settings.pm_password = kwargs.get('pm_password', None) or DEFAULT_USER_PASSWORD
     settings.user_mappings = kwargs.get('user_mappings', None) or \

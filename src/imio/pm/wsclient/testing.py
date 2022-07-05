@@ -25,7 +25,6 @@ WS4PMCLIENT = WSCLIENTLayer(
     zcml_package=imio.pm.wsclient,
     additional_z2_products=('imio.dashboard',
                             'imio.pm.wsclient',
-                            'imio.pm.ws',
                             'Products.PasswordStrength'),
     gs_profile_id='imio.pm.wsclient:testing',
     name="WS4PMCLIENT")
@@ -38,7 +37,6 @@ WS4PMCLIENT_PM_TESTING_PROFILE = WSCLIENTLayer(
                             'Products.PloneMeeting',
                             'Products.CMFPlacefulWorkflow',
                             'imio.pm.wsclient',
-                            'imio.pm.ws',
                             'Products.PasswordStrength'),
     gs_profile_id='Products.PloneMeeting:testing',
     name="WS4PMCLIENT_PM_TESTING_PROFILE")
