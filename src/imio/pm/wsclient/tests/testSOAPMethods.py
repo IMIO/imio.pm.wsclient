@@ -42,14 +42,15 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         setCorrectSettingsConfig(self.portal, minimal=True)
         configInfos = ws4pmSettings._rest_getConfigInfos()
-        # check thatt we received elements like MeetingConfig and MeetingGroups
-        self.assertTrue(configInfos.configInfo)
-        self.assertTrue(configInfos.groupInfo)
+        # check that we received meeting config elements
+        self.assertTrue(len(configInfos), 2)
+        self.assertTrue(configInfos[0]['id'], u'plonemeeting-assembly')
+        self.assertTrue(configInfos[1]['id'], u'plonegov-assembly')
         # by default, no categories
-        self.assertFalse(hasattr(configInfos.configInfo[0], 'categories'))
+        self.assertFalse(configInfos[0].get('categories', False))
         # we can ask categories by passing a showCategories=True to _rest_getConfigInfos
         configInfos = ws4pmSettings._rest_getConfigInfos(showCategories=True)
-        self.assertTrue(hasattr(configInfos.configInfo[1], 'categories'))
+        self.assertTrue(configInfos[0].get('categories', False))
 
     def test_rest_getItemCreationAvailableData(self):
         """Check that we receive the list of available data for creating an item."""
