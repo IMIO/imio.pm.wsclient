@@ -16,6 +16,7 @@ from Products.CMFCore.ActionInformation import Action
 from Products.CMFCore.Expression import createExprContext
 from Products.CMFCore.Expression import Expression
 from Products.statusmessages.interfaces import IStatusMessage
+from StringIO import StringIO
 from z3c.form import button
 from z3c.form import field
 from zope import schema
@@ -27,6 +28,7 @@ from zope.i18n import translate
 from zope.interface import Interface
 from zope.schema.interfaces import IVocabularyFactory
 
+import json
 import requests
 
 
@@ -223,6 +225,12 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         settings = self.settings()
         return self.request.form.get('form.widgets.pm_url') or settings.pm_url or ''
 
+    @property
+    def username(self):
+        """Return username used for REST calls"""
+        settings = self.settings()
+        return self.request.form.get('form.widgets.pm_username') or settings.pm_username or ''
+
     @memoize
     def _rest_connectToPloneMeeting(self):
         """
@@ -230,17 +238,16 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
           Either return None or the session
         """
         settings = self.settings()
-        username = self.request.form.get('form.widgets.pm_username') or settings.pm_username or ''
         password = self.request.form.get('form.widgets.pm_password') or settings.pm_password or ''
         timeout = self.request.form.get('form.widgets.pm_timeout') or settings.pm_timeout or ''
         try:
             infos_url = "{}/@infos".format(self.url)
             session = requests.Session()
-            session.auth = (username, password)
+            session.auth = (self.username, password)
             session.headers.update({'Accept': 'application/json', 'Content-Type': 'application/json'})
             login = session.get(infos_url, timeout=int(timeout))
             if login.status_code != 200:
-                response = login.json()
+                response = json.load(StringIO(login.content))
                 raise ConnectionError(response['error']['message'])
         except Exception as e:
             # if we are really on the configuration panel, display relevant message
