@@ -21,7 +21,7 @@
 #
 
 from Acquisition import aq_base
-from imio.pm.ws.tests.WS4PMTestCase import WS4PMTestCase
+from plonemeeting.restapi.tests.base import BaseTestCase as WS4PMTestCase
 from imio.pm.wsclient.testing import WS4PMCLIENT_PM_TESTING_PROFILE_FUNCTIONAL
 from Products.PloneMeeting.config import DEFAULT_USER_PASSWORD
 from zope.annotation.interfaces import IAnnotations

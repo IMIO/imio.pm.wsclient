@@ -33,8 +33,9 @@ setup(name='imio.pm.wsclient',
           'imio.pm.locales',
           'plone.memoize',
           'requests',
+          'six',
       ],
-      extras_require={'test': ['plone.app.testing', 'imio.pm.ws', 'mock']},
+      extras_require={'test': ['plone.app.testing', 'plonemeeting.restapi', 'mock']},
       entry_points="""
       # -*- Entry points: -*-
       """,
