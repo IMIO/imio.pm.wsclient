@@ -277,6 +277,8 @@ class desired_meetingdates_vocabulary(object):
         possible_meetings = ws4pmsettings._rest_getMeetingsAcceptingItems(data)
         local = pytz.timezone("Europe/Brussels")
         for meeting in possible_meetings:
+            # XXX date does not exist ATM
+            continue
             meeting['date'] = meeting['date'].astimezone(local)
         terms = []
         allowed_meetings = queryMultiAdapter((context, possible_meetings), IPreferredMeetings)

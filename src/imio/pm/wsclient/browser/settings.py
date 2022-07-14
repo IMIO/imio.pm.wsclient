@@ -30,6 +30,7 @@ from zope.schema.interfaces import IVocabularyFactory
 
 import json
 import requests
+import six
 
 
 class IGeneratedActionsSchema(Interface):
@@ -260,6 +261,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
     def _rest_checkIsLinked(self, data):
         """Query the checkIsLinked REST server method."""
         # XXX To be implemented in plonemeeting.restapi
+        # this will disappear and is replaced by a direct call to @item GET
         session = self._rest_connectToPloneMeeting()
         if session is not None:
             return session.service.checkIsLinked(**data)
@@ -292,6 +294,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
     def _rest_getUserInfos(self, showGroups=False, suffix=''):
         """Query the getUserInfos REST server method."""
         # XXX Use @users endpoint (suffix may need to be reimplemented)
+        # use @users?extra_include=groups&extra_include_groups_suffixes=creators
         session = self._rest_connectToPloneMeeting()
         if session is not None:
             # get the inTheNameOf userid if it was not already set
@@ -304,6 +307,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
     def _rest_searchItems(self, data):
         """Query the searchItems REST server method."""
         # XXX Use @search endpoint and `in_name_of` parameter
+        # use @search?config_id=meeting-config-college&in_name_of=username&...
         session = self._rest_connectToPloneMeeting()
         if session is not None:
             # get the inTheNameOf userid if it was not already set
@@ -315,48 +319,101 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         """Query the getItemInfos REST server method."""
         # XXX Use @get endpoint but handle `in_name_of` parameter and ensure that all
         # required attributes are returned
+        # use @get (that is overrided) ?in_name_of=username&uid=a_uid
         session = self._rest_connectToPloneMeeting()
         if session is not None:
             # get the inTheNameOf userid if it was not already set
             if 'inTheNameOf' not in data:
-                data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
-            return session.service.getItemInfos(**data)
+                in_name_of = self._getUserIdToUseInTheNameOfWith()
+            url = "{url}/@get?in_name_of={in_name_of}&uid={uid}".format(
+                url=self.url,
+                in_name_of=in_name_of,
+                uid=data["UID"],
+            )
+            response = session.get(url)
+            print(url)
+            print(response.json())
+            if response.status_code == 200:
+                # Expect a list even for a single result
+                return [response.json()]
+            return []
 
     def _rest_getMeetingsAcceptingItems(self, data):
         """Query the getItemInfos REST server method."""
-        # XXX use @meeting endpoint ? does this endpoint return the accepting items ?
         session = self._rest_connectToPloneMeeting()
         if session is not None:
             if 'inTheNameOf' not in data:
-                data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
-            return session.service.meetingsAcceptingItems(**data)
+                in_name_of = self._getUserIdToUseInTheNameOfWith()
+            url = (
+                "{url}/@search?config_id={config_id}&in_name_of={in_name_of}"
+                "&type=meeting&meetings_accepting_items=true"
+            ).format(
+                url=self.url,
+                config_id=data["meetingConfigId"],
+                in_name_of=in_name_of,
+            )
+            response = session.get(url)
+            if response.status_code == 200:
+                return response.json()["items"]
 
     def _rest_getItemTemplate(self, data):
         """Query the getItemTemplate REST server method."""
-        # XXX new endpoint ? Extending @get endpoint ?
         session = self._rest_connectToPloneMeeting()
         if session is not None:
             if 'inTheNameOf' not in data:
                 data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
             try:
-                return session.service.getItemTemplate(**data)
+                # XXX in_name_of must be implemented
+                url = "{0}/@get?UID={1}&extra_include=pod_templates".format(
+                    self.url, data["itemUID"]
+                )
+                response = session.get(url)
+                template_id, output_format = data["templateId"].split("__format__")
+                # Iterate over possible templates to find the right one
+                template = [t for t in response.json()["extra_include_pod_templates"]
+                            if t["id"] == template_id]
+                if not template:
+                    raise ValueError("Unkown template id '{0}'".format(template_id))
+                # Iterate over possible output format to find the expected one
+                output = [o for o in template[0]["outputs"]
+                          if o["format"] == output_format]
+                if not output:
+                    raise ValueError(
+                        "Unknown output format '{0}' for template id '{1'".format(
+                            output_format, template_id
+                        )
+                    )
+                response = session.get(output[0]["url"])
+                if response.status_code == 200:
+                    return response
             except Exception as exc:
                 IStatusMessage(self.request).addStatusMessage(
-                    _(u"An error occured while generating the document in PloneMeeting!  "
+                    _(u"An error occured while generating the document in PloneMeeting! "
                       "The error message was : %s" % exc), "error")
 
     @memoize
     def _rest_getItemCreationAvailableData(self):
         """Query REST WSDL to obtain the list of available fields useable while creating an item."""
-        # XXX new endpoint ? Extending @meeting endpoint ?
         session = self._rest_connectToPloneMeeting()
         if session is not None:
-            # extract data from the CreationData ComplexType that is used to create an item
-            namespace = str(session.wsdl.tns[1])
-            res = ['proposingGroup']
-            res += [str(data.name) for data in
-                    session.factory.wsdl.build_schema().types['CreationData', namespace].rawchildren[0].rawchildren]
-            return res
+            available_data = [u"proposingGroup"]  # XXX Must be extended
+            configs_url = "{0}/@users/{1}?extra_include=configs".format(
+                self.url,
+                self.username,
+            )
+            configs = session.get(configs_url)
+            for config in configs.json()["extra_include_configs"]:
+                url = "{0}/@config?config_id={1}&metadata_fields=usedItemAttributes".format(
+                    self.url,
+                    config["id"],
+                )
+                response = session.get(url)
+                attributes = response.json()["usedItemAttributes"]
+                map(
+                    available_data.append,
+                    [k for k in attributes if k not in available_data],
+                )
+            return available_data
 
     def _rest_createItem(self, meetingConfigId, proposingGroupId, creationData):
         """Query the createItem REST server method."""
@@ -366,15 +423,29 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 # we create an item inTheNameOf the currently connected member
                 # _getUserIdToCreateWith returns None if the settings defined username creates the item
                 inTheNameOf = self._getUserIdToUseInTheNameOfWith()
-                res = session.service.createItem(meetingConfigId,
-                                                 proposingGroupId,
-                                                 creationData,
-                                                 inTheNameOf=inTheNameOf)
+                data = {
+                    "config_id": meetingConfigId,
+                    "proposingGroup": proposingGroupId,
+                    "in_name_of": inTheNameOf,
+                }
+                # For backward compatibility
+                if "extraAttrs" in creationData:
+                    extra_attrs = creationData.pop("extraAttrs")
+                    for value in extra_attrs:
+                        creationData[value["key"]] = value["value"]
+                data.update(creationData)
+                res = session.post("{0}/@item".format(self.url), json=data)
+                if res.status_code != 201:
+                    error = "Unexcepted response ({0})".format(res.status_code)
+                    IStatusMessage(self.request).addStatusMessage(
+                        _(CONFIG_CREATE_ITEM_PM_ERROR, mapping={"error": error})
+                    )
+                    return
                 # return 'UID' and 'warnings' if any current user is a Manager
                 warnings = []
                 if self.context.portal_membership.getAuthenticatedMember().has_role('Manager'):
                     warnings = 'warnings' in res.__keylist__ and res['warnings'] or []
-                return res['UID'], warnings
+                return res.json()['UID'], warnings
             except Exception as exc:
                 IStatusMessage(self.request).addStatusMessage(_(CONFIG_CREATE_ITEM_PM_ERROR, mapping={'error': exc}),
                                                               "error")

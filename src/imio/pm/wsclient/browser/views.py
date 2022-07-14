@@ -74,7 +74,7 @@ class GenerateItemTemplateView(BaseDownloadFromItemView):
             # an error occured, redirect to user to the context, a statusMessage will be displayed
             return self.request.RESPONSE.redirect(self.context.absolute_url())
 
-        return base64.b64decode(res)
+        return res.content
 
 
 class DownloadAnnexFromItemView(BaseDownloadFromItemView):
