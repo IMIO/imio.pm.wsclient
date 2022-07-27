@@ -258,6 +258,17 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             return None
         return session
 
+    def _format_rest_query_url(self, endpoint, **kwargs):
+        """Return a rest query URL formatted for the given endpoint and arguments"""
+        arguments = ["{0}={1}".format(k, v) for k, v in kwargs.items() if v]
+        if arguments:
+            return "{url}/{endpoint}?{arguments}".format(
+                url=self.url,
+                endpoint=endpoint,
+                arguments="&".join(arguments),
+            )
+        return "{url}/{endpoint}".format(url=self.url, endpoint=endpoint)
+
     def _rest_checkIsLinked(self, data):
         """Query the checkIsLinked REST server method."""
         # XXX To be implemented in plonemeeting.restapi
@@ -293,46 +304,51 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
     @memoize
     def _rest_getUserInfos(self, showGroups=False, suffix=''):
         """Query the getUserInfos REST server method."""
-        # XXX Use @users endpoint (suffix may need to be reimplemented)
-        # use @users?extra_include=groups&extra_include_groups_suffixes=creators
         session = self._rest_connectToPloneMeeting()
         if session is not None:
             # get the inTheNameOf userid if it was not already set
             userId = self._getUserIdToUseInTheNameOfWith(mandatory=True)
-            try:
-                return session.service.getUserInfos(userId, showGroups, suffix)
-            except Exception:
-                return None
+            url = self._format_rest_query_url(
+                "@users/{0}".format(userId),
+                extra_include="groups",
+                extra_include_groups_suffixes="creators",
+            )
+            response = session.get(url)
+            if response.status_code == 200:
+                return response.json()
 
     def _rest_searchItems(self, data):
         """Query the searchItems REST server method."""
-        # XXX Use @search endpoint and `in_name_of` parameter
         # use @search?config_id=meeting-config-college&in_name_of=username&...
+        # XXX Does this method must be migrated to REST, if yes, find a way to get the
+        # config ID
         session = self._rest_connectToPloneMeeting()
         if session is not None:
             # get the inTheNameOf userid if it was not already set
             if 'inTheNameOf' not in data:
-                data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
-            return session.service.searchItems(**data)
+                data["inTheNameOf"] = self._getUserIdToUseInTheNameOfWith()
+            url = self._format_rest_query_url(
+                "@search",
+                in_name_of=data["inTheNameOf"],
+            )
+            response = session.get(url)
+            if response.status_code == 200:
+                return response.json()
+            return []
 
     def _rest_getItemInfos(self, data):
         """Query the getItemInfos REST server method."""
-        # XXX Use @get endpoint but handle `in_name_of` parameter and ensure that all
-        # required attributes are returned
-        # use @get (that is overrided) ?in_name_of=username&uid=a_uid
         session = self._rest_connectToPloneMeeting()
         if session is not None:
             # get the inTheNameOf userid if it was not already set
             if 'inTheNameOf' not in data:
-                in_name_of = self._getUserIdToUseInTheNameOfWith()
-            url = "{url}/@get?in_name_of={in_name_of}&uid={uid}".format(
-                url=self.url,
-                in_name_of=in_name_of,
+                data["inTheNameOf"] = self._getUserIdToUseInTheNameOfWith()
+            url = self._format_rest_query_url(
+                "@get",
                 uid=data["UID"],
+                in_name_of=data["inTheNameOf"],
             )
             response = session.get(url)
-            print(url)
-            print(response.json())
             if response.status_code == 200:
                 # Expect a list even for a single result
                 return [response.json()]
@@ -343,14 +359,13 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         session = self._rest_connectToPloneMeeting()
         if session is not None:
             if 'inTheNameOf' not in data:
-                in_name_of = self._getUserIdToUseInTheNameOfWith()
-            url = (
-                "{url}/@search?config_id={config_id}&in_name_of={in_name_of}"
-                "&type=meeting&meetings_accepting_items=true"
-            ).format(
-                url=self.url,
+                data["inTheNameOf"] = self._getUserIdToUseInTheNameOfWith()
+            url = self._format_rest_query_url(
+                "@search",
                 config_id=data["meetingConfigId"],
-                in_name_of=in_name_of,
+                in_name_of=data["inTheNameOf"],
+                type="meeting",
+                meetings_accepting_items="true",
             )
             response = session.get(url)
             if response.status_code == 200:
@@ -361,11 +376,13 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         session = self._rest_connectToPloneMeeting()
         if session is not None:
             if 'inTheNameOf' not in data:
-                data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
+                data["inTheNameOf"] = self._getUserIdToUseInTheNameOfWith()
             try:
-                # XXX in_name_of must be implemented
-                url = "{0}/@get?UID={1}&extra_include=pod_templates".format(
-                    self.url, data["itemUID"]
+                url = self._format_rest_query_url(
+                    "@get",
+                    uid=data["itemUID"],
+                    in_name_of=data["inTheNameOf"],
+                    extra_include="pod_templates",
                 )
                 response = session.get(url)
                 template_id, output_format = data["templateId"].split("__format__")
@@ -396,24 +413,44 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         """Query REST WSDL to obtain the list of available fields useable while creating an item."""
         session = self._rest_connectToPloneMeeting()
         if session is not None:
-            available_data = [u"proposingGroup"]  # XXX Must be extended
+            available_data = [
+                u"annexes",
+                u"associatedGroups",
+                u"category",
+                u"decision",
+                u"externalIdentifier",
+                u"extraAttrs",
+                u"groupsInCharge",
+                u"motivation",
+                u"optionalAdvisers",
+                u"preferredMeeting",
+                u"proposingGroup",
+                u"title",
+            ]
+            ignored_data = [
+                u"itemIsSigned",
+                u"itemTags",
+            ]
             configs_url = "{0}/@users/{1}?extra_include=configs".format(
                 self.url,
                 self.username,
             )
             configs = session.get(configs_url)
             for config in configs.json()["extra_include_configs"]:
-                url = "{0}/@config?config_id={1}&metadata_fields=usedItemAttributes".format(
-                    self.url,
-                    config["id"],
+                url = self._format_rest_query_url(
+                    "@config",
+                    config_id=config["id"],
+                    metadata_fields="usedItemAttributes",
                 )
                 response = session.get(url)
                 attributes = response.json()["usedItemAttributes"]
                 map(
                     available_data.append,
-                    [k for k in attributes if k not in available_data],
+                    [k["token"] for k in attributes
+                     if k["token"] not in available_data
+                     and k["token"] not in ignored_data],
                 )
-            return available_data
+            return sorted(available_data)
 
     def _rest_createItem(self, meetingConfigId, proposingGroupId, creationData):
         """Query the createItem REST server method."""
@@ -434,9 +471,12 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                     for value in extra_attrs:
                         creationData[value["key"]] = value["value"]
                 data.update(creationData)
-                res = session.post("{0}/@item".format(self.url), json=data)
-                if res.status_code != 201:
-                    error = "Unexcepted response ({0})".format(res.status_code)
+                response = session.post("{0}/@item".format(self.url), json=data)
+                if response.status_code != 201:
+                    if response.content:
+                        error = response.json()["message"]
+                    else:
+                        error = "Unexcepted response ({0})".format(response.status_code)
                     IStatusMessage(self.request).addStatusMessage(
                         _(CONFIG_CREATE_ITEM_PM_ERROR, mapping={"error": error})
                     )
@@ -444,11 +484,12 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 # return 'UID' and 'warnings' if any current user is a Manager
                 warnings = []
                 if self.context.portal_membership.getAuthenticatedMember().has_role('Manager'):
-                    warnings = 'warnings' in res.__keylist__ and res['warnings'] or []
-                return res.json()['UID'], warnings
+                    warnings = 'warnings' in response.__keylist__ and response['warnings'] or []
+                return response.json()['UID'], warnings
             except Exception as exc:
-                IStatusMessage(self.request).addStatusMessage(_(CONFIG_CREATE_ITEM_PM_ERROR, mapping={'error': exc}),
-                                                              "error")
+                IStatusMessage(self.request).addStatusMessage(
+                    _(CONFIG_CREATE_ITEM_PM_ERROR, mapping={'error': exc}), "error"
+                )
 
     def _getUserIdToUseInTheNameOfWith(self, mandatory=False):
         """
