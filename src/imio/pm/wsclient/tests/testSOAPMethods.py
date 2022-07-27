@@ -64,7 +64,6 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
                                          u'category',
                                          u'decision',
                                          u'description',
-                                         u'detailedDescription',
                                          u'externalIdentifier',
                                          u'extraAttrs',
                                          u'groupsInCharge',
@@ -128,11 +127,11 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
            to create the item regarding the _getUserIdToUseInTheNameOfWith."""
         cfg2 = self.meetingConfig2
         cfg2Id = cfg2.getId()
-        self._enableField("internalNotes")
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         setCorrectSettingsConfig(self.portal, minimal=True)
         self.changeUser('pmManager')
         self.setMeetingConfig(cfg2Id)
+        self._enableField("internalNotes")
         test_meeting = self.create('Meeting')
         self.freezeMeeting(test_meeting)
         self.changeUser('pmCreator1')
@@ -179,11 +178,10 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         self.assertIsNone(result)
         messages = IStatusMessage(self.request)
         # a message is displayed
-        # XXX Message differ, may be fix here or in error message
         self.assertEqual(messages.show()[-1].message,
                          u"An error occured during the item creation in PloneMeeting! "
-                         "The error message was : Server raised fault: ''unexisting-category-id' "
-                         "is not available for the 'developers' group!'")
+                         "The error message was : [{'field': 'category', 'message': "
+                         "u'Please select a category.', 'error': 'ValidationError'}]")
 
     def test_rest_getItemTemplate(self):
         """Check while getting rendered template for an item.
