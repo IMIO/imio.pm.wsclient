@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import CAN_NOT_CREATE_FOR_PROPOSING_GROUP_ERROR
 from imio.pm.wsclient.config import CAN_NOT_CREATE_WITH_CATEGORY_ERROR
@@ -277,8 +278,8 @@ class desired_meetingdates_vocabulary(object):
         possible_meetings = ws4pmsettings._rest_getMeetingsAcceptingItems(data)
         local = pytz.timezone("Europe/Brussels")
         for meeting in possible_meetings:
-            # XXX date does not exist ATM
-            continue
+            meeting["date"] = datetime.strptime(meeting["date"], "%Y-%m-%dT%H:%M:%S")
+            meeting["date"] = local.localize(meeting["date"])
             meeting['date'] = meeting['date'].astimezone(local)
         terms = []
         allowed_meetings = queryMultiAdapter((context, possible_meetings), IPreferredMeetings)
