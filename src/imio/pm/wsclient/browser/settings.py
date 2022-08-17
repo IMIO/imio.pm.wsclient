@@ -275,7 +275,17 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         # this will disappear and is replaced by a direct call to @item GET
         session = self._rest_connectToPloneMeeting()
         if session is not None:
-            return session.service.checkIsLinked(**data)
+            if 'inTheNameOf' not in data:
+                data["inTheNameOf"] = self._getUserIdToUseInTheNameOfWith()
+            url = self._format_rest_query_url(
+                "@get",
+                extra_include="linked_items",
+                **{k: v for k, v in data.items() if k != "inTheNameOf"}
+            )
+            response = session.get(url)
+            if response.status_code == 200:
+                return response.json()
+            return []
 
     @memoize
     def _rest_getConfigInfos(self, showCategories=False):
@@ -319,21 +329,22 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
 
     def _rest_searchItems(self, data):
         """Query the searchItems REST server method."""
-        # use @search?config_id=meeting-config-college&in_name_of=username&...
-        # XXX Does this method must be migrated to REST, if yes, find a way to get the
-        # config ID
         session = self._rest_connectToPloneMeeting()
         if session is not None:
             # get the inTheNameOf userid if it was not already set
             if 'inTheNameOf' not in data:
                 data["inTheNameOf"] = self._getUserIdToUseInTheNameOfWith()
+            if "type" not in data:
+                # we want item by default
+                data["type"] = "item"
             url = self._format_rest_query_url(
                 "@search",
                 in_name_of=data["inTheNameOf"],
+                **{k: v for k, v in data.items() if k != "inTheNameOf"}
             )
             response = session.get(url)
             if response.status_code == 200:
-                return response.json()
+                return response.json().get("items", [])
             return []
 
     def _rest_getItemInfos(self, data):
@@ -366,6 +377,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 in_name_of=data["inTheNameOf"],
                 type="meeting",
                 meetings_accepting_items="true",
+                fullobjects=1,
             )
             response = session.get(url)
             if response.status_code == 200:
