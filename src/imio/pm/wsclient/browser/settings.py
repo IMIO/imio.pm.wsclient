@@ -318,10 +318,14 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         if session is not None:
             # get the inTheNameOf userid if it was not already set
             userId = self._getUserIdToUseInTheNameOfWith(mandatory=True)
+            parameters = {}
+            if showGroups is True:
+                parameters["extra_include"] = "groups"
+                if suffix:
+                    parameters["extra_include_groups_suffixes"] = suffix
             url = self._format_rest_query_url(
                 "@users/{0}".format(userId),
-                extra_include="groups",
-                extra_include_groups_suffixes="creators",
+                **parameters
             )
             response = session.get(url)
             if response.status_code == 200:
