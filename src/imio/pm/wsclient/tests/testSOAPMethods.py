@@ -37,7 +37,6 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         cleanMemoize(self.request)
         self.failIf(ws4pmSettings._rest_connectToPloneMeeting())
 
-
     def test_rest_checkIsLinked(self):
         """Verify that we can get link informations"""
         ws4pmSettings = getMultiAdapter(
@@ -144,6 +143,55 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         self.assertTrue(len(ws4pmSettings._rest_getItemInfos({'UID': item.UID()})) == 1)
         self.changeUser('pmCreator2')
         self.assertTrue(len(ws4pmSettings._rest_getItemInfos({'UID': item.UID()})) == 0)
+
+    def test_rest_getUserInfos_groups_and_suffix(self):
+        """Test _rest_getUserInfos with group and suffix parameter"""
+        ws4pmSettings = getMultiAdapter((self.portal, self.request), name="ws4pmclient-settings")
+        setCorrectSettingsConfig(self.portal, minimal=True)
+        self.changeUser("pmCreator1")
+
+        user_infos = ws4pmSettings._rest_getUserInfos(
+            showGroups=True,
+            suffix="creators",
+        )
+        self.assertIsNotNone(user_infos)
+        self.assertEqual("pmCreator1", user_infos["id"])
+        self.assertEqual(1, user_infos["extra_include_groups_items_total"])
+        self.assertEqual("developers", user_infos["extra_include_groups"][0]["id"])
+
+        # Suffix that does not match any group
+        user_infos = ws4pmSettings._rest_getUserInfos(
+            showGroups=True,
+            suffix="observers",
+        )
+        self.assertIsNotNone(user_infos)
+        self.assertEqual("pmCreator1", user_infos["id"])
+        self.assertEqual(0, user_infos["extra_include_groups_items_total"])
+
+    def test_rest_getUserInfos_groups_and_wihout_suffix(self):
+        """Test _rest_getUserInfos with only group parameter"""
+        ws4pmSettings = getMultiAdapter((self.portal, self.request), name="ws4pmclient-settings")
+        setCorrectSettingsConfig(self.portal, minimal=True)
+        self.changeUser("pmCreator1")
+
+        user_infos = ws4pmSettings._rest_getUserInfos(
+            showGroups=True,
+        )
+        self.assertIsNotNone(user_infos)
+        self.assertEqual("pmCreator1", user_infos["id"])
+        self.assertEqual(1, user_infos["extra_include_groups_items_total"])
+        self.assertEqual("developers", user_infos["extra_include_groups"][0]["id"])
+
+    def test_rest_getUserInfos_default(self):
+        """Test _rest_getUserInfos with default parameters (no groups or suffix)"""
+        ws4pmSettings = getMultiAdapter((self.portal, self.request), name="ws4pmclient-settings")
+        setCorrectSettingsConfig(self.portal, minimal=True)
+        self.changeUser("pmCreator1")
+
+        user_infos = ws4pmSettings._rest_getUserInfos()
+        self.assertIsNotNone(user_infos)
+        self.assertEqual("pmCreator1", user_infos["id"])
+        self.assertTrue("extra_include_groups" not in user_infos)
 
     def test_rest_searchItems(self):
         """Check the fact of searching items informations about existing items."""
