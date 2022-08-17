@@ -60,6 +60,7 @@ class testVocabularies(WS4PMCLIENTTestCase):
                 u"modified": u"2022-07-13T11:47:35+00:00",
                 u"review_state": u"created",
                 u"title": u"03 march 2013",
+                u"date": u"2013-03-03T00:00:00",
             },
             {
                 u"@extra_includes": [],
@@ -73,6 +74,7 @@ class testVocabularies(WS4PMCLIENTTestCase):
                 u"modified": u"2022-07-13T11:47:34+00:00",
                 u"review_state": u"created",
                 u"title": u"03 march 2013",
+                u"date": u"2013-03-03T00:00:00",
             },
         ]
 

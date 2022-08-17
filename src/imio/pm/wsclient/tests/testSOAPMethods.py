@@ -37,6 +37,58 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         cleanMemoize(self.request)
         self.failIf(ws4pmSettings._rest_connectToPloneMeeting())
 
+
+    def test_rest_checkIsLinked(self):
+        """Verify that we can get link informations"""
+        ws4pmSettings = getMultiAdapter(
+            (self.portal, self.request),
+            name="ws4pmclient-settings",
+        )
+        setCorrectSettingsConfig(self.portal, minimal=True)
+
+        cfg = self.meetingConfig
+        self._removeConfigObjectsFor(cfg)
+
+        self.changeUser("pmCreator1")
+        item1 = self.create("MeetingItem")
+        item1.externalIdentifier = "external1"
+        item1.reindexObject(idxs=["externalIdentifier", ])
+        transaction.commit()
+
+        data = {
+            "UID": item1.UID(),
+            "externalIdentifier": "external1",
+        }
+        result = ws4pmSettings._rest_checkIsLinked(data)
+        self.assertEqual(item1.UID(), result["UID"])
+        self.assertEqual(0, result["extra_include_linked_items_items_total"])
+
+        cfg.setItemManualSentToOtherMCStates(("itemcreated", ))
+        self.changeUser("pmCreator2")
+        item2 = self.create("MeetingItem", decision="My Decision")
+        item2.externalIdentifier = "external2"
+        item2.reindexObject(idxs=["externalIdentifier", ])
+        self.changeUser("pmManager")
+        meeting = self.create("Meeting")
+        self.presentItem(item2)
+        self.decideMeeting(meeting)
+        self.do(item2, "delay")
+        transaction.commit()
+
+        item2_link = item2.get_successors()[0]
+
+        data = {
+            "UID": item2.UID(),
+            "externalIdentifier": "external2",
+        }
+        result = ws4pmSettings._rest_checkIsLinked(data)
+        self.assertEqual(item2.UID(), result["UID"])
+        self.assertEqual(1, result["extra_include_linked_items_items_total"])
+        self.assertEqual(
+            item2_link.UID(),
+            result["extra_include_linked_items"][0]["UID"],
+        )
+
     def test_rest_getConfigInfos(self):
         """Check that we receive valid infos about the PloneMeeting's configuration."""
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
@@ -115,11 +167,11 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         self.changeUser('pmCreator1')
         result = ws4pmSettings._rest_searchItems({'Title': SAME_TITLE})
         self.assertTrue(len(result), 1)
-        self.assertTrue(result[0].UID == item1.UID())
+        self.assertTrue(result[0]["UID"] == item1.UID())
         self.changeUser('pmCreator2')
         result = ws4pmSettings._rest_searchItems({'Title': SAME_TITLE})
         self.assertTrue(len(result), 1)
-        self.assertTrue(result[0].UID == item2.UID())
+        self.assertTrue(result[0]["UID"] == item2.UID())
 
     def test_rest_createItem(self):
         """Check item creation.
@@ -266,6 +318,9 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
             {'meetingConfigId': cfgId, 'inTheNameOf': 'pmManager'}
         )
         self.assertEqual(len(meetings), 2)
+
+        # Ensure that meetings have a date
+        self.assertEqual("2013-03-03T00:00:00", meetings[0]["date"])
 
 
 def test_suite():
