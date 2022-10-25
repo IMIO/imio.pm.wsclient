@@ -44,7 +44,7 @@
         layer="imio.pm.wsclient.interfaces.IWS4PMClientLayer"
         name="send_to_plonemeeting_form"
         class=".forms.SendToPloneMeetingWrapper"
-        permission="zope2.SOAPClientSend"
+        permission="ws.client.Send"
         />
 
     <!-- define a specific template for rendering ContentProviders in z3c.form until it is in plone.app.z3cform... -->
@@ -62,7 +62,7 @@
         layer="imio.pm.wsclient.interfaces.IWS4PMClientLayer"
         name="generate_document_from_plonemeeting"
         class=".views.GenerateItemTemplateView"
-        permission="zope2.SOAPClientAccess"
+        permission="ws.client.Access"
       />
 
     <!-- View that downaload an annex of an item -->
@@ -71,7 +71,7 @@
         layer="imio.pm.wsclient.interfaces.IWS4PMClientLayer"
         name="download_annex_from_plonemeeting"
         class=".views.DownloadAnnexFromItemView"
-        permission="zope2.SOAPClientAccess"
+        permission="ws.client.Access"
       />
 
     <!-- Viewlets -->
@@ -80,7 +80,7 @@
         layer="imio.pm.wsclient.interfaces.IWS4PMClientLayer"
         manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
         class=".viewlets.PloneMeetingInfosViewlet"
-        permission="zope2.SOAPClientAccess"
+        permission="ws.client.Access"
         />
 
     <!-- Vocabularies -->

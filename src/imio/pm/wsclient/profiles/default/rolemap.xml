@@ -5,12 +5,12 @@
     <role name="Member"/>
   </roles>
   <permissions>
-    <permission name="SOAP Client Access"
+    <permission name="WS Client Access"
                 acquire="True">
       <role name="Member"/>
       <role name="Manager"/>
     </permission>
-    <permission name="SOAP Client Send"
+    <permission name="WS Client Send"
                 acquire="True">
       <role name="Member"/>
       <role name="Manager"/>

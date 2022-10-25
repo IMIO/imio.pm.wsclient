@@ -10,12 +10,12 @@
     <five:registerPackage package="." initialize=".initialize" />
 
     <permission
-      id="zope2.SOAPClientAccess"
-      title="SOAP Client Access"/>
+      id="ws.client.Access"
+      title="WS Client Access"/>
 
     <permission
-      id="zope2.SOAPClientSend"
-      title="SOAP Client Send"/>
+      id="ws.client.Send"
+      title="WS Client Send"/>
 
     <include package=".browser" />
     <include file="subscribers.zcml" />
