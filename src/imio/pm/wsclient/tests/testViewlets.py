@@ -170,48 +170,6 @@ class testViewlets(WS4PMCLIENTTestCase):
         # If hours, then a long format is used
         self.assertTrue(viewlet.displayMeetingDate(datetime(2013, 6, 10, 15, 30)) == u'Jun 10, 2013 03:30 PM')
 
-    def test_displayedDateRespectTimeZone(self):
-        """
-          This confirm a bug in suds 0.4 corrected in suds-jurko 0.4.1.jurko.4
-          where returned date does not work when not using current time zone.
-          For example, a GMT+1 date is wrongly displayed when we are in GMT+2, it miss 1 hour,
-          so 2013/03/03 00:00 becomes 2013/03/02 23:00...
-          Returned dates should always be UTC.
-        """
-        self.changeUser('admin')
-        document = createDocument(self.portal)
-        item = self._sendToPloneMeeting(document)
-        # create a meeting and present the item
-        self.changeUser('pmManager')
-        # use a date in GMT+1
-        meeting = self.create('Meeting', date=datetime(2013, 3, 3))
-        self.presentItem(item)
-        transaction.commit()
-        viewlet = PloneMeetingInfosViewlet(document, self.request, None, None)
-        viewlet.update()
-        meeting_date = viewlet.getPloneMeetingLinkedInfos()[0]['meeting_date']
-        # date TZ naive, uses UTC
-        self.assertEqual(meeting_date.tzname(), 'UTC')
-        self.assertEquals((meeting_date.year,
-                           meeting_date.month,
-                           meeting_date.day,
-                           meeting_date.hour,
-                           meeting_date.minute),
-                          (2013, 3, 2, 23, 0))
-        # change meeting date, use a date in GMT+2
-        meeting.date = datetime(2013, 8, 8)
-        transaction.commit()
-        viewlet = PloneMeetingInfosViewlet(document, self.request, None, None)
-        viewlet.update()
-        meeting_date = viewlet.getPloneMeetingLinkedInfos()[0]['meeting_date']
-        self.assertEqual(meeting_date.tzname(), 'UTC')
-        self.assertEquals((meeting_date.year,
-                           meeting_date.month,
-                           meeting_date.day,
-                           meeting_date.hour,
-                           meeting_date.minute),
-                          (2013, 8, 7, 22, 0))
-
 
 def test_suite():
     from unittest import TestSuite, makeSuite
