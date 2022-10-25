@@ -348,7 +348,7 @@ class SendToPloneMeetingForm(form.Form):
         data = OrderedDict()
         settings = self.ws4pmSettings.settings()
         # initialize annexes field from the form, not the field_mappings
-        data['annexes'] = self._buildAnnexesData()
+        data['__children__'] = self._buildAnnexesData()
         data['preferredMeeting'] = self.request.form.get('form.widgets.preferredMeeting', [u'', ])[0]
         # if preferredMeeting is '--NOVALUE--',  remove it from data to send
         if data['preferredMeeting'] in ('--NOVALUE--', ''):
@@ -399,9 +399,13 @@ class SendToPloneMeetingForm(form.Form):
                 annex_name = type(annex_file.name) in [unicode] and annex_file.name or annex_file.name.decode('utf-8')
                 annexes_data.append(
                     {
-                        'title': unidecode(annex.title.decode('utf-8')),
-                        'filename': unidecode(annex_name),
-                        'file': base64.b64encode(annex_file.read()),
+                        "@type": "annex",
+                        "title": unidecode(annex.title.decode('utf-8')),
+                        "content_category": "item-annex",
+                        "file": {
+                            "filename": unidecode(annex_name),
+                            "data": base64.b64encode(annex_file.read()),
+                        }
                     }
                 )
         return annexes_data
