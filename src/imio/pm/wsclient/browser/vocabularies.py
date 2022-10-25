@@ -132,7 +132,7 @@ class proposing_groups_for_user_vocabulary(object):
                     return SimpleVocabulary([])
         # even if we get a forcedProposingGroup, double check that the current user can actually use it
         userInfos = ws4pmsettings._rest_getUserInfos(showGroups=True, suffix='creators')
-        if not userInfos or 'groups' not in userInfos:
+        if not userInfos or 'extra_include_groups' not in userInfos:
             portal.REQUEST.set('error_in_vocabularies', True)
             # add a status message if the main error is not the fact that we can not connect to the WS
             if userInfos is not None:
@@ -142,7 +142,7 @@ class proposing_groups_for_user_vocabulary(object):
             return SimpleVocabulary([])
         terms = []
         forcedProposingGroupExists = not forcedProposingGroup and True or False
-        for group in userInfos['groups']:
+        for group in userInfos['extra_include_groups']:
             if forcedProposingGroup == group['id']:
                 forcedProposingGroupExists = True
                 terms.append(SimpleTerm(unicode(group['id']),
@@ -215,8 +215,8 @@ class categories_for_user_vocabulary(object):
             return SimpleVocabulary([])
         categories = []
         # find categories for given meetingConfigId
-        for configInfo in configInfos.configInfo:
-            if configInfo.id == meetingConfigId:
+        for configInfo in configInfos:
+            if configInfo["id"] == meetingConfigId:
                 categories = hasattr(configInfo, 'categories') and configInfo.categories or ()
                 break
         # if not categories is returned, it means that the meetingConfig does
@@ -226,16 +226,16 @@ class categories_for_user_vocabulary(object):
         terms = []
         forcedCategoryExists = not forcedCategory and True or False
         for category in categories:
-            if forcedCategory == category.id:
+            if forcedCategory == category["id"]:
                 forcedCategoryExists = True
-                terms.append(SimpleTerm(unicode(category.id),
-                                        unicode(category.id),
-                                        unicode(category.title),))
+                terms.append(SimpleTerm(unicode(category["id"]),
+                                        unicode(category["id"]),
+                                        unicode(category["title"]),))
                 break
             if not forcedCategory:
-                terms.append(SimpleTerm(unicode(category.id),
-                                        unicode(category.id),
-                                        unicode(category.title),))
+                terms.append(SimpleTerm(unicode(category["id"]),
+                                        unicode(category["id"]),
+                                        unicode(category["title"]),))
         if not forcedCategoryExists:
             portal.REQUEST.set('error_in_vocabularies', True)
             IStatusMessage(portal.REQUEST).addStatusMessage(
