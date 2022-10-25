@@ -94,18 +94,18 @@ class PloneMeetingInfosViewlet(ViewletBase):
         allowed_annexes_types = [line.values()[0] for line in settings.allowed_annexes_types]
         shownItemsMeetingConfigId = []
         for item in items:
-            res.append(self.ws4pmSettings._rest_getItemInfos({'UID': item['UID'],
-                                                              'showExtraInfos': True,
-                                                              'showAnnexes': True,
-                                                              'allowed_annexes_types': allowed_annexes_types,
-                                                              'include_annex_binary': False,
-                                                              'showExtraInfos': True,
-                                                              'showTemplates': True})[0])
+            res.append(self.ws4pmSettings._rest_getItemInfos(
+                {
+                    'UID': item['UID'],
+                    'extra_include': 'meeting,pod_templates,annexes,config',
+                    'extra_include_meeting_additional_values': '*',
+                }
+            )[0])
             lastAddedItem = res[-1]
-            shownItemsMeetingConfigId.append(lastAddedItem['extraInfos']['meeting_config_id'])
+            shownItemsMeetingConfigId.append(lastAddedItem['extra_include_config']['id'])
             # XXX special case if something went wrong and there is an item in PM
             # that is not in the context sent_to annotation
-            lastAddedItemMeetingConfigId = str(lastAddedItem['extraInfos']['meeting_config_id'])
+            lastAddedItemMeetingConfigId = str(lastAddedItem['extra_include_config']['id'])
             if lastAddedItemMeetingConfigId not in sent_to:
                 existingSentTo = list(sent_to)
                 existingSentTo.append(lastAddedItemMeetingConfigId)
@@ -125,13 +125,13 @@ class PloneMeetingInfosViewlet(ViewletBase):
                     # in extraInfos so sort here under works correctly
                     # in the linked viewlet template, we test if there is a 'UID' in the given infos, if not
                     # it means that it is this special message
-                    res.append({'extraInfos': {'meeting_config_id': sent,
-                                               'meeting_config_title': meetingConfigVocab.getTerm(sent).title}})
+                    res.append({'extra_include_config': {'id': sent,
+                                                         'title': meetingConfigVocab.getTerm(sent).title}})
 
         # sort res to comply with sent order, for example sent first to college then council
         def sortByMeetingConfigId(x, y):
-            return cmp(sent_to.index(x['extraInfos']['meeting_config_id']),
-                       sent_to.index(y['extraInfos']['meeting_config_id']))
+            return cmp(sent_to.index(x['extra_include_config']['id']),
+                       sent_to.index(y['extra_include_config']['id']))
         res.sort(sortByMeetingConfigId)
         return res
 
