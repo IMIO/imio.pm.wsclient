@@ -7,7 +7,7 @@
 
 from AccessControl import Unauthorized
 from imio.pm.wsclient.config import ACTION_SUFFIX
-from imio.pm.wsclient.testing import WS4PMCLIENT_PROFILE_FUNCTIONAL
+from imio.pm.wsclient.testing import WS4PMCLIENT_PM_TESTING_PROFILE_FUNCTIONAL
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import createDocument
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
 from plone.app.testing import login
@@ -27,7 +27,7 @@ class testSettings(unittest.TestCase):
         Tests the browser.settings SOAP client methods
     """
 
-    layer = WS4PMCLIENT_PROFILE_FUNCTIONAL
+    layer = WS4PMCLIENT_PM_TESTING_PROFILE_FUNCTIONAL
 
     def setUp(self):
         portal = self.layer['portal']
