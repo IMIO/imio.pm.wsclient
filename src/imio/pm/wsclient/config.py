@@ -21,8 +21,11 @@ UNABLE_TO_DISPLAY_VIEWLET_ERROR = u"Unable to display informations about the pot
     "for the field '${field_name}'! The error was : '${error}'.  Please contact system administrator."
 CONFIG_CREATE_ITEM_PM_ERROR = u"An error occured during the item creation in PloneMeeting! " \
                               "The error message was : ${error}"
-NO_PROPOSING_GROUP_ERROR = u"The configuration specify that user '${userId}' will create the item in PloneMeeting " \
-                           "but this user can not create item for any proposingGroup in PloneMeeting!"
+NO_PROPOSING_GROUP_ERROR = (
+    u"An error occured during the item creation in PloneMeeting! The error message was "
+    u": [{'field': 'proposingGroup', 'message': u'Proposing group is not available for "
+    u"user.', 'error': 'ValidationError'}]"
+)
 NO_USER_INFOS_ERROR = u"Could not get userInfos in PloneMeeting for user '${userId}'!"
 NO_FIELD_MAPPINGS_ERROR = u"No field_mappings defined in the WS4PMClient configuration!"
 CAN_NOT_CREATE_FOR_PROPOSING_GROUP_ERROR = u"The current user can not create an item with the proposingGroup forced " \
