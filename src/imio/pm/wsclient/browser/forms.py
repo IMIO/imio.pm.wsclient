@@ -196,7 +196,7 @@ class SendToPloneMeetingForm(form.Form):
         # do not go further if current user can not create an item in
         # PloneMeeting with any proposingGroup
         userInfos = self.ws4pmSettings._rest_getUserInfos(showGroups=True, suffix='creators')
-        if not userInfos or 'groups' not in userInfos:
+        if not userInfos or 'extra_include_groups' not in userInfos:
             userThatWillCreate = self.ws4pmSettings._getUserIdToUseInTheNameOfWith()
             if not userInfos:
                 IStatusMessage(self.request).addStatusMessage(
@@ -323,7 +323,10 @@ class SendToPloneMeetingForm(form.Form):
         """
         data = self._buildDataDict()
         # now that every values are evaluated, build the CreationData
-        creation_data = client.factory.create('CreationData')
+        creation_data = {
+            k: "" for k in self.ws4pmSettings._rest_getItemCreationAvailableData()
+            if k in data.keys()
+        }
         for elt in data:
             # proposingGroup is managed apart
             if elt == u'proposingGroup':
@@ -336,6 +339,7 @@ class SendToPloneMeetingForm(form.Form):
             creation_data[elt] = data[elt]
         # initialize the externalIdentifier to the context UID
         creation_data['externalIdentifier'] = self.context.UID()
+
         return creation_data
 
     def _buildDataDict(self):
@@ -347,7 +351,7 @@ class SendToPloneMeetingForm(form.Form):
         data['annexes'] = self._buildAnnexesData()
         data['preferredMeeting'] = self.request.form.get('form.widgets.preferredMeeting', [u'', ])[0]
         # if preferredMeeting is '--NOVALUE--',  remove it from data to send
-        if data['preferredMeeting'] == '--NOVALUE--':
+        if data['preferredMeeting'] in ('--NOVALUE--', ''):
             data.pop('preferredMeeting')
         # initialize category field in case it is not defined in field_mappings
         data['category'] = self.request.form.get('form.widgets.category', [u'', ])[0]
