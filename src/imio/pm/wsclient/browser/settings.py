@@ -271,8 +271,6 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
 
     def _rest_checkIsLinked(self, data):
         """Query the checkIsLinked REST server method."""
-        # XXX To be implemented in plonemeeting.restapi
-        # this will disappear and is replaced by a direct call to @item GET
         session = self._rest_connectToPloneMeeting()
         if session is not None:
             if 'inTheNameOf' not in data:
@@ -362,6 +360,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 "@get",
                 uid=data["UID"],
                 in_name_of=data["inTheNameOf"],
+                **{k: v for k, v in data.items() if k not in ("UID", "inTheNameOf")}
             )
             response = session.get(url)
             if response.status_code == 200:
@@ -394,6 +393,10 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             if 'inTheNameOf' not in data:
                 data["inTheNameOf"] = self._getUserIdToUseInTheNameOfWith()
             try:
+                if not data["itemUID"]:
+                    raise ValueError(
+                        "Server raised fault: 'You can not access this item!'"
+                    )
                 url = self._format_rest_query_url(
                     "@get",
                     uid=data["itemUID"],
@@ -401,6 +404,10 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                     extra_include="pod_templates",
                 )
                 response = session.get(url)
+                if not data["templateId"]:
+                    raise ValueError(
+                        "Server raised fault: 'You can not access this template!'"
+                    )
                 template_id, output_format = data["templateId"].split("__format__")
                 # Iterate over possible templates to find the right one
                 template = [t for t in response.json()["extra_include_pod_templates"]
@@ -412,7 +419,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                           if o["format"] == output_format]
                 if not output:
                     raise ValueError(
-                        "Unknown output format '{0}' for template id '{1'".format(
+                        "Unknown output format '{0}' for template id '{1}'".format(
                             output_format, template_id
                         )
                     )
@@ -499,9 +506,10 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                     return
                 # return 'UID' and 'warnings' if any current user is a Manager
                 warnings = []
+                response_json = response.json()
                 if self.context.portal_membership.getAuthenticatedMember().has_role('Manager'):
-                    warnings = 'warnings' in response.__keylist__ and response['warnings'] or []
-                return response.json()['UID'], warnings
+                    warnings = 'warnings' in response_json and response_json['warnings'] or []
+                return response_json['UID'], warnings
             except Exception as exc:
                 IStatusMessage(self.request).addStatusMessage(
                     _(CONFIG_CREATE_ITEM_PM_ERROR, mapping={'error': exc}), "error"
@@ -570,15 +578,15 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 meetingConfigIds = list(annotations[WS4PMCLIENT_ANNOTATION_KEY])
             for meetingConfigId in meetingConfigIds:
                 res = self._rest_checkIsLinked({'externalIdentifier': context.UID(),
-                                                'meetingConfigId': meetingConfigId, })
+                                                'config_id': meetingConfigId, })
                 # if res is None, it means that it could not connect to PloneMeeting
                 if res is None:
                     return None
                 # we found at least one linked item
-                elif res is True:
+                elif res:
                     isLinked = True
                 # could connect to PM but did not find a result
-                elif res is False:
+                elif not res:
                     # either the item was deleted in PloneMeeting
                     # or it was never send, wipe out if it was deleted in PloneMeeting
                     if meetingConfigId in annotations[WS4PMCLIENT_ANNOTATION_KEY]:
