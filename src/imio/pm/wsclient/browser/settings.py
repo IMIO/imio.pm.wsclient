@@ -260,7 +260,16 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
 
     def _format_rest_query_url(self, endpoint, **kwargs):
         """Return a rest query URL formatted for the given endpoint and arguments"""
-        arguments = ["{0}={1}".format(k, v) for k, v in kwargs.items() if v]
+        arguments = []
+        for k, v in kwargs.items():
+            if isinstance(v, six.string_types) and "," in v:
+                for v in v.split(","):
+                    arguments.append("{0}={1}".format(k, v))
+            else:
+                if v:
+                    arguments.append("{0}={1}".format(k, v))
+                elif k in ("fullobjects", ):
+                    arguments.append(k)
         if arguments:
             return "{url}/{endpoint}?{arguments}".format(
                 url=self.url,
