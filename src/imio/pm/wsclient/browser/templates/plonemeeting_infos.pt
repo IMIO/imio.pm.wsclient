@@ -29,18 +29,20 @@
             <tbody>
                 <tr tal:repeat="item items">
                    <tal:showInfos condition="item/UID|nothing">
-                   <td><a href="#" tal:attributes="href item/absolute_url" tal:content="item/title" target="_blank">Item title</a></td>
-                   <td tal:content="item/extraInfos/creator_fullname">Creator fullname</td>
-                   <td tal:content="item/extraInfos/meeting_config_title">Meeting config title</td>
-                   <td tal:content="item/extraInfos/review_state_translated" i18n:domain="plone" i18n:translate="">Review state</td>
-                   <td tal:content="item/extraInfos/category_title" i18n:domain="plone" i18n:translate="">Category title</td>
-                   <td tal:content="python: view.displayMeetingDate(item['preferred_meeting_date'])">Preferred meeting date</td>
-                   <td tal:content="python: view.displayMeetingDate(item['meeting_date'])">Related meeting date</td>
+                   <td><a href="#" tal:attributes="href item/@id" tal:content="item/title" target="_blank">Item title</a></td>
+                   <!-- XXX Creator full name must be implemented in plonemeeting.restapi -->
+                   <td tal:content="python: item['creators'][0]">Creator fullname</td>
+                   <td tal:content="item/extra_include_config/title">Meeting config title</td>
+                   <!-- XXX translated review state must be implemented in plonemeeting.restapi -->
+                   <td tal:content="item/review_state" i18n:domain="plone" i18n:translate="">Review state</td>
+                   <td tal:content="item/category/title" i18n:domain="plone" i18n:translate="">Category title</td>
+                   <td tal:content="python: view.displayMeetingDate(item['preferredMeeting']['token'])">Preferred meeting date</td>
+                   <td tal:content="python: view.displayMeetingDate(item['extra_include_meeting'].get('date'))">Related meeting date</td>
                    <td>
                      <span class="discreet" style="position: relative;"
                            tal:attributes="title annex/title;"
-                           tal:repeat="annex python: getattr(item, 'annexes', [])">
-                             <a href="#" tal:attributes="href string:${context/absolute_url}/@@download_annex_from_plonemeeting?itemUID=${item/UID}&annex_id=${annex/id}&annex_type=${annex/annexTypeId}">
+                           tal:repeat="annex python: getattr(item, 'extra_include_annexes', [])">
+                             <a href="#" tal:attributes="href string:${context/absolute_url}/@@download_annex_from_plonemeeting?itemUID=${item/UID}&annex_id=${annex/id}">
                          <img src="#" tal:attributes="src string:${portal_url}/++resource++imio.pm.wsclient.images/annex.png">
                          <span tal:content="annex/title"/>
                        </a>&nbsp;
@@ -49,11 +51,13 @@
                    <td>
                      <span class="discreet" style="position: relative;"
                            tal:attributes="title podTemplate/title;"
-                           tal:repeat="podTemplate item/templates">
-                       <a href="#" tal:attributes="href string:${context/absolute_url}/@@generate_document_from_plonemeeting?itemUID=${item/UID}&templateId=${podTemplate/templateId}&templateFilename=${podTemplate/templateFilename}&templateFormat=${podTemplate/templateFormat}">
-                         <img src="#" tal:attributes="src string:${portal_url}/++resource++imio.pm.wsclient.images/${podTemplate/templateFormat}.png">
-                         <span tal:content="podTemplate/title"/>
-                       </a>&nbsp;
+                           tal:repeat="podTemplate item/extra_include_pod_templates">
+                       <tal:while repeat="format podTemplate/outputs">
+                         <a href="#" tal:attributes="href string:${context/absolute_url}/@@generate_document_from_plonemeeting?itemUID=${item/UID}&templateId=${podTemplate/id}__format__${format/format}&templateFilename=${podTemplate/id}&templateFormat=${format/format}">
+                           <img src="#" tal:attributes="src string:${portal_url}/++resource++imio.pm.wsclient.images/${format/format}.png">
+                           <span tal:content="podTemplate/title"/>
+                         </a>&nbsp;
+                       </tal:while>
                      </span>
                    </td>
                    </tal:showInfos>
