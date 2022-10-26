@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from dateutil import tz
+from datetime import datetime
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import CAN_NOT_SEE_LINKED_ITEMS_INFO
 from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR
@@ -99,6 +100,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
                     'UID': item['UID'],
                     'extra_include': 'meeting,pod_templates,annexes,config',
                     'extra_include_meeting_additional_values': '*',
+                    'fullobjects': None,
                 }
             )[0])
             lastAddedItem = res[-1]
@@ -139,6 +141,9 @@ class PloneMeetingInfosViewlet(ViewletBase):
         """Display a correct related meeting date :
            - if linked to a meeting, either '-'
            - manage displayed hours (hide hours if 00:00)"""
+        if meeting_date == 'whatever' or not meeting_date:
+            return '-'
+        meeting_date = datetime.strptime(meeting_date, "%Y-%m-%dT%H:%M:%S")
         if meeting_date.year == 1950:
             return '-'
 
