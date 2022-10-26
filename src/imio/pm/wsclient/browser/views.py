@@ -112,7 +112,7 @@ class DownloadAnnexFromItemView(BaseDownloadFromItemView):
             IStatusMessage(self.request).addStatusMessage(_(MISSING_FILE_ERROR), "error")
             return self.request.RESPONSE.redirect(self.context.absolute_url())
 
-        annex_info = [a for a in res["extra_include_annexes"] if a["id"] == self.annex_id]
+        annex_info = [a for a in res[0]["extra_include_annexes"] if a["id"] == self.annex_id]
         if annex_info:
             annex_info = annex_info[0]
             response.setHeader('Content-Type', annex_info["file"]["content-type"])

@@ -125,7 +125,7 @@ class testViews(WS4PMCLIENTTestCase):
         """
         # return an annex
         annex_id = 'annexe.txt'
-        _rest_getItemInfos.return_value = {
+        _rest_getItemInfos.return_value = [{
             'extra_include_annexes': [
                 {
                     "@id": u"http://nohost/plone/Members/pmCreator/mymeetings/o1/p1/annexe.txt",  # noqa
@@ -141,7 +141,7 @@ class testViews(WS4PMCLIENTTestCase):
                     }
                 },
             ],
-        }
+        }]
         _rest_getAnnex.return_value = 'Hello!'
         self.changeUser('admin')
         document = createDocument(self.portal)

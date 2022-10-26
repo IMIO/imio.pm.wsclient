@@ -41,7 +41,7 @@
                    <td>
                      <span class="discreet" style="position: relative;"
                            tal:attributes="title annex/title;"
-                           tal:repeat="annex python: getattr(item, 'extra_include_annexes', [])">
+                           tal:repeat="annex item/extra_include_annexes">
                              <a href="#" tal:attributes="href string:${context/absolute_url}/@@download_annex_from_plonemeeting?itemUID=${item/UID}&annex_id=${annex/id}">
                          <img src="#" tal:attributes="src string:${portal_url}/++resource++imio.pm.wsclient.images/annex.png">
                          <span tal:content="annex/title"/>
