@@ -154,21 +154,14 @@ class testViewlets(WS4PMCLIENTTestCase):
         """
         viewlet = PloneMeetingInfosViewlet(self.portal, self.request, None, None)
         viewlet.update()
+
         # The no meeting date correspond to a date in 1950
-        self.assertTrue(viewlet.displayMeetingDate("1950-01-01T00:00:00") == '-')
-        # If there is a date, it is corretly displayed
-        # if no hours (hours = 00:00), a short format is used, without displaying hours
-        # the sent date is UTC but displayMeetingDate will return it using local timezone
-        # so build a date that will return a date without hours...
-        utcMeetingDate = datetime(2013, 6, 10)
-        utcMeetingDate = utcMeetingDate.replace(tzinfo=tz.tzlocal())
-        delta = utcMeetingDate.utcoffset()
-        utcMeetingDate = utcMeetingDate - delta
-        # set utcMeetingDate as being UTC
-        utcMeetingDate = utcMeetingDate.replace(tzinfo=tz.tzutc())
-        self.assertTrue(viewlet.displayMeetingDate("2013-06-10T00:00:00") == u'Jun 10, 2013')
-        # If hours, then a long format is used
-        self.assertTrue(viewlet.displayMeetingDate("2013-06-10T15:30:00") == u'Jun 10, 2013 03:30 PM')
+        self.assertEqual(viewlet.displayMeetingDate(""), '-')
+        self.assertEqual(viewlet.displayMeetingDate(None), '-')
+        self.assertEqual(viewlet.displayMeetingDate("2013-06-10"), u'2013-06-10')
+        self.assertEqual(viewlet.displayMeetingDate(
+            "2013-06-10 (15:30)"), u'2013-06-10 (15:30)'
+        )
 
     def test_render(self):
         """Ensure that we can render the viewlet without any error"""

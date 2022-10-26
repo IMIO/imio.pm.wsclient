@@ -140,25 +140,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
     def displayMeetingDate(self, meeting_date):
         """Display a correct related meeting date :
            - if linked to a meeting, either '-'
-           - manage displayed hours (hide hours if 00:00)"""
-        if meeting_date == 'whatever' or not meeting_date:
+        """
+        if not meeting_date:
             return '-'
-        meeting_date = datetime.strptime(meeting_date, "%Y-%m-%dT%H:%M:%S")
-        if meeting_date.year == 1950:
-            return '-'
-
-        # now determinate result of toLocalizedTime before calling it...
-        # we will just check if given p_meeting_date that is UTC would have
-        # his hour to 0 after being localized to relevant timezone (what toLocalizedTime does)
-        # localize meetingDate because it does not work with naive dates
-        localMeetingDate = meeting_date.replace(tzinfo=tz.tzlocal())
-        delta = localMeetingDate.utcoffset()
-        utcMeetingDate = localMeetingDate - delta
-        # set utcMeetingDate as being UTC
-        utcMeetingDate = utcMeetingDate.replace(tzinfo=tz.tzutc())
-        # if hour is 0, hide it, so call toLocalizedTime with long_format=False
-        if utcMeetingDate.astimezone(tz.tzlocal()).hour == 0:
-            long_format = False
-        else:
-            long_format = True
-        return self.context.restrictedTraverse('@@plone').toLocalizedTime(meeting_date, long_format=long_format)
+        return meeting_date

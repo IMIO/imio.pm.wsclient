@@ -35,8 +35,8 @@
                    <td tal:content="item/extra_include_config/title">Meeting config title</td>
                    <td tal:content="item/review_state" i18n:domain="plone" i18n:translate="">Review state</td>
                    <td tal:content="item/category/title" i18n:domain="plone" i18n:translate="">Category title</td>
-                   <td tal:content="python: view.displayMeetingDate(item['preferredMeeting']['token'])">Preferred meeting date</td>
-                   <td tal:content="python: view.displayMeetingDate(item['extra_include_meeting'].get('date'))">Related meeting date</td>
+                   <td tal:content="python: view.displayMeetingDate(item['preferredMeeting']['title'])">Preferred meeting date</td>
+                   <td tal:content="python: view.displayMeetingDate(item['extra_include_meeting'].get('title'))">Related meeting date</td>
                    <td>
                      <span class="discreet" style="position: relative;"
                            tal:attributes="title annex/title;"
