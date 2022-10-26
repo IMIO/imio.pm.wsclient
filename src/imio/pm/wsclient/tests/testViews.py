@@ -117,26 +117,32 @@ class testViews(WS4PMCLIENTTestCase):
         download_annex()
         self.assertEqual(messages.show()[-1].message, MISSING_FILE_ERROR)
 
+    @patch('imio.pm.wsclient.browser.settings.WS4PMClientSettings._rest_getAnnex')
     @patch('imio.pm.wsclient.browser.settings.WS4PMClientSettings._rest_getItemInfos')
-    def test_DownloadAnnexFromItemView(self, _rest_getItemInfos):
+    def test_DownloadAnnexFromItemView(self, _rest_getItemInfos, _rest_getAnnex):
         """
           Test the BrowserView that return the annex of an item
         """
         # return an annex
-        annex_id = 'my_annex'
-        _rest_getItemInfos.return_value = [type(
-            'ItemInfo', (object,), {
-                'annexes': [
-                    type(
-                        'AnnexInfo', (object,), {
-                            'id': annex_id,
-                            'filename': 'my_annex.pdf',
-                            'file': base64.b64encode('Hello!')
-                        }
-                    )
-                ]
-            }
-        )]
+        annex_id = 'annexe.txt'
+        _rest_getItemInfos.return_value = {
+            'extra_include_annexes': [
+                {
+                    "@id": u"http://nohost/plone/Members/pmCreator/mymeetings/o1/p1/annexe.txt",  # noqa
+                    "@type": u"annex",
+                    "id": "annexe.txt",
+                    "UID": u"400117a02c3e4d0aa45878d727ecd9e0",
+                    "title": "Annexe",
+                    "file": {
+                        "content-type": "text/plain",
+                        "download": u"http://nohost/plone/Members/pmCreator/mymeetings/o1/p1/annexe.txt",  # noqa
+                        "filename": "annexe.txt",
+                        "size": 6,
+                    }
+                },
+            ],
+        }
+        _rest_getAnnex.return_value = 'Hello!'
         self.changeUser('admin')
         document = createDocument(self.portal)
         self.request.set('annex_id', annex_id)
@@ -145,10 +151,10 @@ class testViews(WS4PMCLIENTTestCase):
         download_annex.ws4pmSettings._rest_connectToPloneMeeting = Mock(return_value=True)
         annex = download_annex()
         self.assertEqual(annex, 'Hello!')
-        self.assertEqual(self.request.RESPONSE.headers.get('content-type'), 'application/pdf')
+        self.assertEqual(self.request.RESPONSE.headers.get('content-type'), 'text/plain')
         self.assertEqual(
             self.request.RESPONSE.headers.get('content-disposition'),
-            'inline;filename="my_annex.pdf"'
+            'inline;filename="annexe.txt"'
         )
 
 
