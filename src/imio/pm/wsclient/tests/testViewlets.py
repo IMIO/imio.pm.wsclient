@@ -170,6 +170,19 @@ class testViewlets(WS4PMCLIENTTestCase):
         # If hours, then a long format is used
         self.assertTrue(viewlet.displayMeetingDate("2013-06-10T15:30:00") == u'Jun 10, 2013 03:30 PM')
 
+    def test_render(self):
+        """Ensure that we can render the viewlet without any error"""
+        self.changeUser('admin')
+        document = createDocument(self.portal)
+        viewlet = PloneMeetingInfosViewlet(document, self.request, None, None)
+        viewlet.update()
+        # now send an element to PloneMeeting and check again
+        cleanMemoize(self.request, viewlet)
+        item = self._sendToPloneMeeting(document)
+        render = viewlet.render()
+        self.assertTrue("Document title" in render)
+        self.assertTrue("PloneMeeting assembly" in render)
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite
