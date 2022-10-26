@@ -377,6 +377,16 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 return [response.json()]
             return []
 
+    def _rest_getAnnex(self, url):
+        """Return an annex based on his download url. !!! WARNING !!! this must only
+        used inside code that validate before that the user can access the annex"""
+        session = self._rest_connectToPloneMeeting()
+        if session is not None:
+            response = session.get(url)
+            if response.status_code == 200:
+                return response.content
+        return ''
+
     def _rest_getMeetingsAcceptingItems(self, data):
         """Query the getItemInfos REST server method."""
         session = self._rest_connectToPloneMeeting()
