@@ -40,7 +40,7 @@ class pm_meeting_config_id_vocabulary(object):
         pmConfigInfos = settings._rest_getConfigInfos()
         terms = []
         if pmConfigInfos:
-            for pmConfigInfo in pmConfigInfos.configInfo:
+            for pmConfigInfo in pmConfigInfos:
                 terms.append(SimpleTerm(unicode(pmConfigInfo['id']),
                                         unicode(pmConfigInfo['id']),
                                         unicode(pmConfigInfo['title']),))
