@@ -199,7 +199,7 @@ msgstr "Impossible de se connecter à iA.Delib!  Contactez votre administrateur 
 
 #. Default: "Unable to connect to PloneMeeting! The error message was : ${error}!"
 msgid "Unable to connect to PloneMeeting! The error message was : ${error}!"
-msgstr "Impossible de se conneter à iA.Delib!  Le message d'erreur est : ${error}!"
+msgstr "Impossible de se connecter à iA.Delib!  Le message d'erreur est : ${error}!"
 
 #. Default: "Unable to display informations about the potentially linked item in PloneMeeting because there was an error evaluating the TAL expression '${expr}' for the field '${field_name}'! The error was : '${error}'.  Please contact system administrator."
 msgid "Unable to display informations about the potentially linked item in PloneMeeting because there was an error evaluating the TAL expression '${expr}' for the field '${field_name}'! The error was : '${error}'.  Please contact system administrator."
