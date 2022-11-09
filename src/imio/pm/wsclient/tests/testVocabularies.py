@@ -31,16 +31,10 @@ class testVocabularies(WS4PMCLIENTTestCase):
         self, _rest_getMeetingsAcceptingItems, _rest_getConfigInfos
     ):
         """Ensure that vocabularies values are the expected"""
-        _rest_getConfigInfos.return_value = type(
-            "ConfigInfos",
-            (object,),
-            {
-                "configInfo": [
-                    {"id": u"plonegov-assembly", "title": u"PloneGov Assembly"},
-                    {"id": u"plonemeeting-assembly", "title": u"PloneMeeting Assembly"},
-                ]
-            },
-        )()
+        _rest_getConfigInfos.return_value = [
+            {"id": u"plonegov-assembly", "title": u"PloneGov Assembly"},
+            {"id": u"plonemeeting-assembly", "title": u"PloneMeeting Assembly"},
+        ]
         _rest_getMeetingsAcceptingItems.return_value = [
             {
                 u"@extra_includes": [],
