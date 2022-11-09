@@ -5,18 +5,17 @@
 # GNU General Public License (GPL)
 #
 
-from datetime import datetime
-from dateutil import tz
+from Products.statusmessages.interfaces import IStatusMessage
 from imio.pm.wsclient.browser.viewlets import PloneMeetingInfosViewlet
 from imio.pm.wsclient.config import CAN_NOT_SEE_LINKED_ITEMS_INFO
 from imio.pm.wsclient.config import CORRECTLY_SENT_TO_PM_INFO
 from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR
 from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import cleanMemoize
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import createDocument
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
-from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
-from Products.statusmessages.interfaces import IStatusMessage
+from mock import patch
 from zope.annotation import IAnnotations
 
 import transaction
@@ -99,6 +98,106 @@ class testViewlets(WS4PMCLIENTTestCase):
         item = self._sendToPloneMeeting(document)
         # we received informations about the created item
         self.assertTrue(viewlet.getPloneMeetingLinkedInfos()[0]['UID'] == item.UID())
+
+    @patch("imio.pm.wsclient.browser.settings.WS4PMClientSettings._rest_searchItems")
+    @patch("imio.pm.wsclient.browser.settings.WS4PMClientSettings._rest_getItemInfos")
+    def test_getPloneMeetingLinkedInfos_with_linked_items(
+        self, _rest_getItemInfos, _rest_searchItems
+    ):
+        """
+        Test getPloneMeetingLinkedInfos method when there is linked items
+        """
+        _rest_searchItems.return_value = [{
+            "@id": "http://nohost/pu-1234",
+            "@type": "MeetingItemCollege",
+            "UID": "1234",
+            "created": "2022-01-01T00:00:00+00:00",
+            "modified": "2022-01-01T00:00:00+00:00",
+            "id": "pu-1234",
+            "title": "PU/1244",
+            "review_state": "accepted",
+            "description": "Description",
+            "extra_include_linked_items": [
+                {
+                    "@id": "http://nohost/pu-1234-1",
+                    "@type": "MeetingItemCollege",
+                    "UID": "2345",
+                    "created": "2022-01-02T00:00:00+00:00",
+                    "modified": "2022-01-02T00:00:00+00:00",
+                    "id": "pu-1234-1",
+                    "title": "PU/1244-1",
+                    "review_state": "accepted",
+                    "description": "Description",
+                },
+                {
+                    "@id": "http://nohost/pu-1234-2",
+                    "@type": "MeetingItemCollege",
+                    "UID": "3456",
+                    "created": "2022-01-03T00:00:00+00:00",
+                    "modified": "2022-01-03T00:00:00+00:00",
+                    "id": "pu-1234-2",
+                    "title": "PU/1244-2",
+                    "review_state": "accepted",
+                    "description": "Description",
+                },
+            ],
+            "extra_include_linked_items_items_total": "2",
+        }]
+        _rest_getItemInfos.side_effect = [
+            [{
+                "@id": "http://nohost/pu-1234",
+                "@type": "MeetingItemCollege",
+                "UID": "1234",
+                "created": "2022-01-01T00:00:00+00:00",
+                "modified": "2022-01-01T00:00:00+00:00",
+                "id": "pu-1234",
+                "title": "PU/1244",
+                "review_state": "accepted",
+                "description": "Description",
+                "extra_include_config": {
+                    "id": "plonemeeting-assembly",
+                }
+            }],
+            [{
+                "@id": "http://nohost/pu-1234-1",
+                "@type": "MeetingItemCollege",
+                "UID": "2345",
+                "created": "2022-01-02T00:00:00+00:00",
+                "modified": "2022-01-02T00:00:00+00:00",
+                "id": "pu-1234-1",
+                "title": "PU/1244-1",
+                "review_state": "accepted",
+                "description": "Description",
+                "extra_include_config": {
+                    "id": "plonemeeting-assembly",
+                }
+            }],
+            [{
+                "@id": "http://nohost/pu-1234-2",
+                "@type": "MeetingItemCollege",
+                "UID": "3456",
+                "created": "2022-01-03T00:00:00+00:00",
+                "modified": "2022-01-03T00:00:00+00:00",
+                "id": "pu-1234-2",
+                "title": "PU/1244-2",
+                "review_state": "accepted",
+                "description": "Description",
+                "extra_include_config": {
+                    "id": "plonegov-assembly",
+                }
+            }],
+        ]
+        self.changeUser('admin')
+        document = createDocument(self.portal)
+        self._sendToPloneMeeting(document)
+        viewlet = PloneMeetingInfosViewlet(document, self.request, None, None)
+        viewlet.update()
+        items = viewlet.getPloneMeetingLinkedInfos()
+        self.assertEqual(3, len(items))
+        self.assertEqual(
+            ["pu-1234-2", "pu-1234-1", "pu-1234"],
+            [e["id"] for e in items],
+        )
 
     def test_canNotSeeLinkedInfos(self):
         """

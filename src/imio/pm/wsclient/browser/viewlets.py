@@ -67,6 +67,16 @@ class PloneMeetingInfosViewlet(ViewletBase):
             return linkedInfos
         return True
 
+    def get_item_info(self, item):
+        return self.ws4pmSettings._rest_getItemInfos(
+            {
+                'UID': item['UID'],
+                'extra_include': 'meeting,pod_templates,annexes,config',
+                'extra_include_meeting_additional_values': '*',
+                'fullobjects': None,
+            }
+        )[0]
+
     @memoize
     def getPloneMeetingLinkedInfos(self):
         """Search items created for context.
@@ -76,7 +86,13 @@ class PloneMeetingInfosViewlet(ViewletBase):
            with getConfigInfos.
            If we encounter an error, we return a tuple as 'usual' like in self.available"""
         try:
-            items = self.ws4pmSettings._rest_searchItems({'externalIdentifier': self.context.UID()})
+            items = self.ws4pmSettings._rest_searchItems(
+                {
+                    'externalIdentifier': self.context.UID(),
+                    'extra_include': 'linked_items',
+                    'extra_include_linked_items_mode': 'every_successors',
+                },
+            )
         except Exception, exc:
             return (_(u"An error occured while searching for linked items in PloneMeeting!  "
                       "The error message was : %s" % exc), 'error')
@@ -95,14 +111,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
         allowed_annexes_types = [line.values()[0] for line in settings.allowed_annexes_types]
         shownItemsMeetingConfigId = []
         for item in items:
-            res.append(self.ws4pmSettings._rest_getItemInfos(
-                {
-                    'UID': item['UID'],
-                    'extra_include': 'meeting,pod_templates,annexes,config',
-                    'extra_include_meeting_additional_values': '*',
-                    'fullobjects': None,
-                }
-            )[0])
+            res.append(self.get_item_info(item))
             lastAddedItem = res[-1]
             shownItemsMeetingConfigId.append(lastAddedItem['extra_include_config']['id'])
             # XXX special case if something went wrong and there is an item in PM
@@ -113,6 +122,9 @@ class PloneMeetingInfosViewlet(ViewletBase):
                 existingSentTo.append(lastAddedItemMeetingConfigId)
                 annotations[WS4PMCLIENT_ANNOTATION_KEY] = existingSentTo
                 sent_to = annotations[WS4PMCLIENT_ANNOTATION_KEY]
+            if "extra_include_linked_items" in item and item["extra_include_linked_items"]:
+                for linked_item in item["extra_include_linked_items"]:
+                    res.append(self.get_item_info(linked_item))
 
         # if the number of items found is inferior to elements sent, it means
         # that some infos are not viewable by current user, we add special message
@@ -132,9 +144,8 @@ class PloneMeetingInfosViewlet(ViewletBase):
 
         # sort res to comply with sent order, for example sent first to college then council
         def sortByMeetingConfigId(x, y):
-            return cmp(sent_to.index(x['extra_include_config']['id']),
-                       sent_to.index(y['extra_include_config']['id']))
-        res.sort(sortByMeetingConfigId)
+            return cmp(x["created"], y["created"])
+        res.sort(sortByMeetingConfigId, reverse=True)
         return res
 
     def displayMeetingDate(self, meeting_date):
