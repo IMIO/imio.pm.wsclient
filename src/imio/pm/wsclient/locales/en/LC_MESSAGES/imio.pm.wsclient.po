@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-02-12 13:15-100\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,212 +19,335 @@ msgstr ""
 "X-is-fallback-for: fr-be fr-ca fr-lu fr-mc fr-ch fr-fr\n"
 
 #. Default: "A filename is mandatory while generating a document! Please contact system administrator!"
+#: ../config.py:23
 msgid "A filename is mandatory while generating a document! Please contact system administrator!"
 msgstr "A filename is mandatory while generating a document! Please contact system administrator!"
 
+#: ../browser/settings.py:149
+msgid "Actions"
+msgstr ""
+
 #. Default: "Actions to send an item to PloneMeeting can be generated. First enter a 'TAL condition' evaluated to show the action then choose permission(s) the user must have to see the action. Finally, choose the meetingConfig the item will be sent to."
+#: ../browser/settings.py:146
 msgid "Actions to send an item to PloneMeeting can be generated. First enter a 'TAL condition' evaluated to show the action then choose permission(s) the user must have to see the action. Finally, choose the meetingConfig the item will be sent to."
 msgstr "Actions to send an item to PloneMeeting can be generated. First enter a 'TAL condition' evaluated to show the action then choose permission(s) the user must have to see the action. Finally, choose the meetingConfig the item will be sent to."
 
+#: ../browser/settings.py:128
+msgid "Allowed annex type"
+msgstr ""
+
+#: ../browser/settings.py:126
+msgid "Allowed annexes types"
+msgstr ""
+
+#: ../config.py:59
+msgid "An annex id is mandatory to download an annex!"
+msgstr ""
+
 #. Default: "An element can be sent one time only"
+#: ../browser/settings.py:102
 msgid "An element can be sent one time only"
 msgstr ""
 
 #. Default: "An error occured during the item creation in PloneMeeting! The error message was : ${error}"
+#: ../config.py:32
 msgid "An error occured during the item creation in PloneMeeting! The error message was : ${error}"
 msgstr "An error occured during the item creation in PloneMeeting! The error message was : ${error}"
 
+#: ../config.py:36
+msgid "An error occured during the item creation in PloneMeeting! The error message was : [{'field': 'proposingGroup', 'message': u'Proposing group is not available for user.', 'error': 'ValidationError'}]"
+msgstr ""
+
+#: ../browser/settings.py:450
+msgid "An error occured while generating the document in PloneMeeting! The error message was : %s"
+msgstr ""
+
+#: ../browser/viewlets.py:81
+msgid "An error occured while searching for linked items in PloneMeeting!  The error message was : %s"
+msgstr ""
+
+#: ../browser/settings.py:65
+msgid "Annex type"
+msgstr ""
+
 #. Default: "By default, while sending an element to PloneMeeting, the user id of the logged in user is used and a binding is made to the same user id in PloneMeeting. If the local user id does not exist in PloneMeeting, you can define here the user mappings to use. For example : 'jdoe' in 'Local user id' of the current application correspond to 'johndoe' in PloneMeeting."
+#: ../browser/settings.py:135
 msgid "By default, while sending an element to PloneMeeting, the user id of the logged in user is used and a binding is made to the same user id in PloneMeeting. If the local user id does not exist in PloneMeeting, you can define here the user mappings to use. For example : 'jdoe' in 'Local user id' of the current application correspond to 'johndoe' in PloneMeeting."
 msgstr "By default, while sending an element to PloneMeeting, the user id of the logged in user is used and a binding is made to the same user id in PloneMeeting. If the local user id does not exist in PloneMeeting, you can define here the user mappings to use. For example : 'jdoe' in 'Local user id' of the current application correspond to 'johndoe' in PloneMeeting."
 
 #. Default: "Cancel"
+#: ../browser/forms.py:169
+#: ../browser/settings.py:205
 msgid "Cancel"
 msgstr "Cancel"
 
+#: ../browser/settings.py:201
+msgid "Changes saved"
+msgstr ""
+
 #. Default: "Could not detect correct mimetype for item template! Please contact system administrator!"
+#: ../config.py:19
 msgid "Could not detect correct mimetype for item template! Please contact system administrator!"
 msgstr "Could not detect correct mimetype for item template! Please contact system administrator!"
 
 #. Default: "Could not get userInfos in PloneMeeting for user '${userId}'!"
+#: ../config.py:41
 msgid "Could not get userInfos in PloneMeeting for user '${userId}'!"
 msgstr "Could not get userInfos in PloneMeeting for user '${userId}'!"
 
+#: ../browser/settings.py:207
+msgid "Edit cancelled"
+msgstr ""
+
 #. Default: "Enter a TAL expression that will be evaluated to check if the viewlet displaying informations about the created items in PloneMeeting should be displayed. If empty, the viewlet will only be displayed if an item is actually linked to it. The 'isLinked' variable representing this default behaviour is available in the TAL expression."
+#: ../browser/settings.py:107
 msgid "Enter a TAL expression that will be evaluated to check if the viewlet displaying informations about the created items in PloneMeeting should be displayed. If empty, the viewlet will only be displayed if an item is actually linked to it. The 'isLinked' variable representing this default behaviour is available in the TAL expression."
 msgstr "Enter a TAL expression that will be evaluated to check if the viewlet displaying informations about the created items in PloneMeeting should be displayed. If empty, the viewlet will only be displayed if an item is actually linked to it. The 'isLinked' variable representing this default behaviour is available in the TAL expression."
 
 #. Default: "Enter the timeout while connecting to PloneMeeting. Do not set a too high timeout because it will impact the load of the viewlet showing PM infos on a sent element if PM is not available. Default is '10' seconds."
+#: ../browser/settings.py:88
 msgid "Enter the timeout while connecting to PloneMeeting. Do not set a too high timeout because it will impact the load of the viewlet showing PM infos on a sent element if PM is not available. Default is '10' seconds."
 msgstr "Enter the timeout while connecting to PloneMeeting. Do not set a too high timeout because it will impact the load of the viewlet showing PM infos on a sent element if PM is not available. Default is '10' seconds."
 
 #. Default: "Field accessor mappings"
+#: ../browser/settings.py:114
 msgid "Field accessor mappings"
 msgstr "Field accessor mappings"
 
+#: ../browser/settings.py:121
+msgid "Field mappings"
+msgstr ""
+
 #. Default: "For every available data you can send, define in the mapping a TAL expression that will be executed to obtain the correct value to send. The 'meetingConfigId' and 'proposingGroupId' variables are also available for the expression. Special case for the 'proposingGroup' and 'category' fields, you can 'force' the use of a particular value by defining it here. If not defined the user will be able to use every 'proposingGroup' or 'category' he is allowed to use in PloneMeeting."
+#: ../browser/settings.py:115
 msgid "For every available data you can send, define in the mapping a TAL expression that will be executed to obtain the correct value to send. The 'meetingConfigId' and 'proposingGroupId' variables are also available for the expression. Special case for the 'proposingGroup' and 'category' fields, you can 'force' the use of a particular value by defining it here. If not defined the user will be able to use every 'proposingGroup' or 'category' he is allowed to use in PloneMeeting."
 msgstr "For every available data you can send, define in the mapping a TAL expression that will be executed to obtain the correct value to send. The 'meetingConfigId' and 'proposingGroupId' variables are also available for the expression. Special case for the 'proposingGroup' and 'category' fields, you can 'force' the use of a particular value by defining it here. If not defined the user will be able to use every 'proposingGroup' or 'category' he is allowed to use in PloneMeeting."
 
 #. Default: "Generated actions"
+#: ../browser/settings.py:145
 msgid "Generated actions"
 msgstr "Generated actions"
 
+#: ../browser/settings.py:127
+msgid "List here the annexes types allowed to be display in the linked meeting item viewlet"
+msgstr ""
+
 #. Default: "Local user id"
+#: ../browser/settings.py:72
 msgid "Local user id"
 msgstr "Local user id"
 
+#: ../browser/forms.py:59
+msgid "Meeting config id"
+msgstr ""
+
 #. Default: "No configuration informations found!"
+#: ../config.py:47
 msgid "No configuration informations found!"
 msgstr "No configuration informations found!"
 
 #. Default: "No field_mappings defined in the WS4PMClient configuration!"
+#: ../config.py:42
 msgid "No field_mappings defined in the WS4PMClient configuration!"
 msgstr "No field_mappings defined in the WS4PMClient configuration!"
 
 #. Default: "No sufficient field mappings are defined in the configuration. It is recommended to define at least the 'title' mapping, but 'description' and 'decision' should also be defined. It will ne be possible to create the item in PloneMeeting."
+#: ../config.py:52
 msgid "No sufficient field mappings are defined in the configuration. It is recommended to define at least the 'title' mapping, but 'description' and 'decision' should also be defined. It will ne be possible to create the item in PloneMeeting."
 msgstr ""
 
-#. Default: "No user informations found for current user or the current user is not a creator in PloneMeeting!"
-msgid "No user informations found for current user or the current user is not a creator in PloneMeeting!"
-msgstr "No user informations found for current user or the current user is not a creator in PloneMeeting!"
+#: ../browser/settings.py:42
+msgid "Permissions"
+msgstr ""
 
-#. Default: "PloneMeeting WSDL URL"
-msgid "PloneMeeting WSDL URL"
-msgstr "PloneMeeting WSDL URL"
+#: ../browser/settings.py:84
+msgid "PloneMeeting URL"
+msgstr ""
 
 #. Default: "PloneMeeting connection timeout"
+#: ../browser/settings.py:87
 msgid "PloneMeeting connection timeout"
 msgstr "PloneMeeting connection timeout"
 
 #. Default: "PloneMeeting corresponding user id"
+#: ../browser/settings.py:75
 msgid "PloneMeeting corresponding user id"
 msgstr "PloneMeeting corresponding user id"
 
 #. Default: "PloneMeeting field name"
+#: ../browser/settings.py:54
 msgid "PloneMeeting field name"
 msgstr "PloneMeeting field name"
 
 #. Default: "PloneMeeting informations"
+#: ../browser/templates/plonemeeting_infos.pt:9
 msgid "PloneMeeting informations"
 msgstr "PloneMeeting informations"
 
 #. Default: "PloneMeeting meetingConfig id"
+#: ../browser/settings.py:46
 msgid "PloneMeeting meetingConfig id"
 msgstr "PloneMeeting meetingConfig id"
 
 #. Default: "PloneMeeting password to use"
+#: ../browser/settings.py:99
 msgid "PloneMeeting password to use"
 msgstr "PloneMeeting password to use"
 
 #. Default: "PloneMeeting username to use"
+#: ../browser/settings.py:94
 msgid "PloneMeeting username to use"
 msgstr "PloneMeeting username to use"
 
+#: ../configure.zcml:29
+msgid "Registration of the Webservices Client for PloneMeeting"
+msgstr ""
+
+#: ../testing.zcml:15
+msgid "Registration of the Webservices Client for PloneMeeting for the tests"
+msgstr ""
+
 #. Default: "Save"
+#: ../browser/settings.py:193
 msgid "Save"
 msgstr ""
 
 #. Default: "Select the proposing group to use for the created item in PloneMeeting"
+#: ../browser/forms.py:75
 msgid "Select the annexes to send"
 msgstr ""
 
 #. Default: "Select the category to use for the created item item in PloneMeeting"
+#: ../browser/forms.py:66
 msgid "Select the category to use for the created item item in PloneMeeting"
 msgstr "Select the category to use for the created item item in PloneMeeting"
 
+#: ../browser/forms.py:70
 msgid "Select the desired meeting date for the created item in PloneMeeting"
 msgstr ""
 
 #. Default: "Select the proposing group to use for the created item in PloneMeeting"
+#: ../browser/forms.py:61
 msgid "Select the proposing group to use for the created item in PloneMeeting"
 msgstr "Select the proposing group to use for the created item in PloneMeeting"
 
 #. Default: "Send"
+#: ../browser/forms.py:159
 msgid "Send"
 msgstr "Send"
 
 #. Default: "Send to ${meetingConfigTitle}"
+#: ../browser/forms.py:152
 msgid "Send to"
 msgstr "Send to ${meetingConfigTitle}"
 
 #. Default: "Send to PloneMeeting"
+#: ../browser/forms.py:138
 msgid "Send to PloneMeeting"
 msgstr "Send to PloneMeeting"
 
 #. Default: "TAL Condition"
+#: ../browser/settings.py:39
 msgid "TAL Condition"
 msgstr "TAL Condition"
 
 #. Default: "TAL expression to evaluate for the corresponding PloneMeeting field name"
+#: ../browser/settings.py:58
 msgid "TAL expression to evaluate for the corresponding PloneMeeting field name"
 msgstr "TAL expression to evaluate for the corresponding PloneMeeting field name"
 
-#. Default: "The configuration specify that user '${userId}' will create the item in PloneMeeting but this user can not create item for any proposingGroup in PloneMeeting!"
-msgid "The configuration specify that user '${userId}' will create the item in PloneMeeting but this user can not create item for any proposingGroup in PloneMeeting!"
-msgstr "The configuration specify that user '${userId}' will create the item in PloneMeeting but this user can not create item for any proposingGroup in PloneMeeting!"
-
 #. Default: "The current user can not create an item with the category forced thru the configuration! Please contact system administrator!"
+#: ../config.py:48
 msgid "The current user can not create an item with the category forced thru the configuration! Please contact system administrator!"
 msgstr "The current user can not create an item with the category forced thru the configuration! Please contact system administrator!"
 
 #. Default: "The current user can not create an item with the proposingGroup forced thru the configuration! Please contact system administrator!"
+#: ../config.py:43
 msgid "The current user can not create an item with the proposingGroup forced thru the configuration! Please contact system administrator!"
 msgstr "The current user can not create an item with the proposingGroup forced thru the configuration! Please contact system administrator!"
 
 #. Default: "The item has been correctly sent to PloneMeeting."
+#: ../config.py:11
 msgid "The item has been correctly sent to PloneMeeting."
 msgstr "The item has been correctly sent to PloneMeeting."
 
+#: ../config.py:60
+msgid "The requested file could not be found on the item"
+msgstr ""
+
 #. Default: "The user must be at least a 'MeetingManager'. Nevertheless, items will be created regarding the <i>User ids mappings</i> defined here under."
+#: ../browser/settings.py:95
 msgid "The user must be at least a 'MeetingManager'. Nevertheless, items will be created regarding the <i>User ids mappings</i> defined here under."
 msgstr "The user must be at least a 'MeetingManager'. Nevertheless, items will be created regarding the <i>User ids mappings</i> defined here under."
 
+#: ../config.py:7
+msgid "There was NO WARNING message during item creation."
+msgstr ""
+
 #. Default: "There was an error evaluating the TAL expression '${expr}' for the field '${field_name}'! The error was : ${error}. Please contact system administrator."
+#: ../config.py:15
 msgid "There was an error evaluating the TAL expression '${expr}' for the field '${field_name}'! The error was : ${error}. Please contact system administrator."
 msgstr "There was an error evaluating the TAL expression '${expr}' for the field '${field_name}'! The error was : ${error}. Please contact system administrator."
 
 #. Default: "This element has already been sent to PloneMeeting!"
+#: ../config.py:14
 msgid "This element has already been sent to PloneMeeting!"
 msgstr "This element has already been sent to PloneMeeting!"
 
 #. Default: "This element is linked to item(s) in PloneMeeting but your are not allowed to see it."
+#: ../config.py:10
 msgid "This element is linked to item(s) in PloneMeeting but your are not allowed to see it."
 msgstr "This element is linked to item(s) in PloneMeeting but your are not allowed to see it."
 
 #. Default: "Unable to connect to PloneMeeting! Please contact system administrator!"
+#: ../config.py:13
 msgid "Unable to connect to PloneMeeting! Please contact system administrator!"
 msgstr "Unable to connect to PloneMeeting! Please contact system administrator!"
 
 #. Default: "Unable to connect to PloneMeeting! The error message was : ${error}!"
+#: ../config.py:12
 msgid "Unable to connect to PloneMeeting! The error message was : ${error}!"
 msgstr "Unable to connect to PloneMeeting! The error message was : ${error}!"
 
 #. Default: "Unable to display informations about the potentially linked item in PloneMeeting because there was an error evaluating the TAL expression '${expr}' for the field '${field_name}'! The error was : '${error}'.  Please contact system administrator."
+#: ../config.py:27
 msgid "Unable to display informations about the potentially linked item in PloneMeeting because there was an error evaluating the TAL expression '${expr}' for the field '${field_name}'! The error was : '${error}'.  Please contact system administrator."
 msgstr "Unable to display informations about the potentially linked item in PloneMeeting because there was an error evaluating the TAL expression '${expr}' for the field '${field_name}'! The error was : '${error}'.  Please contact system administrator."
 
 #. Default: "User ids mappings"
+#: ../browser/settings.py:134
 msgid "User ids mappings"
 msgstr "User ids mappings"
 
+#: ../browser/settings.py:140
+msgid "User mappings"
+msgstr ""
+
 #. Default: "Viewlet display condition"
+#: ../browser/settings.py:106
 msgid "Viewlet display condition"
 msgstr "Viewlet display condition"
 
 #. Default: "WS4PM Client settings"
+#: ../browser/settings.py:160
+#: ../profiles/default/controlpanel.xml
 msgid "WS4PM Client settings"
 msgstr "WS4PM Client settings"
 
+#: ../configure.zcml:29
+msgid "Webservices Client for PloneMeeting"
+msgstr ""
+
+#: ../testing.zcml:15
+msgid "Webservices Client for PloneMeeting testing profile"
+msgstr ""
+
 #. Default: "You see these informations because the current element has been sent to PloneMeeting."
+#: ../browser/templates/plonemeeting_infos.pt:10
 msgid "pm_informations_help"
 msgstr "You see these informations because the current element has been sent to PloneMeeting."
 
 #. Default: "Here is a resume of what will be sent to PloneMeeting"
+#: ../browser/templates/display_data_to_send.pt:2
 msgid "send_to_plonemeeting_descr"
 msgstr "Here is a resume of what will be sent to PloneMeeting"
-
-#. Default: "Please specify the proposingGroup to use"
-msgid "send_to_plonemeeting_specify_proposing_group"
-msgstr "Please specify the proposingGroup to use"

@@ -452,7 +452,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
 
     @memoize
     def _rest_getItemCreationAvailableData(self):
-        """Query REST WSDL to obtain the list of available fields useable while creating an item."""
+        """Query REST to obtain the list of available fields useable while creating an item."""
         session = self._rest_connectToPloneMeeting()
         if session is not None:
             available_data = [
