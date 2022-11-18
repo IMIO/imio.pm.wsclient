@@ -118,6 +118,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
                                          u'externalIdentifier',
                                          u'extraAttrs',
                                          u'groupsInCharge',
+                                         u'ignore_validation_for',
                                          u'motivation',
                                          u'optionalAdvisers',
                                          u'preferredMeeting',
@@ -220,6 +221,55 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         result = ws4pmSettings._rest_searchItems({'Title': SAME_TITLE})
         self.assertTrue(len(result), 1)
         self.assertTrue(result[0]["UID"] == item2.UID())
+
+    def test_rest_createItem_with_ignore_validation(self):
+        """Check item creation with `ignore_validation_for` parameter"""
+        cfg2 = self.meetingConfig2
+        cfg2Id = cfg2.getId()
+        ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
+        setCorrectSettingsConfig(self.portal, minimal=True)
+        self.changeUser('pmManager')
+        self.setMeetingConfig(cfg2Id)
+        self._enableField("internalNotes")
+        test_meeting = self.create('Meeting')
+        self.freezeMeeting(test_meeting)
+        self.changeUser('pmCreator1')
+        # create the 'pmCreator1' member area to be able to create an item
+        pmFolder = self.tool.getPloneMeetingFolder(cfg2Id)
+        # we have to commit() here or portal used behing the SOAP call
+        # does not have the freshly created item...
+        transaction.commit()
+        # create an item for 'pmCreator1'
+        data = {'title': u'My sample item',
+                'description': u'<p>My description</p>',
+                # also use accents, this was failing with suds-jurko 0.5
+                'decision': u'<p>My d\xe9cision</p>',
+                'preferredMeeting': test_meeting.UID(),
+                'externalIdentifier': u'my-external-identifier',
+                'extraAttrs': [{'key': 'internalNotes',
+                                'value': '<p>Internal notes</p>'}]}
+        result = ws4pmSettings._rest_createItem(cfg2Id, 'developers', data)
+        self.assertIsNone(result)
+        messages = IStatusMessage(self.request)
+        self.assertEqual(
+            messages.show()[-1].message,
+            u"An error occured during the item creation in PloneMeeting! The error "
+            "message was : [{'field': 'category', 'message': u'Please select a "
+            "category.', 'error': 'ValidationError'}]"
+        )
+
+        data["ignore_validation_for"] = "category"
+        result = ws4pmSettings._rest_createItem(cfg2Id, 'developers', data)
+        # commit again so the item is really created
+        transaction.commit()
+        # the item is created and his UID is returned
+        # check that the item is actually created inTheNameOf 'pmCreator1'
+        self.assertIsNotNone(result)
+        itemUID = result[0]
+        item = self.portal.uid_catalog(UID=itemUID)[0].getObject()
+        self.assertTrue(item.aq_inner.aq_parent.UID(), pmFolder.UID())
+        self.assertTrue(item.owner_info()['id'] == 'pmCreator1')
+        self.assertEqual(item.Title(), data['title'])
 
     def test_rest_createItem(self):
         """Check item creation.

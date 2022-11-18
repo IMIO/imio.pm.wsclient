@@ -463,6 +463,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 u"externalIdentifier",
                 u"extraAttrs",
                 u"groupsInCharge",
+                u"ignore_validation_for",
                 u"motivation",
                 u"optionalAdvisers",
                 u"preferredMeeting",
@@ -508,6 +509,9 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                     "in_name_of": inTheNameOf,
                 }
                 # For backward compatibility
+                if "ignore_validation_for" in creationData:
+                    ignored = creationData.pop("ignore_validation_for")
+                    creationData["ignore_validation_for"] = ignored.split(",")
                 if "extraAttrs" in creationData:
                     extra_attrs = creationData.pop("extraAttrs")
                     for value in extra_attrs:
