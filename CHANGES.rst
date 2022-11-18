@@ -1,10 +1,11 @@
 Changelog
 =========
 
-1.18 (unreleased)
------------------
+2.0.0b1 (unreleased)
+--------------------
 
-- Nothing changed yet.
+- Migrate to REST api
+  [mpeeters]
 
 
 1.17 (2022-06-29)
