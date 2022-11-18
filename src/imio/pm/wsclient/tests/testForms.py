@@ -212,7 +212,7 @@ class testForms(WS4PMCLIENTTestCase):
         self.assertFalse(settings.only_one_sending)
         view._finishedSent = False
         self.request.response.status = 200  # if status in 300, render is not called by z3cform
-        self.assertIn('Send to PloneMeeting Assembly', view())
+        self.assertIn('form-buttons-send_to_plonemeeting', view())
         self.assertEqual(len(messages.show()), 0)
         # if we remove the item in PloneMeeting, the view is aware of it
         itemUID = str(ws4pmSettings._rest_searchItems({'externalIdentifier': document.UID()})[0]['UID'])
