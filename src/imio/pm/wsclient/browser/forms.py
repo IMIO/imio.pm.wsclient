@@ -401,7 +401,6 @@ class SendToPloneMeetingForm(form.Form):
                     {
                         "@type": "annex",
                         "title": unidecode(annex.title.decode('utf-8')),
-                        "content_category": "item-annex",
                         "file": {
                             "filename": unidecode(annex_name),
                             "data": base64.b64encode(annex_file.read()),
