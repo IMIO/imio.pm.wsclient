@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.18 (unreleased)
+1.18 (2023-08-14)
 -----------------
 
 - Fix an issue when there is a form instead of `onclick` attribute on input buttons
