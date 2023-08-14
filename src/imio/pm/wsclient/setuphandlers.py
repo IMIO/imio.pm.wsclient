@@ -7,6 +7,8 @@
 # GNU General Public License (GPL)
 #
 
+from plone import api
+
 import logging
 
 
@@ -25,3 +27,8 @@ def postInstall(context):
     # the right place for your custom code
     if isNotImioPmWsClientProfile(context):
         return
+
+
+def reload_js_registry(context):
+    setup_tool = api.portal.get_tool('portal_setup')
+    setup_tool.runImportStepFromProfile('profile-imio.pm.wsclient:default', 'jsregistry')

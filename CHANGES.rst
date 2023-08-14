@@ -4,7 +4,8 @@ Changelog
 1.18 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Fix an issue when there is a form instead of `onclick` attribute on input buttons
+  [mpeeters]
 
 
 1.17 (2022-06-29)

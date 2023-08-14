@@ -28,4 +28,12 @@
       provides="Products.GenericSetup.interfaces.EXTENSION"
     />
 
+    <genericsetup:upgradeStep
+      title="Reload JS Registry"
+      source="*"
+      destination="1.18"
+      handler=".setuphandlers.reload_js_registry"
+      profile="imio.pm.wsclient:default"
+      />
+
 </configure>

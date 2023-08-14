@@ -21,15 +21,24 @@ initializeActionsOverlays = function () {
   jQuery('input.[class*=apButtonAction_plonemeeting_wsclient_action_]').each(function(){
     // send an item to PloneMeeting
     // apply if no proposingGroupId is passed in the request
-    if ($(this).attr('onclick').indexOf('&proposingGroupId=') == -1) {
+    var url = null;
+    var has_onclick = false;
+    if ($(this).attr('onclick')) {
+      url = $(this).attr('onclick');
+      has_onclick = true;
+    } else {
+      url = $(this).parent().attr('action');
+    }
+    if (url.indexOf('&proposingGroupId=') == -1) {
       // add a surrounding <a></a> tag as overlays are only working with links
       // extract window.location attribute from current input.onclick value
-      url = $(this).attr('onclick');
       // clean URL as it could contain a javascript call like window.location, window.open, ...
       cleanUrl = url.replace("javascript:", '').replace("window.location='", '').replace("window.open('", '').replace(", '_parent')", '').replace("'", "");
       $(this).wrap("<a href='"+ cleanUrl +"'></a>");
       // remove the onclick and use his value as href for added <a></a>
-      $(this)[0].attributes['onclick'].value = '';
+      if (has_onclick == true) {
+        $(this)[0].attributes['onclick'].value = '';
+      }
       // now work with the parent, actually the added <a>
       parent = $(this).parent();
       parent.prepOverlay({
