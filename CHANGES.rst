@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.19 (unreleased)
+1.19 (2023-11-09)
 -----------------
 
 - Fix encoding of values [URB-2785]
