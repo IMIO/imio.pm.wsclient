@@ -4,7 +4,8 @@ Changelog
 1.19 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Fix encoding of values [URB-2785]
+  [mpeeters]
 
 
 1.18 (2023-08-14)

@@ -15,6 +15,7 @@ from plone.registry.interfaces import IRegistry
 from Products.CMFCore.ActionInformation import Action
 from Products.CMFCore.Expression import createExprContext
 from Products.CMFCore.Expression import Expression
+from Products.CMFPlone.utils import safe_unicode
 from Products.statusmessages.interfaces import IStatusMessage
 from suds.client import Client
 from suds.transport.http import HttpAuthenticated
@@ -443,9 +444,9 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             res = Expression(expression)(ctx)
         # make sure we do not return None because it breaks SOAP call
         if res is None:
-            return u''
+            return ''
         else:
-            return res
+            return safe_unicode(res)
 
     def getMeetingConfigTitle(self, meetingConfigId):
         """
