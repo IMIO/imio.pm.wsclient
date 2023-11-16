@@ -108,10 +108,11 @@ class DisplayDataToSendProvider(ContentProviderBase):
 
             if elt == 'extraAttrs':
                 res = ['<fieldset><legend>{0}</legend>{1}</fieldset>'.format(
-                    translate('PloneMeeting_label_' + extraAttr['key'],
-                              domain="PloneMeeting",
-                              context=self.request).encode('utf-8'),
-                    extraAttr['value'].encode('utf-8')) for extraAttr in data[elt]]
+                       translate('PloneMeeting_label_' + extraAttr['key'],
+                                 domain="PloneMeeting",
+                                 context=self.request).encode('utf-8'),
+                       safe_unicode(extraAttr['value']).encode('utf-8'))
+                       for extraAttr in data[elt]]
                 data[elt] = '<br />'.join(res)
 
         if 'title' not in data:

@@ -4,7 +4,8 @@ Changelog
 1.20 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Fix encoding for displayed values [URB-2930]
+  [mpeeters]
 
 
 1.19 (2023-11-09)
