@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '1.20.dev0'
+version = '1.20'
 
 setup(name='imio.pm.wsclient',
       version=version,

@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.20 (unreleased)
+1.20 (2023-11-16)
 -----------------
 
 - Fix encoding for displayed values [URB-2930]
