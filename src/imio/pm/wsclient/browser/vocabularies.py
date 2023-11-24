@@ -277,6 +277,8 @@ class desired_meetingdates_vocabulary(object):
         data = {'meetingConfigId': meeting_config_id}
         possible_meetings = ws4pmsettings._rest_getMeetingsAcceptingItems(data)
         local = pytz.timezone("Europe/Brussels")
+        if not possible_meetings:
+            return SimpleVocabulary([])
         for meeting in possible_meetings:
             meeting["date"] = datetime.strptime(meeting["date"], "%Y-%m-%dT%H:%M:%S")
             meeting["date"] = local.localize(meeting["date"])
