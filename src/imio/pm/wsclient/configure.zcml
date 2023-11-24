@@ -28,4 +28,21 @@
       provides="Products.GenericSetup.interfaces.EXTENSION"
     />
 
+    <genericsetup:upgradeDepends
+      source="*"
+      destination="1.13"
+      title="Upgrade to 1.13"
+      profile="imio.pm.wsclient:default"
+      import_steps="plone.app.registry"
+      />
+
+    <genericsetup:upgradeStep
+      title="Upgrade to 200"
+      description="urban upgrade step"
+      source="*"
+      destination="200"
+      handler=".upgrade.upgrade_to_200"
+      profile="imio.pm.wsclient:default"
+      />
+
 </configure>

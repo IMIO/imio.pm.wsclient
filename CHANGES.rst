@@ -4,7 +4,8 @@ Changelog
 2.0.0b2 (unreleased)
 --------------------
 
-- Nothing changed yet.
+- Upgrade config for REST api
+  [mpeeters]
 
 
 2.0.0b1 (2022-11-18)
