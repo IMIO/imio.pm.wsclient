@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2022-11-09 10:16+0000\n"
+"POT-Creation-Date: 2023-11-24 09:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,7 +61,7 @@ msgstr ""
 msgid "An error occured while generating the document in PloneMeeting! The error message was : %s"
 msgstr ""
 
-#: ../browser/viewlets.py:81
+#: ../browser/viewlets.py:97
 msgid "An error occured while searching for linked items in PloneMeeting!  The error message was : %s"
 msgstr ""
 
@@ -211,7 +211,7 @@ msgid "Send"
 msgstr ""
 
 #: ../browser/forms.py:152
-msgid "Send to"
+msgid "Send to ${meetingConfigTitle}"
 msgstr ""
 
 #: ../browser/forms.py:138

@@ -149,12 +149,16 @@ class SendToPloneMeetingForm(form.Form):
         self.portal = self.portal_state.portal()
         self.ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         # manage the label to display to wich meetingConfig we are sending the element...
-        self.label = translate(_('Send to'),
-                               domain='imio.pm.wsclient',
-                               mapping={'meetingConfigTitle':
-                                        self.ws4pmSettings.getMeetingConfigTitle(self.meetingConfigId),
-                                        },
-                               context=self.request)
+        self.label = translate(
+            _(
+                'Send to ${meetingConfigTitle}',
+                mapping={
+                    'meetingConfigTitle': self.ws4pmSettings.getMeetingConfigTitle(self.meetingConfigId),
+                },
+            ),
+            domain='imio.pm.wsclient',
+            context=self.request,
+        )
 
     @button.buttonAndHandler(_('Send'), name='send_to_plonemeeting')
     def handleSendToPloneMeeting(self, action):

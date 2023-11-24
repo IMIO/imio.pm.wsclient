@@ -62,7 +62,7 @@ msgstr ""
 msgid "An error occured while generating the document in PloneMeeting! The error message was : %s"
 msgstr ""
 
-#: ../browser/viewlets.py:81
+#: ../browser/viewlets.py:97
 msgid "An error occured while searching for linked items in PloneMeeting!  The error message was : %s"
 msgstr ""
 
@@ -236,10 +236,9 @@ msgstr "Select the proposing group to use for the created item in PloneMeeting"
 msgid "Send"
 msgstr "Send"
 
-#. Default: "Send to ${meetingConfigTitle}"
 #: ../browser/forms.py:152
-msgid "Send to"
-msgstr "Send to ${meetingConfigTitle}"
+msgid "Send to ${meetingConfigTitle}"
+msgstr ""
 
 #. Default: "Send to PloneMeeting"
 #: ../browser/forms.py:138

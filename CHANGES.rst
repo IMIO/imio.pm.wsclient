@@ -4,6 +4,8 @@ Changelog
 2.0.0b2 (unreleased)
 --------------------
 
+- Fix translation of overlay title
+  [mpeeters]
 - Avoid an error if the user can not access to meetings
   [mpeeters]
 - Upgrade config for REST api
