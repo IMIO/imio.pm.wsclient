@@ -16,10 +16,10 @@ from Products.CMFCore.ActionInformation import Action
 from Products.CMFCore.Expression import createExprContext
 from Products.CMFCore.Expression import Expression
 from Products.statusmessages.interfaces import IStatusMessage
-from suds.client import Client
-from suds.transport.http import HttpAuthenticated
-from suds.xsd.doctor import Import
-from suds.xsd.doctor import ImportDoctor
+# from suds.client import Client  # MIGRATION-PLONE6
+# from suds.transport.http import HttpAuthenticated  # MIGRATION-PLONE6
+# from suds.xsd.doctor import Import  # MIGRATION-PLONE6
+# from suds.xsd.doctor import ImportDoctor  # MIGRATION-PLONE6
 from z3c.form import button
 from z3c.form import field
 from zope import schema
@@ -180,7 +180,7 @@ class WS4PMClientSettingsEditForm(RegistryEditForm):
             field_mappings.mode = 'display'
         else:
             if generated_actions_field.mode == 'display' and \
-               'form.buttons.save' not in self.request.form.keys():
+               'form.buttons.save' not in list(self.request.form.keys()):
                 # only change mode while not in the "saving" process (that calls updateFields, but why?)
                 # because it leads to loosing generated_actions because a [] is returned by extractDate here above
                 self.fields.get('generated_actions').mode = 'input'
@@ -237,7 +237,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             client = Client(url, doctor=d, transport=t, timeout=int(timeout))
             # call a SOAP server test method to check that everything is fine with given parameters
             client.service.testConnection('')
-        except Exception, e:
+        except Exception as e:
             # if we are really on the configuration panel, display relevant message
             if self.request.get('URL', '').endswith('@@ws4pmclient-settings'):
                 IStatusMessage(self.request).addStatusMessage(
@@ -304,7 +304,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 data['inTheNameOf'] = self._getUserIdToUseInTheNameOfWith()
             try:
                 return client.service.getItemTemplate(**data)
-            except Exception, exc:
+            except Exception as exc:
                 IStatusMessage(self.request).addStatusMessage(
                     _(u"An error occured while generating the document in PloneMeeting!  "
                       "The error message was : %s" % exc), "error")
@@ -338,7 +338,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 if self.context.portal_membership.getAuthenticatedMember().has_role('Manager'):
                     warnings = 'warnings' in res.__keylist__ and res['warnings'] or []
                 return res['UID'], warnings
-            except Exception, exc:
+            except Exception as exc:
                 IStatusMessage(self.request).addStatusMessage(_(CONFIG_CREATE_ITEM_PM_ERROR, mapping={'error': exc}),
                                                               "error")
 
@@ -438,7 +438,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             ctx = createExprContext(context.aq_inner.aq_parent, portal, context)
             vars['context'] = context
             ctx.vars.update(vars)
-            for k, v in vars.items():
+            for k, v in list(vars.items()):
                 ctx.setContext(k, v)
             res = Expression(expression)(ctx)
         # make sure we do not return None because it breaks SOAP call

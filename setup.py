@@ -33,7 +33,7 @@ setup(name='imio.pm.wsclient',
           'imio.pm.locales',
           'plone.memoize',
           # -*- Extra requirements: -*-
-          'suds-jurko',
+          # 'suds-jurko',  # MIGRATION-PLONE6
       ],
       extras_require={'test': ['plone.app.testing', 'imio.pm.ws', 'mock']},
       entry_points="""
