@@ -47,8 +47,8 @@ class ATRawReadFile(object):
     def __iter__(self):
         return self
 
-    def next(self):
-        return self._getStream().next()
+    def __next__(self):
+        return next(self._getStream())
 
     @property
     def encoding(self):

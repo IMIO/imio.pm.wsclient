@@ -373,7 +373,7 @@ class SendToPloneMeetingForm(form.Form):
                                                                           self.portal,
                                                                           expr,
                                                                           vars)
-            except Exception, e:
+            except Exception as e:
                 IStatusMessage(self.request).addStatusMessage(
                     _(TAL_EVAL_FIELD_ERROR, mapping={'expr': expr,
                                                      'field_name': field_name,

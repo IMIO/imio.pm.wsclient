@@ -192,7 +192,7 @@ class testViewlets(WS4PMCLIENTTestCase):
         meeting_date = viewlet.getPloneMeetingLinkedInfos()[0]['meeting_date']
         # date TZ naive, uses UTC
         self.assertEqual(meeting_date.tzname(), 'UTC')
-        self.assertEquals((meeting_date.year,
+        self.assertEqual((meeting_date.year,
                            meeting_date.month,
                            meeting_date.day,
                            meeting_date.hour,
@@ -205,7 +205,7 @@ class testViewlets(WS4PMCLIENTTestCase):
         viewlet.update()
         meeting_date = viewlet.getPloneMeetingLinkedInfos()[0]['meeting_date']
         self.assertEqual(meeting_date.tzname(), 'UTC')
-        self.assertEquals((meeting_date.year,
+        self.assertEqual((meeting_date.year,
                            meeting_date.month,
                            meeting_date.day,
                            meeting_date.hour,

@@ -70,7 +70,7 @@ class testForms(WS4PMCLIENTTestCase):
         # call the view
         view()
         self.assertTrue(len(messages.show()) == 1)
-        self.assertEquals(messages.show()[0].message, UNABLE_TO_CONNECT_ERROR)
+        self.assertEqual(messages.show()[0].message, UNABLE_TO_CONNECT_ERROR)
 
     def test_canNotExecuteWrongAction(self):
         """While calling the view to execute an action, we check if the user can actually
@@ -189,7 +189,7 @@ class testForms(WS4PMCLIENTTestCase):
         messages = IStatusMessage(self.request)
         # there is one message saying that the item was correctly sent
         shownMessages = messages.show()
-        self.assertEquals(shownMessages[-1].message, CORRECTLY_SENT_TO_PM_INFO)
+        self.assertEqual(shownMessages[-1].message, CORRECTLY_SENT_TO_PM_INFO)
         # call form again, it will display relevant status messages
         # the rendered form is u''
         self.assertTrue(settings.only_one_sending)
@@ -200,7 +200,7 @@ class testForms(WS4PMCLIENTTestCase):
         self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 1)
         # a warning is displayed to the user
         self.request.response.status = 200  # if status in 300, messages are not deleted with show
-        self.assertEquals(messages.show()[-1].message, ALREADY_SENT_TO_PM_ERROR)
+        self.assertEqual(messages.show()[-1].message, ALREADY_SENT_TO_PM_ERROR)
         settings.only_one_sending = False
         self.assertFalse(settings.only_one_sending)
         view._finishedSent = False

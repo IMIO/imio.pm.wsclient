@@ -120,7 +120,7 @@ class proposing_groups_for_user_vocabulary(object):
                                                                              field_mapping['expression'],
                                                                              vars)
                     break
-                except Exception, e:
+                except Exception as e:
                     portal.REQUEST.set('error_in_vocabularies', True)
                     IStatusMessage(portal.REQUEST).addStatusMessage(
                         _(TAL_EVAL_FIELD_ERROR, mapping={'expr': field_mapping['expression'],
@@ -194,7 +194,7 @@ class categories_for_user_vocabulary(object):
                                                                        field_mapping['expression'],
                                                                        vars)
                     break
-                except Exception, e:
+                except Exception as e:
                     portal.REQUEST.set('error_in_vocabularies', True)
                     IStatusMessage(portal.REQUEST).addStatusMessage(
                         _(TAL_EVAL_FIELD_ERROR, mapping={'expr': field_mapping['expression'],

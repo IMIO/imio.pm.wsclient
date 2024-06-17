@@ -47,9 +47,9 @@ class testSettings(unittest.TestCase):
         setRoles(self.portal, TEST_USER_ID, ('Manager',))
         ws4pmSettings = self.portal.restrictedTraverse('@@ws4pmclient-settings')
         settings = ws4pmSettings.settings()
-        fields = settings.__schema__._InterfaceClass__attrs.keys()
+        fields = list(settings.__schema__._InterfaceClass__attrs.keys())
         fields.sort()
-        self.assertEquals(fields, ['allowed_annexes_types',
+        self.assertEqual(fields, ['allowed_annexes_types',
                                    'field_mappings',
                                    'generated_actions',
                                    'only_one_sending',
@@ -66,11 +66,11 @@ class testSettings(unittest.TestCase):
         login(self.portal, TEST_USER_NAME)
         # for now, there are no relative plonemeeting actions in portal_actions/object_buttons
         object_buttons_ids = self.portal.portal_actions.object_buttons.objectIds()
-        self.failIf([actId for actId in object_buttons_ids if actId.startswith(ACTION_SUFFIX)])
+        self.assertFalse([actId for actId in object_buttons_ids if actId.startswith(ACTION_SUFFIX)])
         setCorrectSettingsConfig(self.portal, withValidation=False)
         # now relevant actions exist
         object_buttons_ids = self.portal.portal_actions.object_buttons.objectIds()
-        self.assertEquals(len([actId for actId in object_buttons_ids if actId.startswith(ACTION_SUFFIX)]), 5)
+        self.assertEqual(len([actId for actId in object_buttons_ids if actId.startswith(ACTION_SUFFIX)]), 5)
         # and it is correctly configured
         setRoles(self.portal, TEST_USER_ID, ('Member',))
         # plone.app.testing does not manage request/URL and request/ACTUAL_URL
@@ -79,7 +79,7 @@ class testSettings(unittest.TestCase):
         self.request.set('ACTUAL_URL', self.portal.absolute_url())
         object_buttons = self.portal.portal_actions.listFilteredActionsFor(self.portal)['object_buttons']
         # 2 of the generated actions are not available to non 'Managers'
-        self.assertEquals(len([act for act in object_buttons if act['id'].startswith(ACTION_SUFFIX)]), 5 - 2)
+        self.assertEqual(len([act for act in object_buttons if act['id'].startswith(ACTION_SUFFIX)]), 5 - 2)
         # now save again with just 2 actions to generate
         generated_actions = [
             {'pm_meeting_config_id': 'plonegov-assembly',
@@ -95,7 +95,7 @@ class testSettings(unittest.TestCase):
         object_buttons = self.portal.portal_actions.listFilteredActionsFor(self.portal)['object_buttons']
         pm_object_buttons = [act for act in object_buttons if act['id'].startswith(ACTION_SUFFIX)]
         # only 2 actions exist now
-        self.assertEquals(len(pm_object_buttons), 2)
+        self.assertEqual(len(pm_object_buttons), 2)
         # and it is valid ones
         self.assertTrue('meetingConfigId=plonegov-assembly' in pm_object_buttons[0]['url'])
         self.assertTrue('meetingConfigId=plonemeeting-assembly' in pm_object_buttons[1]['url'])
@@ -113,11 +113,11 @@ class testSettings(unittest.TestCase):
         # and settings.user_mappings
         # first define no user_mappings and no pm_username,
         # the currently logged in user will be the creator
-        self.assertEquals(ws4pmSettings._getUserIdToUseInTheNameOfWith(), TEST_USER_ID)
+        self.assertEqual(ws4pmSettings._getUserIdToUseInTheNameOfWith(), TEST_USER_ID)
         # check that if current member is settings.pm_username, None is returned
         settings = ws4pmSettings.settings()
         settings.pm_username = unicode(TEST_USER_ID, 'utf-8')
-        self.assertEquals(ws4pmSettings._getUserIdToUseInTheNameOfWith(), None)
+        self.assertEqual(ws4pmSettings._getUserIdToUseInTheNameOfWith(), None)
         # now define user_mappings
         # add a lamba user to be able to test
         self.portal.acl_users.userFolderAddUser('lambda', 'lambda', ['Member'], [])
@@ -130,7 +130,7 @@ class testSettings(unittest.TestCase):
                                   {'local_userid': u'admin',
                                    'pm_userid': u'pmCreator1'}, ]
         login(self.portal, 'lambda')
-        self.assertEquals(ws4pmSettings._getUserIdToUseInTheNameOfWith(), u'aUserInPloneMeeting')
+        self.assertEqual(ws4pmSettings._getUserIdToUseInTheNameOfWith(), u'aUserInPloneMeeting')
         # not the user_mappings is linking to the settings.pm_username
         settings.user_mappings = [{'local_userid': u'localUserId',
                                    'pm_userid': u'pmCreator1'},
@@ -138,7 +138,7 @@ class testSettings(unittest.TestCase):
                                    'pm_userid': u'%s' % TEST_USER_ID},
                                   {'local_userid': u'admin',
                                    'pm_userid': u'pmCreator1'}, ]
-        self.assertEquals(ws4pmSettings._getUserIdToUseInTheNameOfWith(), None)
+        self.assertEqual(ws4pmSettings._getUserIdToUseInTheNameOfWith(), None)
         # if the user is not the settings.pm_username and not found in the mappings
         # it is his own userId that will be used
         settings.user_mappings = [{'local_userid': u'localUserId',
@@ -147,7 +147,7 @@ class testSettings(unittest.TestCase):
                                    'pm_userid': u'otherUserInPloneMeeting'},
                                   {'local_userid': u'admin',
                                    'pm_userid': u'pmCreator1'}, ]
-        self.assertEquals(ws4pmSettings._getUserIdToUseInTheNameOfWith(), 'lambda')
+        self.assertEqual(ws4pmSettings._getUserIdToUseInTheNameOfWith(), 'lambda')
 
     def test_renderTALExpression(self):
         """

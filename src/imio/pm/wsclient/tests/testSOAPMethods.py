@@ -24,18 +24,18 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         settings = ws4pmSettings.settings()
         setCorrectSettingsConfig(self.portal, minimal=True)
         # with valid informations, we can connect to PloneMeeting SOAP webservices
-        self.failUnless(ws4pmSettings._soap_connectToPloneMeeting())
+        self.assertTrue(ws4pmSettings._soap_connectToPloneMeeting())
         # if either url or username/password is not valid, we can not connect...
         valid_url = settings.pm_url
         settings.pm_url = settings.pm_url + 'invalidEndOfURL'
         cleanMemoize(self.request)
         # with invalid url, it fails...
-        self.failIf(ws4pmSettings._soap_connectToPloneMeeting())
+        self.assertFalse(ws4pmSettings._soap_connectToPloneMeeting())
         settings.pm_url = valid_url
         # with valid url but wrong password, it fails...
         settings.pm_password = u'wrongPassword'
         cleanMemoize(self.request)
-        self.failIf(ws4pmSettings._soap_connectToPloneMeeting())
+        self.assertFalse(ws4pmSettings._soap_connectToPloneMeeting())
 
     def test_soap_getConfigInfos(self):
         """Check that we receive valid infos about the PloneMeeting's configuration."""
