@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from zope.filerepresentation.interfaces import IRawReadFile
-from zope.interface import implements
+from zope.interface import implementer
 
 
+@implementer(IRawReadFile)
 class ATRawReadFile(object):
     """
     """
-    implements(IRawReadFile)
-
     encoding = 'utf-8'
     name = None
 

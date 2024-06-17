@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from collective.z3cform.datagridfield import DataGridFieldFactory
+from collective.z3cform.datagridfield.datagridfield import DataGridFieldFactory
 from collective.z3cform.datagridfield.registry import DictRow
 from datetime import datetime
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
