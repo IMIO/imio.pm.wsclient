@@ -188,7 +188,7 @@ class WS4PMClientSettingsEditForm(RegistryEditForm):
             field_mappings.mode = 'display'
         else:
             if generated_actions_field.mode == 'display' and \
-                    'form.buttons.save' not in self.request.form.keys():
+                    'form.buttons.save' not in list(self.request.form.keys()):
                 # only change mode while not in the "saving" process (that calls updateFields, but why?)
                 # because it leads to loosing generated_actions because a [] is returned by extractDate here above
                 self.fields.get('generated_actions').mode = 'input'
@@ -672,7 +672,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             ctx = createExprContext(context.aq_inner.aq_parent, portal, context)
             vars['context'] = context
             ctx.vars.update(vars)
-            for k, v in vars.items():
+            for k, v in list(vars.items()):
                 ctx.setContext(k, v)
             res = Expression(expression)(ctx)
         # make sure we do not return None because it breaks REST call
