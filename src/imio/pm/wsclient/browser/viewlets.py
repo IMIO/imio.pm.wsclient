@@ -55,7 +55,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
                                                          vars)
             if not res:
                 return False
-        except Exception, e:
+        except Exception as e:
             return (_(UNABLE_TO_DISPLAY_VIEWLET_ERROR, mapping={'expr': settings.viewlet_display_condition,
                                                                 'field_name': 'viewlet_display_condition',
                                                                 'error': e}), 'error')
@@ -98,7 +98,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
                     # get all the MeetingItems types based on the inNameOf user.
                 },
             )
-        except Exception, exc:
+        except Exception as exc:
             return (_(u"An error occured while searching for linked items in PloneMeeting!  "
                       "The error message was : %s" % exc), 'error')
         # if we are here, it means that the current element is actually linked to item(s)
@@ -113,7 +113,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
         # to be able to know if some infos in PloneMeeting where not found
         # for current user, save the infos actually shown...
         settings = self.ws4pmSettings.settings()
-        allowed_annexes_types = [line.values()[0] for line in settings.allowed_annexes_types]
+        allowed_annexes_types = [list(line.values())[0] for line in settings.allowed_annexes_types]
         shownItemsMeetingConfigId = []
         for item in items:
             res.append(self.get_item_info(item))

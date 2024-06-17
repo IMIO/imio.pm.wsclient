@@ -83,7 +83,7 @@ class testViews(WS4PMCLIENTTestCase):
         # with have a real result, aka not redirected to the context, a file
         self.assertTrue(view() != DOCUMENT_ABSOLUTE_URL)
         self.assertTrue(len(res) > 10000)
-        self.assertEquals(self.request.response.headers,
+        self.assertEqual(self.request.response.headers,
                           {'content-type': 'application/vnd.oasis.opendocument.text',
                            'location': '{0}/document'.format(self.portal.absolute_url()),
                            'content-disposition': 'inline;filename="filename.odt"'})
