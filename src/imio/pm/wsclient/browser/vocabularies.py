@@ -16,7 +16,7 @@ from zope.component import getMultiAdapter
 from zope.component import queryAdapter
 from zope.component import queryMultiAdapter
 from zope.component.hooks import getSite
-from zope.interface import implements
+from zope.interface import implementer
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
@@ -24,9 +24,8 @@ from zope.schema.vocabulary import SimpleVocabulary
 import pytz
 
 
+@implementer(IVocabularyFactory)
 class pm_meeting_config_id_vocabulary(object):
-
-    implements(IVocabularyFactory)
 
     def __call__(self, context=None):
         """Query every existing MeetingConfigs in a distant PloneMeeting."""
@@ -49,8 +48,8 @@ class pm_meeting_config_id_vocabulary(object):
 pm_meeting_config_id_vocabularyFactory = pm_meeting_config_id_vocabulary()
 
 
+@implementer(IVocabularyFactory)
 class possible_permissions_vocabulary(object):
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         """Query every existing permissions."""
@@ -67,8 +66,8 @@ class possible_permissions_vocabulary(object):
 possible_permissions_vocabularyFactory = possible_permissions_vocabulary()
 
 
+@implementer(IVocabularyFactory)
 class pm_item_data_vocabulary(object):
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         """Query every available data we can use to create an item in the distant PloneMeeting."""
@@ -92,8 +91,8 @@ class pm_item_data_vocabulary(object):
 pm_item_data_vocabularyFactory = pm_item_data_vocabulary()
 
 
+@implementer(IVocabularyFactory)
 class proposing_groups_for_user_vocabulary(object):
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         """Query every available proposingGroups for current user in a distant PloneMeeting."""
@@ -164,8 +163,8 @@ class proposing_groups_for_user_vocabulary(object):
 proposing_groups_for_user_vocabularyFactory = proposing_groups_for_user_vocabulary()
 
 
+@implementer(IVocabularyFactory)
 class categories_for_user_vocabulary(object):
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         """Query every available categories for current user in a distant PloneMeeting."""
@@ -252,8 +251,8 @@ def desired_meetingdates_vocabulary__call___cachekey(method, self, context):
     return True
 
 
+@implementer(IVocabularyFactory)
 class desired_meetingdates_vocabulary(object):
-    implements(IVocabularyFactory)
 
     @ram.cache(desired_meetingdates_vocabulary__call___cachekey)
     def __call__(self, context):
@@ -291,8 +290,8 @@ class desired_meetingdates_vocabulary(object):
 desired_meetingdates_vocabularyFactory = desired_meetingdates_vocabulary()
 
 
+@implementer(IVocabularyFactory)
 class annexes_for_user_vocabulary(object):
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         """Query every available data we can use to create an item in the distant PloneMeeting."""

@@ -38,7 +38,7 @@ from zope.contentprovider.provider import ContentProviderBase
 from zope.event import notify
 from zope.filerepresentation.interfaces import IRawReadFile
 from zope.i18n import translate
-from zope.interface import implements
+from zope.interface import implementer
 from zope.schema.interfaces import IVocabularyFactory
 
 import base64
@@ -123,9 +123,8 @@ class DisplayDataToSendProvider(ContentProviderBase):
         return self.template()
 
 
+@implementer(IFieldsAndContentProvidersForm)
 class SendToPloneMeetingForm(form.Form):
-    implements(IFieldsAndContentProvidersForm)
-
     fields = field.Fields(ISendToPloneMeeting)
     fields['annexes'].widgetFactory = CheckBoxFieldWidget
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from collective.z3cform.datagridfield import DataGridFieldFactory
+from collective.z3cform.datagridfield.datagridfield import DataGridFieldFactory
 from collective.z3cform.datagridfield.registry import DictRow
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import ACTION_SUFFIX
