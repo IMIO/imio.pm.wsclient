@@ -290,9 +290,12 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 **{k: v for k, v in data.items() if k != "inTheNameOf"}
             )
             response = session.get(url)
-            if response.status_code == 200:
-                return response.json()
-            return []
+            if response.status_code != 200:
+                return False
+            if response.json().get("items_total") == 0:
+                # When there is no item found, we still get a response but items_total is 0
+                return False
+            return response.json()
 
     @memoize
     def _rest_getConfigInfos(self, showCategories=False):
