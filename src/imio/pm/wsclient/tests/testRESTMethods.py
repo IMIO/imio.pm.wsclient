@@ -13,9 +13,9 @@ from zope.component import getMultiAdapter
 import transaction
 
 
-class testSOAPMethods(WS4PMCLIENTTestCase):
+class testRESTMethods(WS4PMCLIENTTestCase):
     """
-        Tests the browser.settings SOAP client methods
+        Tests the browser.settings REST client methods
     """
 
     def test_rest_connectToPloneMeeting(self):
@@ -98,21 +98,22 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         self.assertTrue(configInfos[0]['id'], u'plonemeeting-assembly')
         self.assertTrue(configInfos[1]['id'], u'plonegov-assembly')
         # by default, no categories
-        self.assertFalse(configInfos[0].get('categories', False))
+        # plonemeeting-assembly has no categories BTW, so we use plonegov-assembly
+        self.assertFalse(configInfos[1].get('categories', False))
         # we can ask categories by passing a showCategories=True to _rest_getConfigInfos
         configInfos = ws4pmSettings._rest_getConfigInfos(showCategories=True)
-        self.assertTrue(configInfos[0].get('categories', False))
+        self.assertEqual(len(configInfos[1].get('categories')), 6)
 
     def test_rest_getItemCreationAvailableData(self):
         """Check that we receive the list of available data for creating an item."""
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         setCorrectSettingsConfig(self.portal, minimal=True)
 
-        availableData = ws4pmSettings._rest_getItemCreationAvailableData()
-        availableData.sort()
-        self.assertEqual(availableData, [u'annexes',
+        availableData = set(ws4pmSettings._rest_getItemCreationAvailableData())
+        self.assertEqual(availableData, {u'annexes',
                                          u'associatedGroups',
                                          u'category',
+                                         u'copyGroups',
                                          u'decision',
                                          u'description',
                                          u'externalIdentifier',
@@ -124,7 +125,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
                                          u'preferredMeeting',
                                          u'proposingGroup',
                                          u'title',
-                                         u'toDiscuss'])
+                                         u'toDiscuss'})
 
     def test_rest_getItemInfos(self):
         """Check the fact of getting informations about an existing item."""
@@ -385,6 +386,7 @@ class testSOAPMethods(WS4PMCLIENTTestCase):
         # freeze meeting_2 => it still should be in the accepting items meetings
         self.changeUser('pmManager')
         api.content.transition(meeting_2, 'freeze')
+        self.portal._volatile_cache_keys._p_changed = False  # Avoid ConflictError
         transaction.commit()
         self.changeUser('pmCreator1')
         meetings = ws4pmSettings._rest_getMeetingsAcceptingItems(
@@ -425,5 +427,5 @@ def test_suite():
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
     # add a prefix because we heritate from testMeeting and we do not want every tests of testMeeting to be run here...
-    suite.addTest(makeSuite(testSOAPMethods, prefix='test_'))
+    suite.addTest(makeSuite(testRESTMethods, prefix='test_'))
     return suite
