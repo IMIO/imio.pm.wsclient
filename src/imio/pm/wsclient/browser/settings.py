@@ -2,6 +2,7 @@
 
 from collective.z3cform.datagridfield import DataGridFieldFactory
 from collective.z3cform.datagridfield.registry import DictRow
+from datetime import datetime
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import ACTION_SUFFIX
 from imio.pm.wsclient.config import CONFIG_CREATE_ITEM_PM_ERROR
@@ -407,6 +408,36 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             response = session.get(url)
             if response.status_code == 200:
                 return response.json()["items"]
+
+    def _rest_getDecidedMeetingDate(self,
+                                   data,
+                                   item_portal_type,
+                                   decided_states=('accepted', 'accepted_but_modified', 'accepted_and_returned')):
+        """
+        Get the actual decided meeting date. It handles delayed and sentTo items appropriately.
+        Use item_portal_type parameter to get the decided meeting date for this portal_type.
+        It returns a datetime object if a meeting has been found, or None otherwise.
+        TODO: handle decided_states correctly, fetching decided states from PloneMeeting configuration
+        """
+        brains = self._rest_searchItems(data)
+        if not brains:
+            return  # Item has been deleted or has not been sent to PloneMeeting
+        item = self._rest_getItemInfos(
+            {"UID": brains[0]['UID'], "showExtraInfos": True,
+             'extra_include': 'meeting,linked_items',
+             'extra_include_meeting_additional_values': '*',
+             'extra_include_linked_items_mode': 'every_successors'}
+        )[0]
+        if item_portal_type == item["@type"] and item['review_state'] in decided_states:
+            return datetime.strptime(item['extra_include_meeting']['date'], "%Y-%m-%dT%H:%M:%S")
+        elif item['extra_include_linked_items']:
+            for linked_item in item['extra_include_linked_items']:
+                if item_portal_type == linked_item["@type"] and linked_item['review_state'] in decided_states:
+                    item = self._rest_getItemInfos(
+                        {"UID": linked_item['UID'], "showExtraInfos": True, 'extra_include': 'meeting'}
+                    )[0]
+                    return datetime.strptime(item['extra_include_meeting']['date'], "%Y-%m-%dT%H:%M:%S")
+
 
     def _rest_getItemTemplate(self, data):
         """Query the getItemTemplate REST server method."""

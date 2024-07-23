@@ -10,6 +10,10 @@ Changelog
   [mpeeters]
 - Upgrade config for REST api
   [mpeeters]
+- Fixed all unit tests.
+  [aduchene]
+- Add a new helper method `_rest_getDecidedMeetingDate` to get the actual decided meeting date.
+  [aduchene]
 
 
 2.0.0b1 (2022-11-18)

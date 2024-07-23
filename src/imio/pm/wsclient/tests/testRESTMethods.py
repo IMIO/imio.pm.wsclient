@@ -6,9 +6,10 @@ from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import cleanMemoize
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
 from plone import api
+from Products.Archetypes.event import ObjectEditedEvent
 from Products.statusmessages.interfaces import IStatusMessage
 from zope.component import getMultiAdapter
-
+from zope.event import notify
 
 import transaction
 
@@ -421,6 +422,76 @@ class testRESTMethods(WS4PMCLIENTTestCase):
 
         # Ensure that meetings have a date
         self.assertEqual("2013-03-03T00:00:00", meetings[0]["date"])
+
+    def test_rest_getDecidedMeetingDate(self):
+        """Test the _rest_getDecidedMeetingDate method that should return
+        the date of which the item has been actually decided."""
+        setCorrectSettingsConfig(self.portal, minimal=True)
+        cfg = self.meetingConfig
+        cfg2= self.meetingConfig2
+        cfg2Id = cfg2.getId()
+        ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
+
+        self.changeUser('admin')
+        self._activate_wfas(('delayed', 'postpone_next_meeting', ))
+        # Setting up sending to another meetingConfig
+        cfg.setMeetingConfigsToCloneTo(({'meeting_config': '%s' % cfg2Id,
+                                         'trigger_workflow_transitions_until': '%s.%s' %
+                                         (cfg2Id, 'validated')},))
+        cfg.setItemAutoSentToOtherMCStates((u'accepted', ))
+        notify(ObjectEditedEvent(cfg))
+        self.changeUser("pmManager")
+        # Situation 1: item 'item_delayed' sent to PM will be delayed in a meeting 'meeting_delayed'
+        # It will be replaced by 'item_decided' and decided in a next meeting 'meeting_decided'
+        # It will also be sent to meetingConfig2
+        meeting_delayed = self.create('Meeting', date=datetime(2024, 7, 20))
+        item_delayed = self.create('MeetingItem', decision="A Decision", externalIdentifier=u'external1')
+        item_delayed.setOtherMeetingConfigsClonableTo((cfg2Id,))
+        item_delayed.reindexObject(idxs=['sentToInfos', "externalIdentifier",])
+        self.presentItem(item_delayed)
+        self.decideMeeting(meeting_delayed)
+        self.do(item_delayed, 'delay')
+        item_decided = item_delayed.get_successor()
+        meeting_decided_date = datetime(2024, 7, 21)
+        meeting_decided = self.create('Meeting', date=meeting_decided_date)
+        self.presentItem(item_decided)
+        self.decideMeeting(meeting_decided)
+        self.do(item_decided, 'accept')
+        transaction.commit()
+        self.assertEqual(
+            ws4pmSettings._rest_getDecidedMeetingDate(
+                {'externalIdentifier': 'external1', 'inTheNameOf': 'pmManager'},
+                item_portal_type=cfg.getItemTypeName()
+            ),
+            meeting_decided_date
+        )
+        # Situation 2: 'item_decided' has been sent to meetingConfig2 as an other item 'item_sent'
+        # and will be decided there too. We want the date of the meeting `meeting2_decided`
+        # in which 'item_sent' is decided.
+        item_sent = item_decided.get_successor()
+        item_sent.category = 'deployment' # categories are activated in cfg2
+        self.setMeetingConfig(cfg2Id)
+        meeting2_decided_date = datetime(2024, 7, 22)
+        meeting2_decided = self.create('Meeting', date=meeting2_decided_date)
+        self.presentItem(item_sent)
+        self.decideMeeting(meeting2_decided)
+        self.do(item_sent, 'accept')
+        transaction.commit()
+        self.assertEqual(
+            ws4pmSettings._rest_getDecidedMeetingDate(
+                {'externalIdentifier': 'external1', 'inTheNameOf': 'pmManager'},
+                item_portal_type=cfg2.getItemTypeName()
+            ),
+            meeting2_decided_date
+        )
+        # It should still give us the meeting_decided_date for situation 1
+        self.assertEqual(
+            ws4pmSettings._rest_getDecidedMeetingDate(
+                {'externalIdentifier': 'external1', 'inTheNameOf': 'pmManager'},
+                item_portal_type=cfg.getItemTypeName()
+            ),
+            meeting_decided_date
+        )
 
 
 def test_suite():
