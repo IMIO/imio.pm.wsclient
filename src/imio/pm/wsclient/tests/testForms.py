@@ -35,6 +35,7 @@ from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import SEND_TO_PM_VIEW_NAME
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
 from Products.statusmessages.interfaces import IStatusMessage
+from plone.app.testing import logout
 from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
 from zope.i18n import translate
@@ -51,6 +52,7 @@ class testForms(WS4PMCLIENTTestCase):
         """If no valid parameters are defined in the settings, the view is not accessible
            and a relevant message if displayed to the member in portal_messages."""
         # only available to connected users
+        logout()
         self.assertRaises(Unauthorized, self.portal.restrictedTraverse, SEND_TO_PM_VIEW_NAME)
         self.changeUser('pmCreator1')
         self.portal.restrictedTraverse(SEND_TO_PM_VIEW_NAME).form_instance
@@ -66,7 +68,7 @@ class testForms(WS4PMCLIENTTestCase):
         view = self.portal.restrictedTraverse(SEND_TO_PM_VIEW_NAME).form_instance
         # when we can not connect, a message is displayed to the user
         messages = IStatusMessage(self.request)
-        self.assertTrue(len(messages.show()) == 0)
+        self.assertTrue(len(messages.show()) == 2)
         # call the view
         view()
         self.assertTrue(len(messages.show()) == 1)
@@ -101,7 +103,7 @@ class testForms(WS4PMCLIENTTestCase):
         annex = createAnnex(self.portal.Members.pmCreator1)
         # before sending, no item is linked to the document
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
-        self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 0)
+        self.assertTrue(len(ws4pmSettings._rest_searchItems({'externalIdentifier': document.UID()})) == 0)
         # create the 'pmCreator1' member area to be able to create an item
         self.tool.getPloneMeetingFolder('plonemeeting-assembly', 'pmCreator1')
         # we have to commit() here or portal used behing the SOAP call
@@ -114,7 +116,7 @@ class testForms(WS4PMCLIENTTestCase):
             ' action="{0}/Members/pmCreator1/document" method="post"' \
             ' id="form" enctype="multipart/form-data">'.format(self.portal.absolute_url())
         self.assertTrue(form_action in view())
-        self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 0)
+        self.assertTrue(len(ws4pmSettings._rest_searchItems({'externalIdentifier': document.UID()})) == 0)
         # now send the element to PM
         view.proposingGroupId = 'developers'
         view.request.form['form.widgets.annexes'] = [annex.UID()]
@@ -123,11 +125,15 @@ class testForms(WS4PMCLIENTTestCase):
         # while the element is sent, the view will return nothing...
         self.assertFalse(view())
         # now that the element has been sent, an item is linked to the document
-        items = ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})
+        items = ws4pmSettings._rest_searchItems({'externalIdentifier': document.UID()})
         self.assertTrue(len(items) == 1)
         # moreover, as defined in the configuration, 1 annex were added to the item
-        itemInfos = ws4pmSettings._soap_getItemInfos({'UID': items[0]['UID'], 'showAnnexes': True})[0]
-        self.assertTrue(len(itemInfos['annexes']) == 1)
+        itemInfos = ws4pmSettings._rest_getItemInfos({'UID': items[0]['UID'], 'extra_include': "annexes"})[0]
+        self.assertTrue(len(itemInfos['extra_include_annexes']) == 1)
+        self.assertEqual("annex", itemInfos["extra_include_annexes"][0]["@type"])
+        self.assertEqual(
+            "annexe-oubliee.txt", itemInfos["extra_include_annexes"][0]["id"],
+        )
 
     def test_canNotSendIfInNoPMCreatorGroup(self):
         """
@@ -154,7 +160,8 @@ class testForms(WS4PMCLIENTTestCase):
         # if no item is created, _sendToPloneMeeting returns None
         self.assertFalse(self._sendToPloneMeeting(document, user='pmCreator2', proposingGroup=self.vendors_uid))
         msg = _(NO_PROPOSING_GROUP_ERROR, mapping={'userId': 'pmCreator2'})
-        self.assertEqual(messages.show()[-3].message, translate(msg))
+        messages = messages.show()
+        self.assertEqual(messages[-1].message, translate(msg))
 
     def test_checkAlreadySentToPloneMeeting(self):
         """Test in case we sent the element again to PloneMeeting, that should not happen...
@@ -185,7 +192,7 @@ class testForms(WS4PMCLIENTTestCase):
         self.assertTrue(annotations[WS4PMCLIENT_ANNOTATION_KEY] == [self.request.get('meetingConfigId'), ])
         self.assertTrue(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
                         (self.request.get('meetingConfigId'),)))
-        self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 1)
+        self.assertTrue(len(ws4pmSettings._rest_searchItems({'externalIdentifier': document.UID()})) == 1)
         messages = IStatusMessage(self.request)
         # there is one message saying that the item was correctly sent
         shownMessages = messages.show()
@@ -197,7 +204,7 @@ class testForms(WS4PMCLIENTTestCase):
         # the item is not created again
         # is still linked to one item
         self.assertTrue(annotations[WS4PMCLIENT_ANNOTATION_KEY] == [self.request.get('meetingConfigId'), ])
-        self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 1)
+        self.assertTrue(len(ws4pmSettings._rest_searchItems({'externalIdentifier': document.UID()})) == 1)
         # a warning is displayed to the user
         self.request.response.status = 200  # if status in 300, messages are not deleted with show
         self.assertEquals(messages.show()[-1].message, ALREADY_SENT_TO_PM_ERROR)
@@ -205,10 +212,10 @@ class testForms(WS4PMCLIENTTestCase):
         self.assertFalse(settings.only_one_sending)
         view._finishedSent = False
         self.request.response.status = 200  # if status in 300, render is not called by z3cform
-        self.assertIn('Send to PloneMeeting Assembly', view())
+        self.assertIn('form-buttons-send_to_plonemeeting', view())
         self.assertEqual(len(messages.show()), 0)
         # if we remove the item in PloneMeeting, the view is aware of it
-        itemUID = str(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})[0]['UID'])
+        itemUID = str(ws4pmSettings._rest_searchItems({'externalIdentifier': document.UID()})[0]['UID'])
         # avoid weird ConflictError while committing because of
         # self.portal._volatile_cache_keys PersistentMapping
         self.portal._volatile_cache_keys._p_changed = False
@@ -226,12 +233,12 @@ class testForms(WS4PMCLIENTTestCase):
                 (self.request.get('meetingConfigId'),)))
         # now it is consistent
         self.assertFalse(WS4PMCLIENT_ANNOTATION_KEY in annotations)
-        self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 0)
+        self.assertTrue(len(ws4pmSettings._rest_searchItems({'externalIdentifier': document.UID()})) == 0)
         # the item can be sent again and will be linked to a new created item
         self.assertTrue(view._doSendToPloneMeeting())
         self.assertTrue(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
                         (self.request.get('meetingConfigId'),)))
-        self.assertTrue(len(ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})) == 1)
+        self.assertTrue(len(ws4pmSettings._rest_searchItems({'externalIdentifier': document.UID()})) == 1)
         # the item can also been send to another meetingConfig
         self.request.set('meetingConfigId', 'plonegov-assembly')
         view = document.restrictedTraverse(SEND_TO_PM_VIEW_NAME).form_instance
@@ -249,7 +256,7 @@ class testForms(WS4PMCLIENTTestCase):
         # if we remove the 2 items, a call to checkAlreadySentToPloneMeeting
         # without meetingConfigs will wipeout the annotations
         transaction.commit()
-        itemUIDs = [str(elt['UID']) for elt in ws4pmSettings._soap_searchItems({'externalIdentifier': document.UID()})]
+        itemUIDs = [str(elt['UID']) for elt in ws4pmSettings._rest_searchItems({'externalIdentifier': document.UID()})]
 
         item1 = self.portal.uid_catalog(UID=itemUIDs[0])[0].getObject()
         item2 = self.portal.uid_catalog(UID=itemUIDs[1])[0].getObject()

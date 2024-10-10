@@ -30,7 +30,7 @@ class BaseDownloadFromItemView(BrowserView):
     def __call__(self):
         """ """
         # first check that we can connect to PloneMeeting
-        client = self.ws4pmSettings._soap_connectToPloneMeeting()
+        client = self.ws4pmSettings._rest_connectToPloneMeeting()
         if not client:
             IStatusMessage(self.request).addStatusMessage(_(UNABLE_TO_CONNECT_ERROR), "error")
             return self.request.RESPONSE.redirect(self.context.absolute_url())
@@ -68,13 +68,13 @@ class GenerateItemTemplateView(BaseDownloadFromItemView):
         response.setHeader('Content-Disposition', 'inline;filename="%s.%s"' % (self.templateFilename,
                                                                                self.templateFormat))
 
-        res = self.ws4pmSettings._soap_getItemTemplate({'itemUID': self.itemUID,
+        res = self.ws4pmSettings._rest_getItemTemplate({'itemUID': self.itemUID,
                                                         'templateId': self.templateId, })
         if not res:
             # an error occured, redirect to user to the context, a statusMessage will be displayed
             return self.request.RESPONSE.redirect(self.context.absolute_url())
 
-        return base64.b64decode(res)
+        return res.content
 
 
 class DownloadAnnexFromItemView(BaseDownloadFromItemView):
@@ -100,12 +100,11 @@ class DownloadAnnexFromItemView(BaseDownloadFromItemView):
             IStatusMessage(self.request).addStatusMessage(_(ANNEXID_MANDATORY_ERROR), "error")
             return response.redirect(self.context.absolute_url())
 
-        res = self.ws4pmSettings._soap_getItemInfos(
+        res = self.ws4pmSettings._rest_getItemInfos(
             {
                 'UID': self.itemUID,
-                'showAnnexes': True,
-                'allowed_annexes_types': self.annex_type,
-                'include_annex_binary': True,
+                'extra_include': 'annexes',
+                'allowed_annexes_types': self.annex_type,  # XXX Must be implemented
             }
         )
         if not res:
@@ -113,11 +112,10 @@ class DownloadAnnexFromItemView(BaseDownloadFromItemView):
             IStatusMessage(self.request).addStatusMessage(_(MISSING_FILE_ERROR), "error")
             return self.request.RESPONSE.redirect(self.context.absolute_url())
 
-        annex_info = [anx for anx in res[0].annexes if anx.id == self.annex_id]
+        annex_info = [a for a in res[0]["extra_include_annexes"] if a["id"] == self.annex_id]
         if annex_info:
             annex_info = annex_info[0]
-            annex = annex_info.file
-            mimetype = self.portal.mimetypes_registry.lookupExtension(annex_info.filename.split('.')[-1].lower())
-            response.setHeader('Content-Type', mimetype)
-            response.setHeader('Content-Disposition', 'inline;filename="%s"' % annex_info.filename)
-            return base64.b64decode(annex)
+            response.setHeader('Content-Type', annex_info["file"]["content-type"])
+            response.setHeader('Content-Disposition', 'inline;filename="%s"' % annex_info["file"]["filename"])
+            annex_content = self.ws4pmSettings._rest_getAnnex(annex_info["file"]["download"])
+            return annex_content

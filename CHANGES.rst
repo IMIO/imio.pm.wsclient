@@ -1,10 +1,26 @@
 Changelog
 =========
 
-1.18 (unreleased)
------------------
+2.0.0b2 (unreleased)
+--------------------
 
-- Nothing changed yet.
+- Fix translation of overlay title
+  [mpeeters]
+- Avoid an error if the user can not access to meetings
+  [mpeeters]
+- Upgrade config for REST api
+  [mpeeters]
+- Fixed all unit tests.
+  [aduchene]
+- Add a new helper method `_rest_getDecidedMeetingDate` to get the actual decided meeting date.
+  [aduchene]
+
+
+2.0.0b1 (2022-11-18)
+--------------------
+
+- Migrate to REST api
+  [mpeeters]
 
 
 1.17 (2022-06-29)

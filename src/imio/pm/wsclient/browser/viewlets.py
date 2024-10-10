@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from dateutil import tz
+from datetime import datetime
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import CAN_NOT_SEE_LINKED_ITEMS_INFO
 from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR
@@ -66,6 +67,16 @@ class PloneMeetingInfosViewlet(ViewletBase):
             return linkedInfos
         return True
 
+    def get_item_info(self, item):
+        return self.ws4pmSettings._rest_getItemInfos(
+            {
+                'UID': item['UID'],
+                'extra_include': 'meeting,pod_templates,annexes,config',
+                'extra_include_meeting_additional_values': '*',
+                'fullobjects': None,
+            }
+        )[0]
+
     @memoize
     def getPloneMeetingLinkedInfos(self):
         """Search items created for context.
@@ -75,7 +86,13 @@ class PloneMeetingInfosViewlet(ViewletBase):
            with getConfigInfos.
            If we encounter an error, we return a tuple as 'usual' like in self.available"""
         try:
-            items = self.ws4pmSettings._soap_searchItems({'externalIdentifier': self.context.UID()})
+            items = self.ws4pmSettings._rest_searchItems(
+                {
+                    'externalIdentifier': self.context.UID(),
+                    'extra_include': 'linked_items',
+                    'extra_include_linked_items_mode': 'every_successors',
+                },
+            )
         except Exception, exc:
             return (_(u"An error occured while searching for linked items in PloneMeeting!  "
                       "The error message was : %s" % exc), 'error')
@@ -94,23 +111,20 @@ class PloneMeetingInfosViewlet(ViewletBase):
         allowed_annexes_types = [line.values()[0] for line in settings.allowed_annexes_types]
         shownItemsMeetingConfigId = []
         for item in items:
-            res.append(self.ws4pmSettings._soap_getItemInfos({'UID': item['UID'],
-                                                              'showExtraInfos': True,
-                                                              'showAnnexes': True,
-                                                              'allowed_annexes_types': allowed_annexes_types,
-                                                              'include_annex_binary': False,
-                                                              'showExtraInfos': True,
-                                                              'showTemplates': True})[0])
+            res.append(self.get_item_info(item))
             lastAddedItem = res[-1]
-            shownItemsMeetingConfigId.append(lastAddedItem['extraInfos']['meeting_config_id'])
+            shownItemsMeetingConfigId.append(lastAddedItem['extra_include_config']['id'])
             # XXX special case if something went wrong and there is an item in PM
             # that is not in the context sent_to annotation
-            lastAddedItemMeetingConfigId = str(lastAddedItem['extraInfos']['meeting_config_id'])
+            lastAddedItemMeetingConfigId = str(lastAddedItem['extra_include_config']['id'])
             if lastAddedItemMeetingConfigId not in sent_to:
                 existingSentTo = list(sent_to)
                 existingSentTo.append(lastAddedItemMeetingConfigId)
                 annotations[WS4PMCLIENT_ANNOTATION_KEY] = existingSentTo
                 sent_to = annotations[WS4PMCLIENT_ANNOTATION_KEY]
+            if "extra_include_linked_items" in item and item["extra_include_linked_items"]:
+                for linked_item in item["extra_include_linked_items"]:
+                    res.append(self.get_item_info(linked_item))
 
         # if the number of items found is inferior to elements sent, it means
         # that some infos are not viewable by current user, we add special message
@@ -125,35 +139,19 @@ class PloneMeetingInfosViewlet(ViewletBase):
                     # in extraInfos so sort here under works correctly
                     # in the linked viewlet template, we test if there is a 'UID' in the given infos, if not
                     # it means that it is this special message
-                    res.append({'extraInfos': {'meeting_config_id': sent,
-                                               'meeting_config_title': meetingConfigVocab.getTerm(sent).title}})
+                    res.append({'extra_include_config': {'id': sent,
+                                                         'title': meetingConfigVocab.getTerm(sent).title}})
 
         # sort res to comply with sent order, for example sent first to college then council
         def sortByMeetingConfigId(x, y):
-            return cmp(sent_to.index(x['extraInfos']['meeting_config_id']),
-                       sent_to.index(y['extraInfos']['meeting_config_id']))
-        res.sort(sortByMeetingConfigId)
+            return cmp(x["created"], y["created"])
+        res.sort(sortByMeetingConfigId, reverse=True)
         return res
 
     def displayMeetingDate(self, meeting_date):
         """Display a correct related meeting date :
            - if linked to a meeting, either '-'
-           - manage displayed hours (hide hours if 00:00)"""
-        if meeting_date.year == 1950:
+        """
+        if not meeting_date:
             return '-'
-
-        # now determinate result of toLocalizedTime before calling it...
-        # we will just check if given p_meeting_date that is UTC would have
-        # his hour to 0 after being localized to relevant timezone (what toLocalizedTime does)
-        # localize meetingDate because it does not work with naive dates
-        localMeetingDate = meeting_date.replace(tzinfo=tz.tzlocal())
-        delta = localMeetingDate.utcoffset()
-        utcMeetingDate = localMeetingDate - delta
-        # set utcMeetingDate as being UTC
-        utcMeetingDate = utcMeetingDate.replace(tzinfo=tz.tzutc())
-        # if hour is 0, hide it, so call toLocalizedTime with long_format=False
-        if utcMeetingDate.astimezone(tz.tzlocal()).hour == 0:
-            long_format = False
-        else:
-            long_format = True
-        return self.context.restrictedTraverse('@@plone').toLocalizedTime(meeting_date, long_format=long_format)
+        return meeting_date

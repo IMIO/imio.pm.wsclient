@@ -38,8 +38,8 @@ class testViews(WS4PMCLIENTTestCase):
         view = document.restrictedTraverse('@@generate_document_from_plonemeeting')
         # nothing is generated, just redirected to the context
         self.assertFalse(view() != DOCUMENT_ABSOLUTE_URL)
-        self.assertTrue(len(messages.show()) == 1)
-        self.assertTrue(messages.show()[0].message == UNABLE_TO_CONNECT_ERROR)
+        self.assertTrue(len(messages.show()) == 3)
+        self.assertTrue(messages.show()[-1].message == UNABLE_TO_CONNECT_ERROR)
         # _soap_connectToPloneMeeting is memoized...
         cleanMemoize(self.request)
         item = self._sendToPloneMeeting(document)
@@ -65,7 +65,7 @@ class testViews(WS4PMCLIENTTestCase):
         self.assertFalse(view() != DOCUMENT_ABSOLUTE_URL)
         self.assertEqual(
             messages.show()[-1].message, u"An error occured while generating the document in "
-            "PloneMeeting!  The error message was : Server raised fault: 'You can not access this item!'"
+            "PloneMeeting! The error message was : Server raised fault: 'You can not access this item!'"
         )
         # now with a valid itemUID but no valid templateId
         self.request.set('itemUID', item.UID())
@@ -74,7 +74,7 @@ class testViews(WS4PMCLIENTTestCase):
         self.assertFalse(view() != DOCUMENT_ABSOLUTE_URL)
         self.assertEqual(
             messages.show()[-1].message, u"An error occured while generating the document in "
-            "PloneMeeting!  The error message was : Server raised fault: 'You can not access this template!'"
+            "PloneMeeting! The error message was : Server raised fault: 'You can not access this template!'"
         )
         # now with all valid infos
         self.request.set('templateId', POD_TEMPLATE_ID_PATTERN.format('itemTemplate', 'odt'))
@@ -96,59 +96,65 @@ class testViews(WS4PMCLIENTTestCase):
         self.changeUser('admin')
         download_annex = self.portal.restrictedTraverse('@@download_annex_from_plonemeeting')
         # mock connexion to PloneMeeting
-        download_annex.ws4pmSettings._soap_connectToPloneMeeting = Mock(return_value=True)
+        download_annex.ws4pmSettings._rest_connectToPloneMeeting = Mock(return_value=True)
         download_annex()
         self.assertEqual(messages.show()[-1].message, ANNEXID_MANDATORY_ERROR)
 
-    @patch('imio.pm.wsclient.browser.settings.WS4PMClientSettings._soap_getItemInfos')
-    def test_DownloadAnnexFromItemView_with_no_result(self, _soap_getItemInfos):
+    @patch('imio.pm.wsclient.browser.settings.WS4PMClientSettings._rest_getItemInfos')
+    def test_DownloadAnnexFromItemView_with_no_result(self, _rest_getItemInfos):
         """
           Test the BrowserView that return the annex of an item
         """
         # return no annex
-        _soap_getItemInfos.return_value = None
+        _rest_getItemInfos.return_value = None
         messages = IStatusMessage(self.request)
         self.changeUser('admin')
         document = createDocument(self.portal)
         self.request.set('annex_id', 'my_annex')
         download_annex = document.restrictedTraverse('@@download_annex_from_plonemeeting')
         # mock connexion to PloneMeeting
-        download_annex.ws4pmSettings._soap_connectToPloneMeeting = Mock(return_value=True)
+        download_annex.ws4pmSettings._rest_connectToPloneMeeting = Mock(return_value=True)
         download_annex()
         self.assertEqual(messages.show()[-1].message, MISSING_FILE_ERROR)
 
-    @patch('imio.pm.wsclient.browser.settings.WS4PMClientSettings._soap_getItemInfos')
-    def test_DownloadAnnexFromItemView(self, _soap_getItemInfos):
+    @patch('imio.pm.wsclient.browser.settings.WS4PMClientSettings._rest_getAnnex')
+    @patch('imio.pm.wsclient.browser.settings.WS4PMClientSettings._rest_getItemInfos')
+    def test_DownloadAnnexFromItemView(self, _rest_getItemInfos, _rest_getAnnex):
         """
           Test the BrowserView that return the annex of an item
         """
         # return an annex
-        annex_id = 'my_annex'
-        _soap_getItemInfos.return_value = [type(
-            'ItemInfo', (object,), {
-                'annexes': [
-                    type(
-                        'AnnexInfo', (object,), {
-                            'id': annex_id,
-                            'filename': 'my_annex.pdf',
-                            'file': base64.b64encode('Hello!')
-                        }
-                    )
-                ]
-            }
-        )]
+        annex_id = 'annexe.txt'
+        _rest_getItemInfos.return_value = [{
+            'extra_include_annexes': [
+                {
+                    "@id": u"http://nohost/plone/Members/pmCreator/mymeetings/o1/p1/annexe.txt",  # noqa
+                    "@type": u"annex",
+                    "id": "annexe.txt",
+                    "UID": u"400117a02c3e4d0aa45878d727ecd9e0",
+                    "title": "Annexe",
+                    "file": {
+                        "content-type": "text/plain",
+                        "download": u"http://nohost/plone/Members/pmCreator/mymeetings/o1/p1/annexe.txt",  # noqa
+                        "filename": "annexe.txt",
+                        "size": 6,
+                    }
+                },
+            ],
+        }]
+        _rest_getAnnex.return_value = 'Hello!'
         self.changeUser('admin')
         document = createDocument(self.portal)
         self.request.set('annex_id', annex_id)
         download_annex = document.restrictedTraverse('@@download_annex_from_plonemeeting')
         # mock connexion to PloneMeeting
-        download_annex.ws4pmSettings._soap_connectToPloneMeeting = Mock(return_value=True)
+        download_annex.ws4pmSettings._rest_connectToPloneMeeting = Mock(return_value=True)
         annex = download_annex()
         self.assertEqual(annex, 'Hello!')
-        self.assertEqual(self.request.RESPONSE.headers.get('content-type'), 'application/pdf')
+        self.assertEqual(self.request.RESPONSE.headers.get('content-type'), 'text/plain')
         self.assertEqual(
             self.request.RESPONSE.headers.get('content-disposition'),
-            'inline;filename="my_annex.pdf"'
+            'inline;filename="annexe.txt"'
         )
 
 

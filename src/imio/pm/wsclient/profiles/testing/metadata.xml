@@ -3,6 +3,6 @@
  <version>testing</version>
  <dependencies>
   <dependency>profile-imio.pm.wsclient:default</dependency>
-  <dependency>profile-imio.pm.ws:default</dependency>
+  <dependency>profile-plonemeeting.restapi:testing</dependency>
  </dependencies>
 </metadata>

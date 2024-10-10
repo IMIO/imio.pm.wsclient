@@ -10,12 +10,12 @@
     <five:registerPackage package="." initialize=".initialize" />
 
     <permission
-      id="zope2.SOAPClientAccess"
-      title="SOAP Client Access"/>
+      id="ws.client.Access"
+      title="WS Client Access"/>
 
     <permission
-      id="zope2.SOAPClientSend"
-      title="SOAP Client Send"/>
+      id="ws.client.Send"
+      title="WS Client Send"/>
 
     <include package=".browser" />
     <include file="subscribers.zcml" />
@@ -27,5 +27,22 @@
       description="Registration of the Webservices Client for PloneMeeting"
       provides="Products.GenericSetup.interfaces.EXTENSION"
     />
+
+    <genericsetup:upgradeDepends
+      source="*"
+      destination="1.13"
+      title="Upgrade to 1.13"
+      profile="imio.pm.wsclient:default"
+      import_steps="plone.app.registry"
+      />
+
+    <genericsetup:upgradeStep
+      title="Upgrade to 200"
+      description="urban upgrade step"
+      source="*"
+      destination="200"
+      handler=".upgrade.upgrade_to_200"
+      profile="imio.pm.wsclient:default"
+      />
 
 </configure>

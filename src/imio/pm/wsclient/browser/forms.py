@@ -110,7 +110,7 @@ class DisplayDataToSendProvider(ContentProviderBase):
                 res = ['<fieldset><legend>{0}</legend>{1}</fieldset>'.format(
                     translate('PloneMeeting_label_' + extraAttr['key'],
                               domain="PloneMeeting",
-                              context=self.request),
+                              context=self.request).encode("utf-8"),
                     extraAttr['value']) for extraAttr in data[elt]]
                 data[elt] = '<br />'.join(res)
 
@@ -149,12 +149,16 @@ class SendToPloneMeetingForm(form.Form):
         self.portal = self.portal_state.portal()
         self.ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         # manage the label to display to wich meetingConfig we are sending the element...
-        self.label = translate('Send to',
-                               domain='imio.pm.wsclient',
-                               mapping={'meetingConfigTitle':
-                                        self.ws4pmSettings.getMeetingConfigTitle(self.meetingConfigId),
-                                        },
-                               context=self.request)
+        self.label = translate(
+            _(
+                'Send to ${meetingConfigTitle}',
+                mapping={
+                    'meetingConfigTitle': self.ws4pmSettings.getMeetingConfigTitle(self.meetingConfigId),
+                },
+            ),
+            domain='imio.pm.wsclient',
+            context=self.request,
+        )
 
     @button.buttonAndHandler(_('Send'), name='send_to_plonemeeting')
     def handleSendToPloneMeeting(self, action):
@@ -187,7 +191,7 @@ class SendToPloneMeetingForm(form.Form):
             # False means that is was not sent, so no connection test is made to PloneMeeting for performance reason
             if alreadySent is not None:
                 # now connect to PloneMeeting
-                client = self.ws4pmSettings._soap_connectToPloneMeeting()
+                client = self.ws4pmSettings._rest_connectToPloneMeeting()
             if alreadySent is None or not client:
                 IStatusMessage(self.request).addStatusMessage(_(UNABLE_TO_CONNECT_ERROR), "error")
                 self._changeFormForErrors()
@@ -195,8 +199,8 @@ class SendToPloneMeetingForm(form.Form):
 
         # do not go further if current user can not create an item in
         # PloneMeeting with any proposingGroup
-        userInfos = self.ws4pmSettings._soap_getUserInfos(showGroups=True, suffix='creators')
-        if not userInfos or 'groups' not in userInfos:
+        userInfos = self.ws4pmSettings._rest_getUserInfos(showGroups=True, suffix='creators')
+        if not userInfos or 'extra_include_groups' not in userInfos:
             userThatWillCreate = self.ws4pmSettings._getUserIdToUseInTheNameOfWith()
             if not userInfos:
                 IStatusMessage(self.request).addStatusMessage(
@@ -281,13 +285,13 @@ class SendToPloneMeetingForm(form.Form):
                 settings.only_one_sending:
             return False
         # build the creationData
-        client = self.ws4pmSettings._soap_connectToPloneMeeting()
+        client = self.ws4pmSettings._rest_connectToPloneMeeting()
         creation_data = self._getCreationData(client)
 
         notify(WillbeSendToPMEvent(self.context))
 
-        # call the SOAP method actually creating the item
-        res = self.ws4pmSettings._soap_createItem(self.meetingConfigId,
+        # call the REST method actually creating the item
+        res = self.ws4pmSettings._rest_createItem(self.meetingConfigId,
                                                   self.proposingGroupId,
                                                   creation_data)
         if res:
@@ -319,11 +323,14 @@ class SendToPloneMeetingForm(form.Form):
     def _getCreationData(self, client):
         """
           Build creationData dict that will be used to actually create
-          the item in PloneMeeting thru SOAP createItem call
+          the item in PloneMeeting thru REST createItem call
         """
         data = self._buildDataDict()
         # now that every values are evaluated, build the CreationData
-        creation_data = client.factory.create('CreationData')
+        creation_data = {
+            k: "" for k in self.ws4pmSettings._rest_getItemCreationAvailableData()
+            if k in data.keys()
+        }
         for elt in data:
             # proposingGroup is managed apart
             if elt == u'proposingGroup':
@@ -336,6 +343,7 @@ class SendToPloneMeetingForm(form.Form):
             creation_data[elt] = data[elt]
         # initialize the externalIdentifier to the context UID
         creation_data['externalIdentifier'] = self.context.UID()
+
         return creation_data
 
     def _buildDataDict(self):
@@ -344,10 +352,10 @@ class SendToPloneMeetingForm(form.Form):
         data = OrderedDict()
         settings = self.ws4pmSettings.settings()
         # initialize annexes field from the form, not the field_mappings
-        data['annexes'] = self._buildAnnexesData()
+        data['__children__'] = self._buildAnnexesData()
         data['preferredMeeting'] = self.request.form.get('form.widgets.preferredMeeting', [u'', ])[0]
         # if preferredMeeting is '--NOVALUE--',  remove it from data to send
-        if data['preferredMeeting'] == '--NOVALUE--':
+        if data['preferredMeeting'] in ('--NOVALUE--', ''):
             data.pop('preferredMeeting')
         # initialize category field in case it is not defined in field_mappings
         data['category'] = self.request.form.get('form.widgets.category', [u'', ])[0]
@@ -395,9 +403,12 @@ class SendToPloneMeetingForm(form.Form):
                 annex_name = type(annex_file.name) in [unicode] and annex_file.name or annex_file.name.decode('utf-8')
                 annexes_data.append(
                     {
-                        'title': unidecode(annex.title.decode('utf-8')),
-                        'filename': unidecode(annex_name),
-                        'file': base64.b64encode(annex_file.read()),
+                        "@type": "annex",
+                        "title": unidecode(annex.title.decode('utf-8')),
+                        "file": {
+                            "filename": unidecode(annex_name),
+                            "data": base64.b64encode(annex_file.read()),
+                        }
                     }
                 )
         return annexes_data

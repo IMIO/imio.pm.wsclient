@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import CAN_NOT_CREATE_FOR_PROPOSING_GROUP_ERROR
 from imio.pm.wsclient.config import CAN_NOT_CREATE_WITH_CATEGORY_ERROR
@@ -36,10 +37,10 @@ class pm_meeting_config_id_vocabulary(object):
         if not portal.__module__ == 'Products.CMFPlone.Portal':
             portal = portal.aq_inner.aq_parent
         settings = getMultiAdapter((portal, portal.REQUEST), name='ws4pmclient-settings')
-        pmConfigInfos = settings._soap_getConfigInfos()
+        pmConfigInfos = settings._rest_getConfigInfos()
         terms = []
         if pmConfigInfos:
-            for pmConfigInfo in pmConfigInfos.configInfo:
+            for pmConfigInfo in pmConfigInfos:
                 terms.append(SimpleTerm(unicode(pmConfigInfo['id']),
                                         unicode(pmConfigInfo['id']),
                                         unicode(pmConfigInfo['title']),))
@@ -80,7 +81,7 @@ class pm_item_data_vocabulary(object):
         if not portal.__module__ == 'Products.CMFPlone.Portal':
             portal = portal.aq_inner.aq_parent
         settings = getMultiAdapter((portal, portal.REQUEST), name='ws4pmclient-settings')
-        availableDatas = settings._soap_getItemCreationAvailableData()
+        availableDatas = settings._rest_getItemCreationAvailableData()
         if availableDatas:
             for availableData in availableDatas:
                 terms.append(SimpleTerm(unicode(availableData),
@@ -130,8 +131,8 @@ class proposing_groups_for_user_vocabulary(object):
                         'error')
                     return SimpleVocabulary([])
         # even if we get a forcedProposingGroup, double check that the current user can actually use it
-        userInfos = ws4pmsettings._soap_getUserInfos(showGroups=True, suffix='creators')
-        if not userInfos or 'groups' not in userInfos:
+        userInfos = ws4pmsettings._rest_getUserInfos(showGroups=True, suffix='creators')
+        if not userInfos or 'extra_include_groups' not in userInfos:
             portal.REQUEST.set('error_in_vocabularies', True)
             # add a status message if the main error is not the fact that we can not connect to the WS
             if userInfos is not None:
@@ -141,7 +142,7 @@ class proposing_groups_for_user_vocabulary(object):
             return SimpleVocabulary([])
         terms = []
         forcedProposingGroupExists = not forcedProposingGroup and True or False
-        for group in userInfos['groups']:
+        for group in userInfos['extra_include_groups']:
             if forcedProposingGroup == group['id']:
                 forcedProposingGroupExists = True
                 terms.append(SimpleTerm(unicode(group['id']),
@@ -204,7 +205,7 @@ class categories_for_user_vocabulary(object):
                         'error')
                     return SimpleVocabulary([])
 
-        configInfos = ws4pmsettings._soap_getConfigInfos(showCategories=True)
+        configInfos = ws4pmsettings._rest_getConfigInfos(showCategories=True)
         if not configInfos:
             portal.REQUEST.set('error_in_vocabularies', True)
             # add a status message if the main error is not the fact that we can not connect to the WS
@@ -214,8 +215,8 @@ class categories_for_user_vocabulary(object):
             return SimpleVocabulary([])
         categories = []
         # find categories for given meetingConfigId
-        for configInfo in configInfos.configInfo:
-            if configInfo.id == meetingConfigId:
+        for configInfo in configInfos:
+            if configInfo["id"] == meetingConfigId:
                 categories = hasattr(configInfo, 'categories') and configInfo.categories or ()
                 break
         # if not categories is returned, it means that the meetingConfig does
@@ -225,16 +226,16 @@ class categories_for_user_vocabulary(object):
         terms = []
         forcedCategoryExists = not forcedCategory and True or False
         for category in categories:
-            if forcedCategory == category.id:
+            if forcedCategory == category["id"]:
                 forcedCategoryExists = True
-                terms.append(SimpleTerm(unicode(category.id),
-                                        unicode(category.id),
-                                        unicode(category.title),))
+                terms.append(SimpleTerm(unicode(category["id"]),
+                                        unicode(category["id"]),
+                                        unicode(category["title"]),))
                 break
             if not forcedCategory:
-                terms.append(SimpleTerm(unicode(category.id),
-                                        unicode(category.id),
-                                        unicode(category.title),))
+                terms.append(SimpleTerm(unicode(category["id"]),
+                                        unicode(category["id"]),
+                                        unicode(category["title"]),))
         if not forcedCategoryExists:
             portal.REQUEST.set('error_in_vocabularies', True)
             IStatusMessage(portal.REQUEST).addStatusMessage(
@@ -263,7 +264,7 @@ class desired_meetingdates_vocabulary(object):
         if not portal.__module__ == 'Products.CMFPlone.Portal':
             portal = portal.aq_inner.aq_parent
         ws4pmsettings = getMultiAdapter((portal, portal.REQUEST), name='ws4pmclient-settings')
-        configInfos = ws4pmsettings._soap_getConfigInfos(showCategories=True)
+        configInfos = ws4pmsettings._rest_getConfigInfos(showCategories=True)
         if not configInfos:
             portal.REQUEST.set('error_in_vocabularies', True)
             # add a status message if the main error is not the fact that we can not connect to the WS
@@ -274,9 +275,13 @@ class desired_meetingdates_vocabulary(object):
         request = api.portal.getRequest()
         meeting_config_id = request.get('meetingConfigId', request.form.get('form.widgets.meetingConfigId'))
         data = {'meetingConfigId': meeting_config_id}
-        possible_meetings = ws4pmsettings._soap_getMeetingsAcceptingItems(data)
+        possible_meetings = ws4pmsettings._rest_getMeetingsAcceptingItems(data)
         local = pytz.timezone("Europe/Brussels")
+        if not possible_meetings:
+            return SimpleVocabulary([])
         for meeting in possible_meetings:
+            meeting["date"] = datetime.strptime(meeting["date"], "%Y-%m-%dT%H:%M:%S")
+            meeting["date"] = local.localize(meeting["date"])
             meeting['date'] = meeting['date'].astimezone(local)
         terms = []
         allowed_meetings = queryMultiAdapter((context, possible_meetings), IPreferredMeetings)

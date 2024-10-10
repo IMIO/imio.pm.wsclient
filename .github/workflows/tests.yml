@@ -1,0 +1,57 @@
+name: Tests
+
+on: [ push ]
+
+jobs:
+  tests:
+    runs-on: "ubuntu-latest"
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python-version: "2.7.18"
+            plone-version: "4.3"
+    #                  - python-version: "3.8.15"
+    #                    plone-version: "5.2"
+    #                  - python-version: "3.11.2"
+    #                    plone-version: "6.0"
+    services:
+      libreoffice:
+        image: imiobe/libreoffice:7.3
+        ports:
+          - 2002:2002
+        volumes:
+          - /tmp:/tmp
+          - /var/tmp:/var/tmp
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Env
+        run: |
+          mkdir -p -m 777 /tmp/appy/
+          sudo add-apt-repository ppa:libreoffice/ppa -y
+          sudo apt update -qq -y
+          sudo apt-get install -qq -y libreoffice libreoffice-script-provider-python
+          mkdir -p buildout-cache/{eggs,downloads}
+      - name: Set up pyenv and Python
+        uses: "gabrielfalcao/pyenv-action@v17"
+        with:
+          default: "${{ matrix.python-version }}"
+      - name: Setup Python env
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements-${{ matrix.plone-version }}.txt
+      - name: Cache eggs
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-eggs
+        with:
+          path: ~/buildout-cache/eggs
+          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ matrix.plone-version }}
+          restore-keys: ${{ runner.os }}-test-${{ env.cache-name }}-${{ matrix.plone-version }}
+      - name: buildout
+        run: |
+          buildout
+      - name: test
+        run: |
+          bin/test -t !robot

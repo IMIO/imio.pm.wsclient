@@ -5,18 +5,17 @@
 # GNU General Public License (GPL)
 #
 
-from datetime import datetime
-from dateutil import tz
+from Products.statusmessages.interfaces import IStatusMessage
 from imio.pm.wsclient.browser.viewlets import PloneMeetingInfosViewlet
 from imio.pm.wsclient.config import CAN_NOT_SEE_LINKED_ITEMS_INFO
 from imio.pm.wsclient.config import CORRECTLY_SENT_TO_PM_INFO
 from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR
 from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import cleanMemoize
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import createDocument
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
-from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
-from Products.statusmessages.interfaces import IStatusMessage
+from mock import patch
 from zope.annotation import IAnnotations
 
 import transaction
@@ -100,6 +99,106 @@ class testViewlets(WS4PMCLIENTTestCase):
         # we received informations about the created item
         self.assertTrue(viewlet.getPloneMeetingLinkedInfos()[0]['UID'] == item.UID())
 
+    @patch("imio.pm.wsclient.browser.settings.WS4PMClientSettings._rest_searchItems")
+    @patch("imio.pm.wsclient.browser.settings.WS4PMClientSettings._rest_getItemInfos")
+    def test_getPloneMeetingLinkedInfos_with_linked_items(
+        self, _rest_getItemInfos, _rest_searchItems
+    ):
+        """
+        Test getPloneMeetingLinkedInfos method when there is linked items
+        """
+        _rest_searchItems.return_value = [{
+            "@id": "http://nohost/pu-1234",
+            "@type": "MeetingItemCollege",
+            "UID": "1234",
+            "created": "2022-01-01T00:00:00+00:00",
+            "modified": "2022-01-01T00:00:00+00:00",
+            "id": "pu-1234",
+            "title": "PU/1244",
+            "review_state": "accepted",
+            "description": "Description",
+            "extra_include_linked_items": [
+                {
+                    "@id": "http://nohost/pu-1234-1",
+                    "@type": "MeetingItemCollege",
+                    "UID": "2345",
+                    "created": "2022-01-02T00:00:00+00:00",
+                    "modified": "2022-01-02T00:00:00+00:00",
+                    "id": "pu-1234-1",
+                    "title": "PU/1244-1",
+                    "review_state": "accepted",
+                    "description": "Description",
+                },
+                {
+                    "@id": "http://nohost/pu-1234-2",
+                    "@type": "MeetingItemCollege",
+                    "UID": "3456",
+                    "created": "2022-01-03T00:00:00+00:00",
+                    "modified": "2022-01-03T00:00:00+00:00",
+                    "id": "pu-1234-2",
+                    "title": "PU/1244-2",
+                    "review_state": "accepted",
+                    "description": "Description",
+                },
+            ],
+            "extra_include_linked_items_items_total": "2",
+        }]
+        _rest_getItemInfos.side_effect = [
+            [{
+                "@id": "http://nohost/pu-1234",
+                "@type": "MeetingItemCollege",
+                "UID": "1234",
+                "created": "2022-01-01T00:00:00+00:00",
+                "modified": "2022-01-01T00:00:00+00:00",
+                "id": "pu-1234",
+                "title": "PU/1244",
+                "review_state": "accepted",
+                "description": "Description",
+                "extra_include_config": {
+                    "id": "plonemeeting-assembly",
+                }
+            }],
+            [{
+                "@id": "http://nohost/pu-1234-1",
+                "@type": "MeetingItemCollege",
+                "UID": "2345",
+                "created": "2022-01-02T00:00:00+00:00",
+                "modified": "2022-01-02T00:00:00+00:00",
+                "id": "pu-1234-1",
+                "title": "PU/1244-1",
+                "review_state": "accepted",
+                "description": "Description",
+                "extra_include_config": {
+                    "id": "plonemeeting-assembly",
+                }
+            }],
+            [{
+                "@id": "http://nohost/pu-1234-2",
+                "@type": "MeetingItemCollege",
+                "UID": "3456",
+                "created": "2022-01-03T00:00:00+00:00",
+                "modified": "2022-01-03T00:00:00+00:00",
+                "id": "pu-1234-2",
+                "title": "PU/1244-2",
+                "review_state": "accepted",
+                "description": "Description",
+                "extra_include_config": {
+                    "id": "plonegov-assembly",
+                }
+            }],
+        ]
+        self.changeUser('admin')
+        document = createDocument(self.portal)
+        self._sendToPloneMeeting(document)
+        viewlet = PloneMeetingInfosViewlet(document, self.request, None, None)
+        viewlet.update()
+        items = viewlet.getPloneMeetingLinkedInfos()
+        self.assertEqual(3, len(items))
+        self.assertEqual(
+            ["pu-1234-2", "pu-1234-1", "pu-1234"],
+            [e["id"] for e in items],
+        )
+
     def test_canNotSeeLinkedInfos(self):
         """
           If the element has been sent to PloneMeeting but current user can not see these
@@ -154,63 +253,27 @@ class testViewlets(WS4PMCLIENTTestCase):
         """
         viewlet = PloneMeetingInfosViewlet(self.portal, self.request, None, None)
         viewlet.update()
-        # The no meeting date correspond to a date in 1950
-        self.assertTrue(viewlet.displayMeetingDate(datetime(1950, 1, 1)) == '-')
-        # If there is a date, it is corretly displayed
-        # if no hours (hours = 00:00), a short format is used, without displaying hours
-        # the sent date is UTC but displayMeetingDate will return it using local timezone
-        # so build a date that will return a date without hours...
-        utcMeetingDate = datetime(2013, 6, 10)
-        utcMeetingDate = utcMeetingDate.replace(tzinfo=tz.tzlocal())
-        delta = utcMeetingDate.utcoffset()
-        utcMeetingDate = utcMeetingDate - delta
-        # set utcMeetingDate as being UTC
-        utcMeetingDate = utcMeetingDate.replace(tzinfo=tz.tzutc())
-        self.assertTrue(viewlet.displayMeetingDate(datetime(2013, 6, 10)) == u'Jun 10, 2013')
-        # If hours, then a long format is used
-        self.assertTrue(viewlet.displayMeetingDate(datetime(2013, 6, 10, 15, 30)) == u'Jun 10, 2013 03:30 PM')
 
-    def test_displayedDateRespectTimeZone(self):
-        """
-          This confirm a bug in suds 0.4 corrected in suds-jurko 0.4.1.jurko.4
-          where returned date does not work when not using current time zone.
-          For example, a GMT+1 date is wrongly displayed when we are in GMT+2, it miss 1 hour,
-          so 2013/03/03 00:00 becomes 2013/03/02 23:00...
-          Returned dates should always be UTC.
-        """
+        # The no meeting date correspond to a date in 1950
+        self.assertEqual(viewlet.displayMeetingDate(""), '-')
+        self.assertEqual(viewlet.displayMeetingDate(None), '-')
+        self.assertEqual(viewlet.displayMeetingDate("2013-06-10"), u'2013-06-10')
+        self.assertEqual(viewlet.displayMeetingDate(
+            "2013-06-10 (15:30)"), u'2013-06-10 (15:30)'
+        )
+
+    def test_render(self):
+        """Ensure that we can render the viewlet without any error"""
         self.changeUser('admin')
         document = createDocument(self.portal)
+        viewlet = PloneMeetingInfosViewlet(document, self.request, None, None)
+        viewlet.update()
+        # now send an element to PloneMeeting and check again
+        cleanMemoize(self.request, viewlet)
         item = self._sendToPloneMeeting(document)
-        # create a meeting and present the item
-        self.changeUser('pmManager')
-        # use a date in GMT+1
-        meeting = self.create('Meeting', date=datetime(2013, 3, 3))
-        self.presentItem(item)
-        transaction.commit()
-        viewlet = PloneMeetingInfosViewlet(document, self.request, None, None)
-        viewlet.update()
-        meeting_date = viewlet.getPloneMeetingLinkedInfos()[0]['meeting_date']
-        # date TZ naive, uses UTC
-        self.assertEqual(meeting_date.tzname(), 'UTC')
-        self.assertEquals((meeting_date.year,
-                           meeting_date.month,
-                           meeting_date.day,
-                           meeting_date.hour,
-                           meeting_date.minute),
-                          (2013, 3, 2, 23, 0))
-        # change meeting date, use a date in GMT+2
-        meeting.date = datetime(2013, 8, 8)
-        transaction.commit()
-        viewlet = PloneMeetingInfosViewlet(document, self.request, None, None)
-        viewlet.update()
-        meeting_date = viewlet.getPloneMeetingLinkedInfos()[0]['meeting_date']
-        self.assertEqual(meeting_date.tzname(), 'UTC')
-        self.assertEquals((meeting_date.year,
-                           meeting_date.month,
-                           meeting_date.day,
-                           meeting_date.hour,
-                           meeting_date.minute),
-                          (2013, 8, 7, 22, 0))
+        render = viewlet.render()
+        self.assertTrue("Document title" in render)
+        self.assertTrue("PloneMeeting assembly" in render)
 
 
 def test_suite():

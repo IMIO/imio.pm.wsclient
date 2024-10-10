@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '1.18.dev0'
+version = '2.0.0b2.dev0'
 
 setup(name='imio.pm.wsclient',
       version=version,
@@ -20,7 +20,7 @@ setup(name='imio.pm.wsclient',
       keywords='',
       author='Gauthier Bastien',
       author_email='devs@imio.be',
-      url='http://svn.communesplone.org/svn/communesplone/imio.pm.wsclient/',
+      url='https://github.com/IMIO/imio.pm.wsclient',
       license='GPL',
       packages=find_packages('src'),
       package_dir={'': 'src'},
@@ -32,10 +32,10 @@ setup(name='imio.pm.wsclient',
           'collective.z3cform.datagridfield',
           'imio.pm.locales',
           'plone.memoize',
-          # -*- Extra requirements: -*-
-          'suds-jurko',
+          'requests',
+          'six',
       ],
-      extras_require={'test': ['plone.app.testing', 'imio.pm.ws', 'mock']},
+      extras_require={'test': ['plone.app.testing', 'plonemeeting.restapi', 'mock']},
       entry_points="""
       # -*- Entry points: -*-
       """,

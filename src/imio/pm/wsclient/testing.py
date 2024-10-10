@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from plone.app.robotframework.testing import REMOTE_LIBRARY_BUNDLE_FIXTURE
 from plone.app.testing import FunctionalTesting
 from plone.app.testing import IntegrationTesting
 from plone.testing import z2
@@ -25,22 +26,19 @@ WS4PMCLIENT = WSCLIENTLayer(
     zcml_package=imio.pm.wsclient,
     additional_z2_products=('imio.dashboard',
                             'imio.pm.wsclient',
-                            'imio.pm.ws',
                             'Products.PasswordStrength'),
     gs_profile_id='imio.pm.wsclient:testing',
     name="WS4PMCLIENT")
 
 WS4PMCLIENT_PM_TESTING_PROFILE = WSCLIENTLayer(
-    bases=(WS4PMCLIENT, ),
-    zcml_filename="testing.zcml",
+    zcml_filename="testing-settings.zcml",
     zcml_package=imio.pm.wsclient,
     additional_z2_products=('imio.dashboard',
                             'Products.PloneMeeting',
                             'Products.CMFPlacefulWorkflow',
                             'imio.pm.wsclient',
-                            'imio.pm.ws',
                             'Products.PasswordStrength'),
-    gs_profile_id='Products.PloneMeeting:testing',
+    gs_profile_id='imio.pm.wsclient:testing',
     name="WS4PMCLIENT_PM_TESTING_PROFILE")
 
 WS4PMCLIENT_PM_TESTING_PROFILE_INTEGRATION = IntegrationTesting(
@@ -50,4 +48,10 @@ WS4PMCLIENT_PROFILE_FUNCTIONAL = FunctionalTesting(
     bases=(WS4PMCLIENT,), name="WS4PMCLIENT_PROFILE_FUNCTIONAL")
 
 WS4PMCLIENT_PM_TESTING_PROFILE_FUNCTIONAL = FunctionalTesting(
-    bases=(WS4PMCLIENT_PM_TESTING_PROFILE, z2.ZSERVER), name="WS4PMCLIENT_PM_TESTING_PROFILE_FUNCTIONAL")
+    bases=(
+        WS4PMCLIENT_PM_TESTING_PROFILE,
+        REMOTE_LIBRARY_BUNDLE_FIXTURE,
+        z2.ZSERVER_FIXTURE,
+    ),
+    name="WS4PMCLIENT_PM_TESTING_PROFILE_FUNCTIONAL",
+)
