@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.0.0b2 (unreleased)
+2.0.0b2 (2024-10-16)
 --------------------
 
 - Fix translation of overlay title
