@@ -4,7 +4,8 @@ Changelog
 2.0.0b3 (unreleased)
 --------------------
 
-- Nothing changed yet.
+- Improve `_rest_getDecidedMeetingDate` to make only one request.
+  [aduchene]
 
 
 2.0.0b2 (2024-10-16)
