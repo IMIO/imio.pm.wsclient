@@ -73,6 +73,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
                 'UID': item['UID'],
                 'extra_include': 'meeting,pod_templates,annexes,config',
                 'extra_include_meeting_additional_values': '*',
+                'metadata_fields': 'review_state,creators,category,preferredMeeting',
                 'fullobjects': None,
             }
         )[0]
@@ -91,6 +92,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
                     'externalIdentifier': self.context.UID(),
                     'extra_include': 'linked_items',
                     'extra_include_linked_items_mode': 'every_successors',
+                    'metadata_fields': 'review_state,creators,category,preferredMeeting',
                 },
             )
         except Exception, exc:
