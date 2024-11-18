@@ -4,7 +4,8 @@ Changelog
 2.0.0b3 (unreleased)
 --------------------
 
-- Nothing changed yet.
+- Include some metadata_fields in `PloneMeetingInfosViewlet` to have proper translations.
+  [aduchene]
 
 
 2.0.0b2 (2024-10-16)
