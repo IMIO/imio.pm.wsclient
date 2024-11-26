@@ -4,8 +4,8 @@ Changelog
 1.21 (unreleased)
 -----------------
 
-- Nothing changed yet.
-
+- Used UID key in `vocabularies.proposing_groups_for_user_vocabulary`.
+  [sgeulette]
 
 1.20 (2023-11-16)
 -----------------

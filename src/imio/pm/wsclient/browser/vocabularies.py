@@ -144,13 +144,13 @@ class proposing_groups_for_user_vocabulary(object):
         for group in userInfos['groups']:
             if forcedProposingGroup == group['id']:
                 forcedProposingGroupExists = True
-                terms.append(SimpleTerm(unicode(group['id']),
-                                        unicode(group['id']),
+                terms.append(SimpleTerm(unicode(group['UID']),
+                                        unicode(group['UID']),
                                         unicode(group['title']),))
                 break
             if not forcedProposingGroup:
-                terms.append(SimpleTerm(unicode(group['id']),
-                                        unicode(group['id']),
+                terms.append(SimpleTerm(unicode(group['UID']),
+                                        unicode(group['UID']),
                                         unicode(group['title']),))
         if not forcedProposingGroupExists:
             portal.REQUEST.set('error_in_vocabularies', True)
