@@ -217,7 +217,7 @@ class categories_for_user_vocabulary(object):
         # find categories for given meetingConfigId
         for configInfo in configInfos:
             if configInfo["id"] == meetingConfigId:
-                categories = hasattr(configInfo, 'categories') and configInfo.categories or ()
+                categories = configInfo.get('categories', ())
                 break
         # if not categories is returned, it means that the meetingConfig does
         # not use categories...
