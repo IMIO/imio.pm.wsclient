@@ -2,9 +2,10 @@
 
 from imio.pm.wsclient.browser import vocabularies
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
-from plone import api
-
 from mock import patch
+from plone import api
+from WS4PMCLIENTTestCase import setCorrectSettingsConfig
+from zope.component import getMultiAdapter
 
 
 class testVocabularies(WS4PMCLIENTTestCase):
@@ -27,9 +28,7 @@ class testVocabularies(WS4PMCLIENTTestCase):
 
     @patch("imio.pm.wsclient.browser.settings.WS4PMClientSettings._rest_getConfigInfos")
     @patch("imio.pm.wsclient.browser.settings.WS4PMClientSettings._rest_getMeetingsAcceptingItems")  # noqa
-    def test_desired_meetingdates_vocabulary(
-        self, _rest_getMeetingsAcceptingItems, _rest_getConfigInfos
-    ):
+    def test_desired_meetingdates_vocabulary(self, _rest_getMeetingsAcceptingItems, _rest_getConfigInfos):
         """Ensure that vocabularies values are the expected"""
         _rest_getConfigInfos.return_value = [
             {"id": u"plonegov-assembly", "title": u"PloneGov Assembly"},
@@ -72,24 +71,45 @@ class testVocabularies(WS4PMCLIENTTestCase):
     @patch("imio.pm.wsclient.browser.settings.WS4PMClientSettings._rest_getConfigInfos")
     def test_categories_for_user_vocabulary(self, _rest_getConfigInfos):
         """Ensure that vocabularies values are the expected"""
+
+        def set_config():
+            setCorrectSettingsConfig(self.portal, setConnectionParams=False, withValidation=False)
+            ws4pmsettings = getMultiAdapter((self.portal, self.portal.REQUEST), name="ws4pmclient-settings")
+            for i in range(len(ws4pmsettings.settings().field_mappings)):
+                if ws4pmsettings.settings().field_mappings[i]["field_name"] == "category":
+                    del ws4pmsettings.settings().field_mappings[i]
+                    break
+            raw_voc = vocabularies.categories_for_user_vocabulary()
+            titles = [v.title for v in raw_voc(self.portal)]
+            tokens = [v.token for v in raw_voc(self.portal)]
+            return titles, tokens
+
+        self.portal.REQUEST.set("meetingConfigId", u"plonegov-assembly")
+
         _rest_getConfigInfos.return_value = [
-            {"id": u"plonegov-assembly", "title": u"PloneGov Assembly"},
+            {
+                "id": u"plonegov-assembly",
+                "title": u"PloneGov Assembly",
+                "categories": [
+                    {
+                        "id": "urbanisme",
+                        "title": "Urbanisme",
+                        "enabled": True,
+                    },
+                    {
+                        "id": "finances",
+                        "title": "Finances",
+                        "enabled": True,
+                    },
+                ],
+            },
             {"id": u"plonemeeting-assembly", "title": u"PloneMeeting Assembly"},
-            {"id": u"meeting-config-college", "title": u'Coll\xe8ge'},
         ]
+        titles, tokens = set_config()
+        self.assertIn(u"Urbanisme", titles)
+        self.assertIn(u"urbanisme", tokens)
 
-        import ipdb; ipdb.set_trace()
-        registry_key = "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.field_mappings"
-        # [u'annexes', u'associatedGroups', u'budgetInfos', u'category', u'classifier', u'committeeObservations', u'committeeTranscript', u'copyGroups', u'decision', u'decisionEnd', u'decisionSuite', u'description', u'detailedDescription', u'emergency', u'emergencyMotivation', u'externalIdentifier', u'extraAttrs', u'groupsInCharge', u'ignore_validation_for', u'inAndOutMoves', u'internalNotes', u'itemInitiator', u'itemKeywords', u'manuallyLinkedItems', u'marginalNotes', u'meetingDeadlineDate', u'meetingManagersNotes', u'motivation', u'notes', u'observations', u'optionalAdvisers', u'oralQuestion', u'otherMeetingConfigsClonableToEmergency', u'otherMeetingConfigsClonableToFieldDecision', u'otherMeetingConfigsClonableToFieldDecisionEnd', u'otherMeetingConfigsClonableToFieldDecisionSuite', u'otherMeetingConfigsClonableToPrivacy', u'pollType', u'pollTypeObservations', u'preferredMeeting', u'privacy', u'proposingGroup', u'sendToAuthority', u'takenOverBy', u'textCheckList', u'title', u'toDiscuss', u'votesObservations', u'votesResult', u'votesResult_after_motivation']
-        field_mappings = [
-            {'expression': u'context/title', 'field_name': u'title'},
-            {'expression': u"python: u'{}\\n{}'.format(context.description, context.restrictedTraverse('@@IncomingmailWSClient').detailed_description())", 'field_name': u'description'},
-            {'expression': u'context/@@IncomingmailWSClient/get_main_files', 'field_name': u'annexes'}
-        ]
-        # FIXME *** WrongContainedType: ([ConstraintNotSatisfied(u'title'), ConstraintNotSatisfied(u'description'), ConstraintNotSatisfied(u'annexes')], 'value')
-        api.portal.set_registry_record(registry_key, field_mappings)
-
-        raw_voc = vocabularies.categories_for_user_vocabularyFactory(api.portal.get())
-        self.assertEqual(len(raw_voc), 1)
-        self.assertEqual(raw_voc[0].value, "meeting-config-college")
-        self.assertEqual(raw_voc[0].title, u'Coll\xe8ge')
+        _rest_getConfigInfos.return_value = []
+        titles, tokens = set_config()
+        self.assertEqual(titles, [])
+        self.assertEqual(tokens, [])
