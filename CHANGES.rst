@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.21 (unreleased)
+1.21 (2025-02-06)
 -----------------
 
 - Used UID key in `vocabularies.proposing_groups_for_user_vocabulary`.
