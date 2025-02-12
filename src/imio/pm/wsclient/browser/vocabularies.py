@@ -11,6 +11,7 @@ from imio.pm.wsclient.config import TAL_EVAL_FIELD_ERROR
 from imio.pm.wsclient.interfaces import IPreferredMeetings
 from imio.pm.wsclient.interfaces import ISendableAnnexesToPM
 from natsort import humansorted
+from operator import itemgetter
 from plone import api
 from plone.memoize import ram
 from Products.statusmessages.interfaces import IStatusMessage
@@ -143,7 +144,7 @@ class proposing_groups_for_user_vocabulary(object):
             return SimpleVocabulary([])
         terms = []
         forcedProposingGroupExists = not forcedProposingGroup and True or False
-        for group in userInfos['extra_include_groups']:
+        for group in humansorted(userInfos['extra_include_groups'], key=lambda x: itemgetter('title')(x)):
             if forcedProposingGroup == group['id']:
                 forcedProposingGroupExists = True
                 terms.append(SimpleTerm(unicode(group['id']),
@@ -226,7 +227,7 @@ class categories_for_user_vocabulary(object):
             return SimpleVocabulary([])
         terms = []
         forcedCategoryExists = not forcedCategory and True or False
-        for category in humansorted(categories, key=lambda x: getattr(x, "title")):
+        for category in humansorted(categories, key=lambda x: itemgetter('title')(x)):
             if forcedCategory == category["id"]:
                 forcedCategoryExists = True
                 terms.append(SimpleTerm(unicode(category["id"]),
@@ -284,6 +285,7 @@ class desired_meetingdates_vocabulary(object):
             meeting["date"] = datetime.strptime(meeting["date"], "%Y-%m-%dT%H:%M:%S")
             meeting["date"] = local.localize(meeting["date"])
             meeting['date'] = meeting['date'].astimezone(local)
+            meeting['date'] = datetime.strftime(meeting['date'], "%d/%m/%Y %H:%M")
         terms = []
         allowed_meetings = queryMultiAdapter((context, possible_meetings), IPreferredMeetings)
         meetings = allowed_meetings and allowed_meetings.get() or possible_meetings
