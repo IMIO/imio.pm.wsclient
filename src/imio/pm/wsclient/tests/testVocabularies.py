@@ -107,12 +107,8 @@ class testVocabularies(WS4PMCLIENTTestCase):
             {"id": u"plonemeeting-assembly", "title": u"PloneMeeting Assembly"},
         ]
         titles, tokens = set_config()
-        self.assertIn(u"Urbanisme", titles)
-        self.assertIn(u"urbanisme", tokens)
-        self.assertIn(u"finances", titles)
-        self.assertIn(u"finances", tokens)
-        self.assertEqual(len(titles), 2)
-        self.assertEqual(titles, humansorted(titles))
+        self.assertEqual(titles, [u"finances", u"Urbanisme"])
+        self.assertEqual(tokens, [u"finances", u"urbanisme"])
 
         _rest_getConfigInfos.return_value = []
         titles, tokens = set_config()
