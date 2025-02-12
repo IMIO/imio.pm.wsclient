@@ -3,6 +3,7 @@
 from imio.pm.wsclient.browser import vocabularies
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
 from mock import patch
+from natsort import humansorted
 from plone import api
 from WS4PMCLIENTTestCase import setCorrectSettingsConfig
 from zope.component import getMultiAdapter
@@ -98,7 +99,7 @@ class testVocabularies(WS4PMCLIENTTestCase):
                     },
                     {
                         "id": "finances",
-                        "title": "Finances",
+                        "title": "finances",
                         "enabled": True,
                     },
                 ],
@@ -108,6 +109,10 @@ class testVocabularies(WS4PMCLIENTTestCase):
         titles, tokens = set_config()
         self.assertIn(u"Urbanisme", titles)
         self.assertIn(u"urbanisme", tokens)
+        self.assertIn(u"finances", titles)
+        self.assertIn(u"finances", tokens)
+        self.assertEqual(len(titles), 2)
+        self.assertEqual(titles, humansorted(titles))
 
         _rest_getConfigInfos.return_value = []
         titles, tokens = set_config()
