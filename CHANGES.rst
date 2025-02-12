@@ -1,6 +1,12 @@
 Changelog
 =========
 
+2.0.0b3 (unreleased)
+--------------------
+
+- Used UID key in `vocabularies.proposing_groups_for_user_vocabulary`.
+  [sgeulette]
+
 2.0.0b2 (2024-10-16)
 --------------------
 
