@@ -10,6 +10,7 @@ from imio.pm.wsclient.config import NO_USER_INFOS_ERROR
 from imio.pm.wsclient.config import TAL_EVAL_FIELD_ERROR
 from imio.pm.wsclient.interfaces import IPreferredMeetings
 from imio.pm.wsclient.interfaces import ISendableAnnexesToPM
+from natsort import humansorted
 from plone import api
 from plone.memoize import ram
 from Products.statusmessages.interfaces import IStatusMessage
@@ -225,7 +226,7 @@ class categories_for_user_vocabulary(object):
             return SimpleVocabulary([])
         terms = []
         forcedCategoryExists = not forcedCategory and True or False
-        for category in categories:
+        for category in humansorted(categories, key=lambda x: getattr(x, "title")):
             if forcedCategory == category["id"]:
                 forcedCategoryExists = True
                 terms.append(SimpleTerm(unicode(category["id"]),
