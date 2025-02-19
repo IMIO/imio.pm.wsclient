@@ -250,7 +250,9 @@ categories_for_user_vocabularyFactory = categories_for_user_vocabulary()
 
 def desired_meetingdates_vocabulary__call___cachekey(method, self, context):
     """Cache key for desired_meetingdates_vocabulary.__call__, valid forever."""
-    return True
+    request = api.portal.getRequest()
+    meetingConfigId = request.get('meetingConfigId', request.form.get('form.widgets.meetingConfigId'))
+    return meetingConfigId
 
 
 class desired_meetingdates_vocabulary(object):
