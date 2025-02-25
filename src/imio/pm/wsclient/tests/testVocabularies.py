@@ -2,9 +2,11 @@
 
 from imio.pm.wsclient.browser import vocabularies
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
-from plone import api
-
 from mock import patch
+from natsort import humansorted
+from plone import api
+from WS4PMCLIENTTestCase import setCorrectSettingsConfig
+from zope.component import getMultiAdapter
 
 
 class testVocabularies(WS4PMCLIENTTestCase):
@@ -27,9 +29,7 @@ class testVocabularies(WS4PMCLIENTTestCase):
 
     @patch("imio.pm.wsclient.browser.settings.WS4PMClientSettings._rest_getConfigInfos")
     @patch("imio.pm.wsclient.browser.settings.WS4PMClientSettings._rest_getMeetingsAcceptingItems")  # noqa
-    def test_desired_meetingdates_vocabulary(
-        self, _rest_getMeetingsAcceptingItems, _rest_getConfigInfos
-    ):
+    def test_desired_meetingdates_vocabulary(self, _rest_getMeetingsAcceptingItems, _rest_getConfigInfos):
         """Ensure that vocabularies values are the expected"""
         _rest_getConfigInfos.return_value = [
             {"id": u"plonegov-assembly", "title": u"PloneGov Assembly"},
@@ -68,3 +68,49 @@ class testVocabularies(WS4PMCLIENTTestCase):
 
         raw_voc = vocabularies.desired_meetingdates_vocabularyFactory(api.portal.get())
         self.assertEqual(len(raw_voc), 2)
+
+    @patch("imio.pm.wsclient.browser.settings.WS4PMClientSettings._rest_getConfigInfos")
+    def test_categories_for_user_vocabulary(self, _rest_getConfigInfos):
+        """Ensure that vocabularies values are the expected"""
+
+        def set_config():
+            setCorrectSettingsConfig(self.portal, setConnectionParams=False, withValidation=False)
+            ws4pmsettings = getMultiAdapter((self.portal, self.portal.REQUEST), name="ws4pmclient-settings")
+            for i in range(len(ws4pmsettings.settings().field_mappings)):
+                if ws4pmsettings.settings().field_mappings[i]["field_name"] == "category":
+                    del ws4pmsettings.settings().field_mappings[i]
+                    break
+            raw_voc = vocabularies.categories_for_user_vocabulary()
+            titles = [v.title for v in raw_voc(self.portal)]
+            tokens = [v.token for v in raw_voc(self.portal)]
+            return titles, tokens
+
+        self.portal.REQUEST.set("meetingConfigId", u"plonegov-assembly")
+
+        _rest_getConfigInfos.return_value = [
+            {
+                "id": u"plonegov-assembly",
+                "title": u"PloneGov Assembly",
+                "categories": [
+                    {
+                        "id": "urbanisme",
+                        "title": "Urbanisme",
+                        "enabled": True,
+                    },
+                    {
+                        "id": "finances",
+                        "title": "finances",
+                        "enabled": True,
+                    },
+                ],
+            },
+            {"id": u"plonemeeting-assembly", "title": u"PloneMeeting Assembly"},
+        ]
+        titles, tokens = set_config()
+        self.assertEqual(titles, [u"finances", u"Urbanisme"])
+        self.assertEqual(tokens, [u"finances", u"urbanisme"])
+
+        _rest_getConfigInfos.return_value = []
+        titles, tokens = set_config()
+        self.assertEqual(titles, [])
+        self.assertEqual(tokens, [])
