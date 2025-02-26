@@ -3,10 +3,11 @@
 from imio.pm.wsclient.browser import vocabularies
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
 from mock import patch
-from natsort import humansorted
 from plone import api
 from WS4PMCLIENTTestCase import setCorrectSettingsConfig
 from zope.component import getMultiAdapter
+from zope.globalrequest import getRequest
+from zope.globalrequest import setRequest
 
 
 class testVocabularies(WS4PMCLIENTTestCase):
@@ -35,6 +36,10 @@ class testVocabularies(WS4PMCLIENTTestCase):
             {"id": u"plonegov-assembly", "title": u"PloneGov Assembly"},
             {"id": u"plonemeeting-assembly", "title": u"PloneMeeting Assembly"},
         ]
+
+        request = getRequest()
+        request.set("meetingConfigId", u"plonemeeting-assembly")
+        setRequest(request)
         _rest_getMeetingsAcceptingItems.return_value = [
             {
                 u"@extra_includes": [],
@@ -65,9 +70,39 @@ class testVocabularies(WS4PMCLIENTTestCase):
                 u"date": u"2013-03-03T00:00:00",
             },
         ]
-
         raw_voc = vocabularies.desired_meetingdates_vocabularyFactory(api.portal.get())
         self.assertEqual(len(raw_voc), 2)
+
+        # Test that the cache is used if the request did not change
+        # This example should not happen in real life, but it is a good test
+        _rest_getMeetingsAcceptingItems.return_value = [
+            {
+                u"@extra_includes": [],
+                u"@id": u"http://localhost:63033/plone/Members/pmManager/mymeetings/plonegov-assembly/o1",  # noqa
+                u"@type": u"MeetingPma",
+                u"UID": u"89ada78808d04a04b145518b2a469f2a",
+                u"created": u"2022-08-13T11:47:33+00:00",
+                u"description": u"",
+                u"enabled": None,
+                u"id": u"o1",
+                u"modified": u"2022-08-13T11:47:34+00:00",
+                u"review_state": u"created",
+                u"title": u"03 march 2013",
+                u"date": u"2013-08-03T00:00:00",
+            },
+        ]
+        raw_voc = vocabularies.desired_meetingdates_vocabularyFactory(api.portal.get())
+        self.assertEqual(len(raw_voc), 2)
+
+        # Test cache is not used if the request changed
+        request = getRequest()
+        request.set("meetingConfigId", u"plonegov-assembly")
+        setRequest(request)
+        raw_voc = vocabularies.desired_meetingdates_vocabularyFactory(api.portal.get())
+        self.assertEqual(len(raw_voc), 1)
+        self.assertEqual(list(raw_voc)[0].title, u"03/08/2013 00:00")
+        self.assertEqual(list(raw_voc)[0].value, "89ada78808d04a04b145518b2a469f2a")
+        self.assertEqual(list(raw_voc)[0].token, "89ada78808d04a04b145518b2a469f2a")
 
     @patch("imio.pm.wsclient.browser.settings.WS4PMClientSettings._rest_getConfigInfos")
     def test_categories_for_user_vocabulary(self, _rest_getConfigInfos):
