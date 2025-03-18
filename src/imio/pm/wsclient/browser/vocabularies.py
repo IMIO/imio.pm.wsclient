@@ -310,7 +310,6 @@ class desired_meetingdates_vocabulary(object):
         for meeting in possible_meetings:
             meeting["date"] = datetime.strptime(meeting["date"], "%Y-%m-%dT%H:%M:%S")
             meeting["date"] = local.localize(meeting["date"])
-            meeting["date"] = datetime.strftime(meeting["date"], "%d/%m/%Y %H:%M")
         terms = []
         allowed_meetings = queryMultiAdapter((context, possible_meetings), IPreferredMeetings)
         meetings = allowed_meetings and allowed_meetings.get() or possible_meetings
