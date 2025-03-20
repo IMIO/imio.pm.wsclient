@@ -3,7 +3,6 @@
 from AccessControl import Unauthorized
 from imio.pm.wsclient import PMMessageFactory as _PM
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
-from imio.pm.wsclient.browser.widgets import DateSelectFieldWidget
 from imio.pm.wsclient.config import ALREADY_SENT_TO_PM_ERROR
 from imio.pm.wsclient.config import CORRECTLY_SENT_TO_PM_INFO
 from imio.pm.wsclient.config import NO_PROPOSING_GROUP_ERROR
@@ -129,7 +128,6 @@ class SendToPloneMeetingForm(form.Form):
 
     fields = field.Fields(ISendToPloneMeeting)
     fields['annexes'].widgetFactory = CheckBoxFieldWidget
-    fields["preferredMeeting"].widgetFactory = DateSelectFieldWidget
 
     ignoreContext = True  # don't use context to get widget data
 
