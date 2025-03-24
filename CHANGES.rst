@@ -10,6 +10,8 @@ Changelog
   [sgeulette]
 - Fixed categories for user vocabulary after REST api migration and meeting dates vocabulary display.
   [cadam]
+- Use IMIO/gha actions and our own runners for the CI.
+  [aduchene]
 
 
 2.0.0b2 (2024-10-16)
