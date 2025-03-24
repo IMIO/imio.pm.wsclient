@@ -10,6 +10,8 @@ Changelog
   [cadam]
 - Use IMIO/gha actions and our own runners for the CI.
   [aduchene]
+- Fixed meeting dates vocabulary cache.
+  [cadam]
 
 2.0.0b2 (2024-10-16)
 --------------------
