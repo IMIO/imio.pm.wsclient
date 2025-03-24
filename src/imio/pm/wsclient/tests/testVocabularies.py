@@ -108,20 +108,16 @@ class testVocabularies(WS4PMCLIENTTestCase):
     def test_categories_for_user_vocabulary(self, _rest_getConfigInfos):
         """Ensure that vocabularies values are the expected"""
 
-        def set_config():
-            setCorrectSettingsConfig(self.portal, setConnectionParams=False, withValidation=False)
-            ws4pmsettings = getMultiAdapter((self.portal, self.portal.REQUEST), name="ws4pmclient-settings")
-            for i in range(len(ws4pmsettings.settings().field_mappings)):
-                if ws4pmsettings.settings().field_mappings[i]["field_name"] == "category":
-                    del ws4pmsettings.settings().field_mappings[i]
-                    break
-            raw_voc = vocabularies.categories_for_user_vocabulary()
-            titles = [v.title for v in raw_voc(self.portal)]
-            tokens = [v.token for v in raw_voc(self.portal)]
-            return titles, tokens
-
+        # Set the correct settings
+        setCorrectSettingsConfig(self.portal, setConnectionParams=False, withValidation=False)
+        ws4pmsettings = getMultiAdapter((self.portal, self.portal.REQUEST), name="ws4pmclient-settings")
+        for i in range(len(ws4pmsettings.settings().field_mappings)):
+            if ws4pmsettings.settings().field_mappings[i]["field_name"] == "category":
+                del ws4pmsettings.settings().field_mappings[i]
+                break
         self.portal.REQUEST.set("meetingConfigId", u"plonegov-assembly")
 
+        # First test with categories
         _rest_getConfigInfos.return_value = [
             {
                 "id": u"plonegov-assembly",
@@ -134,18 +130,19 @@ class testVocabularies(WS4PMCLIENTTestCase):
                     },
                     {
                         "id": "finances",
-                        "title": "finances",
+                        "title": "Finances",
                         "enabled": True,
                     },
                 ],
             },
             {"id": u"plonemeeting-assembly", "title": u"PloneMeeting Assembly"},
         ]
-        titles, tokens = set_config()
-        self.assertEqual(titles, [u"finances", u"Urbanisme"])
-        self.assertEqual(tokens, [u"finances", u"urbanisme"])
+        voc = vocabularies.categories_for_user_vocabulary()(self.portal)
+        self.assertListEqual(
+            [(v.token, v.title) for v in voc], [("finances", u"Finances"), ("urbanisme", u"Urbanisme")]
+        )
 
+        # Second test without categories
         _rest_getConfigInfos.return_value = []
-        titles, tokens = set_config()
-        self.assertEqual(titles, [])
-        self.assertEqual(tokens, [])
+        voc = vocabularies.categories_for_user_vocabulary()(self.portal)
+        self.assertListEqual(list(voc), [])

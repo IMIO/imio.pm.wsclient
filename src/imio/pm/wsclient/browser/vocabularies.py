@@ -312,16 +312,18 @@ class desired_meetingdates_vocabulary(object):
         for meeting in possible_meetings:
             meeting["date"] = datetime.strptime(meeting["date"], "%Y-%m-%dT%H:%M:%S")
             meeting["date"] = local.localize(meeting["date"])
-            meeting["date"] = datetime.strftime(meeting["date"], "%d/%m/%Y %H:%M")
+            meeting['date'] = meeting['date'].astimezone(local)
         terms = []
         allowed_meetings = queryMultiAdapter((context, possible_meetings), IPreferredMeetings)
         meetings = allowed_meetings and allowed_meetings.get() or possible_meetings
         for meeting_info in meetings:
+            display_date = datetime.strftime(meeting_info["date"], "%d/%m/%Y %H:%M") \
+                if isinstance(meeting_info["date"], datetime) else meeting_info["date"]
             terms.append(
                 SimpleTerm(
                     unicode(meeting_info["UID"]),
                     unicode(meeting_info["UID"]),
-                    unicode(meeting_info["date"]),
+                    unicode(display_date),
                 )
             )
         return SimpleVocabulary(terms)
