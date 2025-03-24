@@ -6,7 +6,8 @@ Changelog
 
 - Used UID key in `vocabularies.proposing_groups_for_user_vocabulary`.
   [sgeulette]
-- Fixed categories for user vocabulary after REST api migration and meeting dates vocabulary display [cadam]
+- Fixed categories for user vocabulary after REST api migration and meeting dates vocabulary display.
+  [cadam]
 
 2.0.0b2 (2024-10-16)
 --------------------
