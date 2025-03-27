@@ -10,6 +10,8 @@ Changelog
 2.0.0 (2025-03-27)
 ------------------
 
+- Include some metadata_fields in `PloneMeetingInfosViewlet` to have proper translations.
+  [aduchene]
 - Used UID key in `vocabularies.proposing_groups_for_user_vocabulary`.
   [sgeulette]
 - Fixed categories for user vocabulary after REST api migration and meeting dates vocabulary display.
