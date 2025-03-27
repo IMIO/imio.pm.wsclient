@@ -31,9 +31,9 @@
                    <tal:showInfos condition="item/UID|nothing">
                    <td><a href="#" tal:attributes="href item/@id" tal:content="item/title" target="_blank">Item title</a></td>
                    <!-- XXX Creator full name can be implemented in plonemeeting.restapi to have author name instead of userid -->
-                   <td tal:content="python: item['creators'][0]">Creator fullname</td>
+                   <td tal:content="python: item['creators'][0]['title']">Creator fullname</td>
                    <td tal:content="item/extra_include_config/title">Meeting config title</td>
-                   <td tal:content="item/review_state" i18n:domain="plone" i18n:translate="">Review state</td>
+                   <td tal:content="item/review_state/title" i18n:domain="plone" i18n:translate="">Review state</td>
                    <td tal:content="item/category/title" i18n:domain="plone" i18n:translate="">Category title</td>
                    <td tal:content="python: view.displayMeetingDate(item['preferredMeeting']['title'])">Preferred meeting date</td>
                    <td tal:content="python: view.displayMeetingDate(item['extra_include_meeting'].get('title'))">Related meeting date</td>

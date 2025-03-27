@@ -1,17 +1,26 @@
 Changelog
 =========
 
-2.0.0b3 (unreleased)
---------------------
+2.0.1 (unreleased)
+------------------
 
 - Improve `_rest_getDecidedMeetingDate` to make only one request.
   [aduchene]
+- Include some metadata_fields in `PloneMeetingInfosViewlet` to have proper translations.
+  [aduchene]
+
+
+2.0.0 (2025-03-27)
+------------------
+
 - Used UID key in `vocabularies.proposing_groups_for_user_vocabulary`.
   [sgeulette]
 - Fixed categories for user vocabulary after REST api migration and meeting dates vocabulary display.
   [cadam]
 - Use IMIO/gha actions and our own runners for the CI.
   [aduchene]
+- Fixed meeting dates vocabulary cache.
+  [cadam]
 
 
 2.0.0b2 (2024-10-16)
