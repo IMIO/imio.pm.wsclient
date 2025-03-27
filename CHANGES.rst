@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.0.0 (unreleased)
+2.0.0 (2025-03-27)
 ------------------
 
 - Used UID key in `vocabularies.proposing_groups_for_user_vocabulary`.
