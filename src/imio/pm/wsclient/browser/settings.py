@@ -38,7 +38,7 @@ class IGeneratedActionsSchema(Interface):
     """Schema used for the datagrid field 'generated_actions' of IWS4PMClientSettings."""
     condition = schema.TextLine(
         title=_("TAL Condition"),
-        required=False,)
+        required=False, )
     permissions = schema.Choice(
         title=_("Permissions"),
         required=False,
@@ -57,7 +57,7 @@ class IFieldMappingsSchema(Interface):
         vocabulary=u'imio.pm.wsclient.pm_item_data_vocabulary')
     expression = schema.TextLine(
         title=_("TAL expression to evaluate for the corresponding PloneMeeting field name"),
-        required=True,)
+        required=True, )
 
 
 class IAllowedAnnexTypesSchema(Interface):
@@ -74,7 +74,7 @@ class IUserMappingsSchema(Interface):
         required=True)
     pm_userid = schema.TextLine(
         title=_("PloneMeeting corresponding user id"),
-        required=True,)
+        required=True, )
 
 
 class IWS4PMClientSettings(Interface):
@@ -83,26 +83,26 @@ class IWS4PMClientSettings(Interface):
     """
     pm_url = schema.TextLine(
         title=_(u"PloneMeeting URL"),
-        required=True,)
+        required=True, )
     pm_timeout = schema.Int(
         title=_(u"PloneMeeting connection timeout"),
         description=_(u"Enter the timeout while connecting to PloneMeeting. Do not set a too high timeout because it "
                       "will impact the load of the viewlet showing PM infos on a sent element if PM is not available. "
                       "Default is '10' seconds."),
         default=10,
-        required=True,)
+        required=True, )
     pm_username = schema.TextLine(
         title=_("PloneMeeting username to use"),
         description=_(u"The user must be at least a 'MeetingManager'. Nevertheless, items will be created regarding "
                       "the <i>User ids mappings</i> defined here under."),
-        required=True,)
+        required=True, )
     pm_password = schema.Password(
         title=_("PloneMeeting password to use"),
-        required=True,)
+        required=True, )
     only_one_sending = schema.Bool(
         title=_("An element can be sent one time only"),
         default=True,
-        required=True,)
+        required=True, )
     viewlet_display_condition = schema.TextLine(
         title=_("Viewlet display condition"),
         description=_("Enter a TAL expression that will be evaluated to check if the viewlet displaying "
@@ -110,7 +110,7 @@ class IWS4PMClientSettings(Interface):
                       "If empty, the viewlet will only be displayed if an item is actually linked to it. "
                       "The 'isLinked' variable representing this default behaviour is available "
                       "in the TAL expression."),
-        required=False,)
+        required=False, )
     field_mappings = schema.List(
         title=_("Field accessor mappings"),
         description=_("For every available data you can send, define in the mapping a TAL expression that will be "
@@ -122,7 +122,7 @@ class IWS4PMClientSettings(Interface):
         value_type=DictRow(title=_("Field mappings"),
                            schema=IFieldMappingsSchema,
                            required=False),
-        required=False,)
+        required=False, )
     allowed_annexes_types = schema.List(
         title=_("Allowed annexes types"),
         description=_("List here the annexes types allowed to be display in the linked meeting item viewlet"),
@@ -130,7 +130,7 @@ class IWS4PMClientSettings(Interface):
                            schema=IAllowedAnnexTypesSchema,
                            required=False),
         default=[],
-        required=False,)
+        required=False, )
     user_mappings = schema.List(
         title=_("User ids mappings"),
         description=_("By default, while sending an element to PloneMeeting, the user id of the logged in user "
@@ -141,7 +141,7 @@ class IWS4PMClientSettings(Interface):
         value_type=DictRow(title=_("User mappings"),
                            schema=IUserMappingsSchema,
                            required=False),
-        required=False,)
+        required=False, )
     generated_actions = schema.List(
         title=_("Generated actions"),
         description=_("Actions to send an item to PloneMeeting can be generated. First enter a 'TAL condition' "
@@ -150,7 +150,7 @@ class IWS4PMClientSettings(Interface):
         value_type=DictRow(title=_("Actions"),
                            schema=IGeneratedActionsSchema,
                            required=False),
-        required=False,)
+        required=False, )
 
 
 class WS4PMClientSettingsEditForm(RegistryEditForm):
@@ -182,7 +182,7 @@ class WS4PMClientSettingsEditForm(RegistryEditForm):
             field_mappings.mode = 'display'
         else:
             if generated_actions_field.mode == 'display' and \
-               'form.buttons.save' not in self.request.form.keys():
+                    'form.buttons.save' not in self.request.form.keys():
                 # only change mode while not in the "saving" process (that calls updateFields, but why?)
                 # because it leads to loosing generated_actions because a [] is returned by extractDate here above
                 self.fields.get('generated_actions').mode = 'input'
@@ -269,7 +269,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             else:
                 if v:
                     arguments.append("{0}={1}".format(k, v))
-                elif k in ("fullobjects", ):
+                elif k in ("fullobjects",):
                     arguments.append(k)
         if arguments:
             return "{url}/{endpoint}?{arguments}".format(
@@ -410,34 +410,31 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 return response.json()["items"]
 
     def _rest_getDecidedMeetingDate(self,
-                                   data,
-                                   item_portal_type,
-                                   decided_states=('accepted', 'accepted_but_modified', 'accepted_and_returned')):
+                                    data,
+                                    item_portal_type,
+                                    decided_states=('accepted', 'accepted_but_modified', 'accepted_and_returned')):
         """
         Get the actual decided meeting date. It handles delayed and sentTo items appropriately.
         Use item_portal_type parameter to get the decided meeting date for this portal_type.
         It returns a datetime object if a meeting has been found, or None otherwise.
         TODO: handle decided_states correctly, fetching decided states from PloneMeeting configuration
         """
-        brains = self._rest_searchItems(data)
-        if not brains:
+        query = {
+            'extra_include': 'meeting,linked_items',
+            'extra_include_linked_items_mode': 'every_successors',
+            'extra_include_linked_items_extra_include': 'meeting',
+        }
+        query.update(data)
+        items = self._rest_searchItems(query)
+        if not items:
             return  # Item has been deleted or has not been sent to PloneMeeting
-        item = self._rest_getItemInfos(
-            {"UID": brains[0]['UID'], "showExtraInfos": True,
-             'extra_include': 'meeting,linked_items',
-             'extra_include_meeting_additional_values': '*',
-             'extra_include_linked_items_mode': 'every_successors'}
-        )[0]
+        item = items[0]
         if item_portal_type == item["@type"] and item['review_state'] in decided_states:
             return datetime.strptime(item['extra_include_meeting']['date'], "%Y-%m-%dT%H:%M:%S")
         elif item['extra_include_linked_items']:
             for linked_item in item['extra_include_linked_items']:
                 if item_portal_type == linked_item["@type"] and linked_item['review_state'] in decided_states:
-                    item = self._rest_getItemInfos(
-                        {"UID": linked_item['UID'], "showExtraInfos": True, 'extra_include': 'meeting'}
-                    )[0]
-                    return datetime.strptime(item['extra_include_meeting']['date'], "%Y-%m-%dT%H:%M:%S")
-
+                    return datetime.strptime(linked_item['extra_include_meeting']['date'], "%Y-%m-%dT%H:%M:%S")
 
     def _rest_getItemTemplate(self, data):
         """Query the getItemTemplate REST server method."""
@@ -717,7 +714,7 @@ def notify_configuration_changed(event):
                         domain='imio.pm.wsclient',
                         mapping={
                             'meetingConfigTitle':
-                            ws4pmSettings.getMeetingConfigTitle(actToGen['pm_meeting_config_id']),
+                                ws4pmSettings.getMeetingConfigTitle(actToGen['pm_meeting_config_id']),
                         },
                         context=portal.REQUEST),
                     description='', i18n_domain='imio.pm.wsclient',
@@ -726,7 +723,7 @@ def notify_configuration_changed(event):
                     icon_expr='string:${portal_url}/++resource++imio.pm.wsclient.images/send_to_plonemeeting.png',
                     available_expr=actToGen['condition'] or '',
                     # make sure we have a tuple as permissions value
-                    permissions=actToGen['permissions'] and (actToGen['permissions'], ) or ('View', ),
+                    permissions=actToGen['permissions'] and (actToGen['permissions'],) or ('View',),
                     visible=True)
                 object_buttons._setObject(actionId, action)
                 i = i + 1
