@@ -13,14 +13,16 @@ Changelog
 2.0.0 (2025-03-27)
 ------------------
 
+- Added field 'ignore_not_used_data'.
+  [chris-adam]
 - Used UID key in `vocabularies.proposing_groups_for_user_vocabulary`.
   [sgeulette]
 - Fixed categories for user vocabulary after REST api migration and meeting dates vocabulary display.
-  [cadam]
+  [chris-adam]
 - Use IMIO/gha actions and our own runners for the CI.
   [aduchene]
 - Fixed meeting dates vocabulary cache.
-  [cadam]
+  [chris-adam]
 
 
 2.0.0b2 (2024-10-16)
