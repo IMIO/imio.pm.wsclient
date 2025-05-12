@@ -10,6 +10,8 @@ Changelog
   [aduchene]
 - Updated upgrade step 2.0.0 to include rolemap.xml.
   [chris-adam]
+- Remove "ignore_validation_for" and "ignore_not_used_data" field display from form.
+  [chris-adam]
 
 
 2.0.0 (2025-03-27)
