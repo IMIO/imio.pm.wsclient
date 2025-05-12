@@ -8,6 +8,8 @@ Changelog
   [aduchene]
 - Include some metadata_fields in `PloneMeetingInfosViewlet` to have proper translations.
   [aduchene]
+- Updated upgrade step 2.0.0 to include rolemap.xml.
+  [chris-adam]
 
 
 2.0.0 (2025-03-27)
