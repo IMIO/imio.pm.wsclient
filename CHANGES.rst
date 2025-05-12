@@ -8,6 +8,8 @@ Changelog
   [aduchene]
 - Include some metadata_fields in `PloneMeetingInfosViewlet` to have proper translations.
   [aduchene]
+- Remove "ignore_validation_for" and "ignore_not_used_data" field display from form.
+  [chris-adam]
 
 
 2.0.0 (2025-03-27)
