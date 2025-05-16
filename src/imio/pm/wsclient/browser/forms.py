@@ -95,7 +95,7 @@ class DisplayDataToSendProvider(ContentProviderBase):
           Prepare extraAttrs and annexes to be displayed correctly.
         """
         data = self.__parent__.form._buildDataDict()
-        for data_elem in ('externalIdentifier', 'annexes', 'ignore_validation_for', 'ignore_not_used_data'):
+        for data_elem in ('externalIdentifier', 'annexes', 'ignore_validation_for', 'ignore_not_used_data', '__children__'):
             if data_elem in data:
                 data.pop(data_elem)
         for elt in data:
