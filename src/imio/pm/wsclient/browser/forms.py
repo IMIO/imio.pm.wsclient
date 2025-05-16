@@ -254,6 +254,8 @@ class SendToPloneMeetingForm(form.Form):
         annexes_wdg = self.widgets.get('annexes')
         if len(annexes_wdg.terms) == 0:
             annexes_wdg.mode = HIDDEN_MODE
+        else:
+            annexes_wdg.value = [term.token for term in annexes_wdg.terms]
         # add a 'Choose a value...'
         self.widgets.get('proposingGroup').prompt = True
         self.widgets.get('category').prompt = True
