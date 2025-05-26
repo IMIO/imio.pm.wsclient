@@ -8,6 +8,8 @@ Changelog
   [aduchene]
 - Include some metadata_fields in `PloneMeetingInfosViewlet` to have proper translations.
   [aduchene]
+- By default, send all annexes to plone meeting.
+  [chris-adam]
 
 
 2.0.0 (2025-03-27)
