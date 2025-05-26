@@ -95,10 +95,9 @@ class DisplayDataToSendProvider(ContentProviderBase):
           Prepare extraAttrs and annexes to be displayed correctly.
         """
         data = self.__parent__.form._buildDataDict()
-        if 'externalIdentifier' in data:
-            data.pop('externalIdentifier')
-        if 'annexes' in data:
-            data.pop('annexes')
+        for data_elem in ('externalIdentifier', 'annexes', 'ignore_validation_for', 'ignore_not_used_data', '__children__'):
+            if data_elem in data:
+                data.pop(data_elem)
         for elt in data:
             # remove empty data but keep category and proposingGroup even if empty
             value = isinstance(data[elt], str) and data[elt].strip() or data[elt]
