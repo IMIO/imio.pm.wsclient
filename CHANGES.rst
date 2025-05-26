@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.0.1 (unreleased)
+2.0.1 (2025-05-26)
 ------------------
 
 - Improve `_rest_getDecidedMeetingDate` to make only one request.
