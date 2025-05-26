@@ -95,7 +95,7 @@ class DisplayDataToSendProvider(ContentProviderBase):
           Prepare extraAttrs and annexes to be displayed correctly.
         """
         data = self.__parent__.form._buildDataDict()
-        for data_elem in ('externalIdentifier', 'annexes', 'ignore_validation_for', 'ignore_not_used_data'):
+        for data_elem in ('externalIdentifier', 'annexes', 'ignore_validation_for', 'ignore_not_used_data', '__children__'):
             if data_elem in data:
                 data.pop(data_elem)
         for elt in data:
@@ -253,6 +253,8 @@ class SendToPloneMeetingForm(form.Form):
         annexes_wdg = self.widgets.get('annexes')
         if len(annexes_wdg.terms) == 0:
             annexes_wdg.mode = HIDDEN_MODE
+        else:
+            annexes_wdg.value = [term.token for term in annexes_wdg.terms]
         # add a 'Choose a value...'
         self.widgets.get('proposingGroup').prompt = True
         self.widgets.get('category').prompt = True
