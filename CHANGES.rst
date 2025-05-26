@@ -8,13 +8,17 @@ Changelog
   [aduchene]
 - Include some metadata_fields in `PloneMeetingInfosViewlet` to have proper translations.
   [aduchene]
+- Updated upgrade step 2.0.0 to include rolemap.xml.
+  [chris-adam]
+- Remove "ignore_validation_for" and "ignore_not_used_data" field display from form.
+  [chris-adam]
+- By default, send all annexes to plone meeting.
+  [chris-adam]
 
 
 2.0.0 (2025-03-27)
 ------------------
 
-- Added field 'ignore_not_used_data'.
-  [chris-adam]
 - Used UID key in `vocabularies.proposing_groups_for_user_vocabulary`.
   [sgeulette]
 - Fixed categories for user vocabulary after REST api migration and meeting dates vocabulary display.
