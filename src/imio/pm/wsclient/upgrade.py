@@ -18,4 +18,8 @@ def upgrade_to_200(context):
             "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.pm_url",
             parts[0],
         )
+
+    setup = api.portal.get_tool("portal_setup")
+    setup.runImportStepFromProfile('imio.pm.wsclient:default', 'rolemap')
+
     logger.info("upgrade step done!")
