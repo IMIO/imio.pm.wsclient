@@ -121,6 +121,7 @@ class testRESTMethods(WS4PMCLIENTTestCase):
                                          u'extraAttrs',
                                          u'groupsInCharge',
                                          u'ignore_validation_for',
+                                         u'ignore_not_used_data',
                                          u'motivation',
                                          u'optionalAdvisers',
                                          u'preferredMeeting',
