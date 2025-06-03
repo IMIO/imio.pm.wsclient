@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.0.2 (unreleased)
+2.0.2 (2025-06-03)
 ------------------
 
 - Fixed annexes with invalid characters in title.
