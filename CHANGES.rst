@@ -4,7 +4,8 @@ Changelog
 2.0.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fixed annexes with invalid characters in title.
+  [chris-adam]
 
 
 2.0.1 (2025-05-26)
