@@ -401,11 +401,12 @@ class SendToPloneMeetingForm(form.Form):
             if annex_brains:
                 annex = annex_brains[0].getObject()
                 annex_file = getAdapter(annex, IRawReadFile)
+                annex_title = type(annex.title) in [unicode] and annex.title or annex.title.decode('utf-8')
                 annex_name = type(annex_file.name) in [unicode] and annex_file.name or annex_file.name.decode('utf-8')
                 annexes_data.append(
                     {
                         "@type": "annex",
-                        "title": unidecode(annex.title.decode('utf-8')),
+                        "title": unidecode(annex_title),
                         "file": {
                             "filename": unidecode(annex_name),
                             "data": base64.b64encode(annex_file.read()),
