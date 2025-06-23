@@ -711,7 +711,7 @@ def notify_configuration_changed(event):
                 action = Action(
                     actionId,
                     title=translate(
-                        'Send to',
+                        'Send to ${meetingConfigTitle}',
                         domain='imio.pm.wsclient',
                         mapping={
                             'meetingConfigTitle':
