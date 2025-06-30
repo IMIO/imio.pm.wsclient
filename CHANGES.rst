@@ -4,7 +4,8 @@ Changelog
 2.0.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fixed generated actions translations.
+  [chris-adam]
 
 
 2.0.2 (2025-06-03)
