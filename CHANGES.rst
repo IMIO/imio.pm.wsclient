@@ -6,7 +6,8 @@ Changelog
 
 - Fixed generated actions translations.
   [chris-adam]
-
+- Fixed permissions in `upgrade_to_200`.
+  [WBoudabous]
 
 2.0.2 (2025-06-03)
 ------------------
