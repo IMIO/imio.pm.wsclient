@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.0.3 (unreleased)
+2.0.3 (2025-08-07)
 ------------------
 
 - Fixed generated actions translations.
