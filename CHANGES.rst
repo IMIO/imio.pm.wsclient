@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.0.5 (unreleased)
+2.0.5 (2025-11-24)
 ------------------
 
 - SUP-48907: Add an upgrade step to force the refresh of js registry
