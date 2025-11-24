@@ -45,4 +45,13 @@
       profile="imio.pm.wsclient:default"
       />
 
+    <genericsetup:upgradeStep
+      title="Upgrade JS resources"
+      description=""
+      source="200"
+      destination="201"
+      handler=".upgrade.upgrade_js_ressources"
+      profile="imio.pm.wsclient:default"
+      />
+
 </configure>

@@ -29,3 +29,11 @@ def upgrade_to_200(context):
     setup.runImportStepFromProfile('imio.pm.wsclient:default', 'rolemap')
 
     logger.info("upgrade step done!")
+
+
+def upgrade_js_ressources(context):
+    logger = logging.getLogger("imio.pm.wsclient: Upgrade JS ressources")
+    logger.info("starting upgrade steps")
+    setup = api.portal.get_tool("portal_setup")
+    setup.runImportStepFromProfile("imio.pm.wsclient:default", "jsregistry")
+    logger.info("upgrade step done!")

@@ -4,7 +4,8 @@ Changelog
 2.0.5 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- SUP-48907: Add an upgrade step to force the refresh of js registry
+  [mpeeters]
 
 
 2.0.4 (2025-11-24)
