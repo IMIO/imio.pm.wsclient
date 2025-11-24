@@ -4,7 +4,8 @@ Changelog
 2.0.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- SUP-48907: Fix overlay for send to plone meeting combined with imio.actionspanel
+  [mpeeters]
 
 
 2.0.3 (2025-08-07)
