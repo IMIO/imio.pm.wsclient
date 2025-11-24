@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.0.4 (unreleased)
+2.0.4 (2025-11-24)
 ------------------
 
 - SUP-48907: Fix overlay for send to plone meeting combined with imio.actionspanel
