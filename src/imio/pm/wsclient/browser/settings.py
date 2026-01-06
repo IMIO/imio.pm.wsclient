@@ -151,6 +151,12 @@ class IWS4PMClientSettings(Interface):
                            schema=IGeneratedActionsSchema,
                            required=False),
         required=False, )
+    select_all_attachments_by_default = schema.Bool(
+        title=_("Select all attachments by default"),
+        description=_("When enabled, all attachments are selected by default. "
+                      "Users can still manually deselect individual attachments if needed."),
+        default=True,
+        required=False, )
 
 
 class WS4PMClientSettingsEditForm(RegistryEditForm):

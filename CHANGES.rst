@@ -4,7 +4,8 @@ Changelog
 2.0.6 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- SUP-49033: Add option to choose to select by devault all annexes
+  [jchandelle]
 
 
 2.0.5 (2025-11-24)
