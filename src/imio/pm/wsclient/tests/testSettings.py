@@ -57,9 +57,9 @@ class testSettings(unittest.TestCase):
                                    'pm_timeout',
                                    'pm_url',
                                    'pm_username',
+                                   'select_all_attachments_by_default',
                                    'user_mappings',
-                                   'viewlet_display_condition',
-                                   'select_all_attachments_by_default'])
+                                   'viewlet_display_condition'])
 
     def test_saveSettings(self):
         """While settings are saved, some actions are added to portal_actions/object_buttons."""
