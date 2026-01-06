@@ -4,7 +4,7 @@ Changelog
 2.0.6 (unreleased)
 ------------------
 
-- SUP-49033: Add option to choose to select by devault all annexes
+- SUP-49033: Add option to choose to select by default all annexes (default behavior)
   [jchandelle]
 
 
