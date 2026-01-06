@@ -58,7 +58,8 @@ class testSettings(unittest.TestCase):
                                    'pm_url',
                                    'pm_username',
                                    'user_mappings',
-                                   'viewlet_display_condition'])
+                                   'viewlet_display_condition',
+                                   'select_all_attachments_by_default'])
 
     def test_saveSettings(self):
         """While settings are saved, some actions are added to portal_actions/object_buttons."""
