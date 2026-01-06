@@ -54,4 +54,13 @@
       profile="imio.pm.wsclient:default"
       />
 
+    <genericsetup:upgradeStep
+      title="Add new settings in registry"
+      description=""
+      source="201"
+      destination="202"
+      handler=".upgrade.add_new_settings_in_registry"
+      profile="imio.pm.wsclient:default"
+      />
+
 </configure>

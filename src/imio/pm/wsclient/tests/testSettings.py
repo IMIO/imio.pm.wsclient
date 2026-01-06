@@ -57,6 +57,7 @@ class testSettings(unittest.TestCase):
                                    'pm_timeout',
                                    'pm_url',
                                    'pm_username',
+                                   'select_all_attachments_by_default',
                                    'user_mappings',
                                    'viewlet_display_condition'])
 

@@ -233,6 +233,15 @@ class SendToPloneMeetingForm(form.Form):
         # after calling parent's update, self.actions are available
         self.actions.get('cancel').addClass('standalone')
 
+    def check_if_all_annexes_selection(self):
+        return api.portal.get_registry_record(
+            name=(
+                "imio.pm.wsclient.browser.settings.IWS4PMClientSettings."
+                "select_all_attachments_by_default"
+            ),
+            default=True,
+        )
+
     def updateWidgets(self):
         portal = getSite()
         # this is also called by the kss inline_validation, avoid too much work...
@@ -253,7 +262,7 @@ class SendToPloneMeetingForm(form.Form):
         annexes_wdg = self.widgets.get('annexes')
         if len(annexes_wdg.terms) == 0:
             annexes_wdg.mode = HIDDEN_MODE
-        else:
+        elif self.check_if_all_annexes_selection():
             annexes_wdg.value = [term.token for term in annexes_wdg.terms]
         # add a 'Choose a value...'
         self.widgets.get('proposingGroup').prompt = True
