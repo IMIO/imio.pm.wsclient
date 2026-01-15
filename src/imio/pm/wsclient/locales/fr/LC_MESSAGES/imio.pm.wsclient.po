@@ -23,29 +23,29 @@ msgstr ""
 msgid "A filename is mandatory while generating a document! Please contact system administrator!"
 msgstr "Un nom de fichier est obligatoire pour générer un document! Contactez votre administrateur sytème!"
 
-#: ../browser/settings.py:149
+#: ../browser/settings.py:150
 msgid "Actions"
-msgstr ""
+msgstr "Actions"
 
 #. Default: "Actions to send an item to PloneMeeting can be generated. First enter a 'TAL condition' evaluated to show the action then choose permission(s) the user must have to see the action. Finally, choose the meetingConfig the item will be sent to."
-#: ../browser/settings.py:146
+#: ../browser/settings.py:147
 msgid "Actions to send an item to PloneMeeting can be generated. First enter a 'TAL condition' evaluated to show the action then choose permission(s) the user must have to see the action. Finally, choose the meetingConfig the item will be sent to."
 msgstr "Des actions pour faciliter l'envoi d'un point vers iA.Delib peuvent être générées.  Elle apparaîtront par défaut dans la liste déroulante 'Actions'.  Vous pouvez définir une 'Expression au format TAL' et choisir une 'Permission' pour protéger l'action.  Pour finir, définissez dans quelle configuration de séance le point correspondant sera créé."
 
-#: ../browser/settings.py:128
+#: ../browser/settings.py:129
 msgid "Allowed annex type"
-msgstr ""
+msgstr "Type d'annexe"
 
-#: ../browser/settings.py:126
+#: ../browser/settings.py:127
 msgid "Allowed annexes types"
-msgstr ""
+msgstr "Types autorisés d'annexe"
 
 #: ../config.py:59
 msgid "An annex id is mandatory to download an annex!"
-msgstr ""
+msgstr "Un id d'annexe est obligatoire pour la downloader!"
 
 #. Default: "An element can be sent one time only"
-#: ../browser/settings.py:102
+#: ../browser/settings.py:103
 msgid "An element can be sent one time only"
 msgstr "Un élément ne peut être envoyé qu'une seule fois"
 
@@ -56,34 +56,34 @@ msgstr "Une erreur est survenue lors de l'envoi vers iA.Delib!  L'erreur est : $
 
 #: ../config.py:36
 msgid "An error occured during the item creation in PloneMeeting! The error message was : [{'field': 'proposingGroup', 'message': u'Proposing group is not available for user.', 'error': 'ValidationError'}]"
-msgstr ""
+msgstr "Une erreur s'est produite durant la création d'un point! Le message d'erreur est : [{'field': 'proposingGroup', 'message': u'Proposing group is not available for user.', 'error': 'ValidationError'}]"
 
-#: ../browser/settings.py:450
+#: ../browser/settings.py:487
 msgid "An error occured while generating the document in PloneMeeting! The error message was : %s"
-msgstr ""
+msgstr "Une erreur s'est produite durant la génération du document! Le message d'erreur est : %s"
 
-#: ../browser/viewlets.py:97
+#: ../browser/viewlets.py:99
 msgid "An error occured while searching for linked items in PloneMeeting!  The error message was : %s"
-msgstr ""
+msgstr "Une erreur s'est produite lors de la recherche des points liés! Le message d'erreur est : %s"
 
-#: ../browser/settings.py:65
+#: ../browser/settings.py:66
 msgid "Annex type"
-msgstr ""
+msgstr "Type d'annexe"
 
 #. Default: "By default, while sending an element to PloneMeeting, the user id of the logged in user is used and a binding is made to the same user id in PloneMeeting. If the local user id does not exist in PloneMeeting, you can define here the user mappings to use. For example : 'jdoe' in 'Local user id' of the current application correspond to 'johndoe' in PloneMeeting."
-#: ../browser/settings.py:135
+#: ../browser/settings.py:136
 msgid "By default, while sending an element to PloneMeeting, the user id of the logged in user is used and a binding is made to the same user id in PloneMeeting. If the local user id does not exist in PloneMeeting, you can define here the user mappings to use. For example : 'jdoe' in 'Local user id' of the current application correspond to 'johndoe' in PloneMeeting."
 msgstr "Par défaut lors de l'envoi d'un point vers iA.Delib, le nom d'utilisateur de l'utilisateur couramment connecté est utilisé.  Si le nom d'utilisteur local est différent du nom d'utilisateur dans iA.Delib, vous pouvez les définir ci-dessous.  Par exemple 'jdoe' dans l'application courante a un utilisateur correspondant 'johndoe' dans iA.Delib."
 
 #. Default: "Cancel"
-#: ../browser/forms.py:169
-#: ../browser/settings.py:205
+#: ../browser/forms.py:172
+#: ../browser/settings.py:212
 msgid "Cancel"
 msgstr "Annuler"
 
-#: ../browser/settings.py:201
+#: ../browser/settings.py:208
 msgid "Changes saved"
-msgstr ""
+msgstr "Changements appliqués"
 
 #. Default: "Could not detect correct mimetype for item template! Please contact system administrator!"
 #: ../config.py:19
@@ -95,51 +95,51 @@ msgstr "Impossible de détecter le type MIME pour le document à générer!  Con
 msgid "Could not get userInfos in PloneMeeting for user '${userId}'!"
 msgstr "Impossible d'obtenir des informations sur l'utilisateur '${userId}' dans iA.Delib!"
 
-#: ../browser/settings.py:207
+#: ../browser/settings.py:214
 msgid "Edit cancelled"
-msgstr ""
+msgstr "Édition annulée"
 
 #. Default: "Enter a TAL expression that will be evaluated to check if the viewlet displaying informations about the created items in PloneMeeting should be displayed. If empty, the viewlet will only be displayed if an item is actually linked to it. The 'isLinked' variable representing this default behaviour is available in the TAL expression."
-#: ../browser/settings.py:107
+#: ../browser/settings.py:108
 msgid "Enter a TAL expression that will be evaluated to check if the viewlet displaying informations about the created items in PloneMeeting should be displayed. If empty, the viewlet will only be displayed if an item is actually linked to it. The 'isLinked' variable representing this default behaviour is available in the TAL expression."
 msgstr "Entrez une expression au format TAL qui sera évaluée pour vérifier si le viewlet affichant les informations dans iA.Delib doit être montré ou non.  Par défaut, si aucune expression n'est entrée ci-dessous, le viewlet sera montré s'il y a effectivement un point correspondant dans iA.Delib.  La variable 'isLinked' est disponible pour l'expression TAL."
 
 #. Default: "Enter the timeout while connecting to PloneMeeting. Do not set a too high timeout because it will impact the load of the viewlet showing PM infos on a sent element if PM is not available. Default is '10' seconds."
-#: ../browser/settings.py:88
+#: ../browser/settings.py:89
 msgid "Enter the timeout while connecting to PloneMeeting. Do not set a too high timeout because it will impact the load of the viewlet showing PM infos on a sent element if PM is not available. Default is '10' seconds."
 msgstr "Entrez le timeout de connexion à iA.Delib.  Attention, ne pas mettre une valeurs trop importe car si iA.Delib n'est pas disponible, cela influera sur la vitesse d'affichage d'une page dans laquelle le viewlet affichant les infos iA.Delib est montré."
 
 #. Default: "Field accessor mappings"
-#: ../browser/settings.py:114
+#: ../browser/settings.py:115
 msgid "Field accessor mappings"
 msgstr "Correspondances pour les champs"
 
-#: ../browser/settings.py:121
+#: ../browser/settings.py:122
 msgid "Field mappings"
-msgstr ""
+msgstr "Correspondances des champs"
 
 #. Default: "For every available data you can send, define in the mapping a TAL expression that will be executed to obtain the correct value to send. The 'meetingConfigId' and 'proposingGroupId' variables are also available for the expression. Special case for the 'proposingGroup' and 'category' fields, you can 'force' the use of a particular value by defining it here. If not defined the user will be able to use every 'proposingGroup' or 'category' he is allowed to use in PloneMeeting."
-#: ../browser/settings.py:115
+#: ../browser/settings.py:116
 msgid "For every available data you can send, define in the mapping a TAL expression that will be executed to obtain the correct value to send. The 'meetingConfigId' and 'proposingGroupId' variables are also available for the expression. Special case for the 'proposingGroup' and 'category' fields, you can 'force' the use of a particular value by defining it here. If not defined the user will be able to use every 'proposingGroup' or 'category' he is allowed to use in PloneMeeting."
 msgstr "Pour chaque données à envoyer, définissez une expression TAL qui fait correspondre à l'élément à envoyer, la valeur à utiliser pour un champ dans iA.Delib. Les variables 'meetingConfigId' et 'proposingGroupId' sont disponibles pour l'expression TAL.  Pour les champs 'proposingGroup' et 'category', si vous définissez une valeur ici, cela 'forcera' l'utilisation de ces valeurs.  Sinon l'utilisateur pourra utiluser les 'groupes proposants' et 'catégories' qu'il peut habituellement utiliser dans iA.Delib."
 
 #. Default: "Generated actions"
-#: ../browser/settings.py:145
+#: ../browser/settings.py:146
 msgid "Generated actions"
 msgstr "Actions générées"
 
-#: ../browser/settings.py:127
+#: ../browser/settings.py:128
 msgid "List here the annexes types allowed to be display in the linked meeting item viewlet"
-msgstr ""
+msgstr "Lister ici les types d'annexes autorisés à l'affichage de la séance liée"
 
 #. Default: "Local user id"
-#: ../browser/settings.py:72
+#: ../browser/settings.py:73
 msgid "Local user id"
 msgstr "Nom d'utilisateur local"
 
 #: ../browser/forms.py:59
 msgid "Meeting config id"
-msgstr ""
+msgstr "Identifiant séance"
 
 #. Default: "No configuration informations found!"
 #: ../config.py:47
@@ -156,26 +156,26 @@ msgstr "Aucune correspondance de champs définie dans la configuration des webse
 msgid "No sufficient field mappings are defined in the configuration. It is recommended to define at least the 'title' mapping, but 'description' and 'decision' should also be defined. It will ne be possible to create the item in PloneMeeting."
 msgstr "Les 'Correspondances pour les champs' définies dans la configuration ne sont pas suffisantes. Le champ 'title' doit être défini et idéalement, les champs 'description' et 'decision' également. Le point ne pourra pas être créé."
 
-#: ../browser/settings.py:42
+#: ../browser/settings.py:43
 msgid "Permissions"
-msgstr ""
+msgstr "Permissions"
 
-#: ../browser/settings.py:84
+#: ../browser/settings.py:85
 msgid "PloneMeeting URL"
-msgstr ""
+msgstr "URL de la gestion des séances"
 
 #. Default: "PloneMeeting connection timeout"
-#: ../browser/settings.py:87
+#: ../browser/settings.py:88
 msgid "PloneMeeting connection timeout"
 msgstr "Timeout de connexion à iA.Delib"
 
 #. Default: "PloneMeeting corresponding user id"
-#: ../browser/settings.py:75
+#: ../browser/settings.py:76
 msgid "PloneMeeting corresponding user id"
 msgstr "Nom d'utilisateur correspondant dans iA.Delib"
 
 #. Default: "PloneMeeting field name"
-#: ../browser/settings.py:54
+#: ../browser/settings.py:55
 msgid "PloneMeeting field name"
 msgstr "Nom du champ dans iA.Delib"
 
@@ -185,32 +185,36 @@ msgid "PloneMeeting informations"
 msgstr "Informations provenant de iA.Delib"
 
 #. Default: "PloneMeeting meetingConfig id"
-#: ../browser/settings.py:46
+#: ../browser/settings.py:47
 msgid "PloneMeeting meetingConfig id"
 msgstr "Identifiant de configuration de séance dans iA.Delib"
 
 #. Default: "PloneMeeting password to use"
-#: ../browser/settings.py:99
+#: ../browser/settings.py:100
 msgid "PloneMeeting password to use"
 msgstr "Mot de passe à utiliser dans iA.Delib"
 
 #. Default: "PloneMeeting username to use"
-#: ../browser/settings.py:94
+#: ../browser/settings.py:95
 msgid "PloneMeeting username to use"
 msgstr "Nom d'utilisateur à utiliser dans iA.Delib"
 
 #: ../configure.zcml:29
 msgid "Registration of the Webservices Client for PloneMeeting"
-msgstr ""
+msgstr "Registration of the Webservices Client for PloneMeeting"
 
 #: ../testing.zcml:15
 msgid "Registration of the Webservices Client for PloneMeeting for the tests"
-msgstr ""
+msgstr "Registration of the Webservices Client for PloneMeeting for the tests"
 
 #. Default: "Save"
-#: ../browser/settings.py:193
+#: ../browser/settings.py:200
 msgid "Save"
 msgstr "Enregistrer"
+
+#: ../browser/settings.py:155
+msgid "Select all attachments by default"
+msgstr "Sélectionner par défaut toutes les annexes"
 
 #. Default: "Select the proposing group to use for the created item in PloneMeeting"
 #: ../browser/forms.py:75
@@ -232,7 +236,7 @@ msgid "Select the proposing group to use for the created item in PloneMeeting"
 msgstr "Sélectionnez le groupe proposant avec lequel le point sera créé dans iA.Delib"
 
 #. Default: "Send"
-#: ../browser/forms.py:159
+#: ../browser/forms.py:162
 msgid "Send"
 msgstr "Envoyer"
 
@@ -241,17 +245,17 @@ msgid "Send to ${meetingConfigTitle}"
 msgstr "Envoyer vers ${meetingConfigTitle}"
 
 #. Default: "Send to PloneMeeting"
-#: ../browser/forms.py:138
+#: ../browser/forms.py:137
 msgid "Send to PloneMeeting"
 msgstr "Envoyer vers iA.Delib"
 
 #. Default: "TAL Condition"
-#: ../browser/settings.py:39
+#: ../browser/settings.py:40
 msgid "TAL Condition"
 msgstr "Condition au format TAL"
 
 #. Default: "TAL expression to evaluate for the corresponding PloneMeeting field name"
-#: ../browser/settings.py:58
+#: ../browser/settings.py:59
 msgid "TAL expression to evaluate for the corresponding PloneMeeting field name"
 msgstr "Expression TAL à évaluer pour le champ iA.Delib correspondant"
 
@@ -272,16 +276,16 @@ msgstr "L'élément a été correctement envoyé vers iA.Delib."
 
 #: ../config.py:60
 msgid "The requested file could not be found on the item"
-msgstr ""
+msgstr "Le fichier demandé ne peut être trouvé sur le point"
 
 #. Default: "The user must be at least a 'MeetingManager'. Nevertheless, items will be created regarding the <i>User ids mappings</i> defined here under."
-#: ../browser/settings.py:95
+#: ../browser/settings.py:96
 msgid "The user must be at least a 'MeetingManager'. Nevertheless, items will be created regarding the <i>User ids mappings</i> defined here under."
 msgstr "L'utilisateur renseigné doit être au moins 'MeetingManager'. Néanmoins, les points créés dans iA.Delib le seront en fonction de ce qui est défini dans le champ 'Correspondance pour les utilisateurs' ci-dessous."
 
 #: ../config.py:7
 msgid "There was NO WARNING message during item creation."
-msgstr ""
+msgstr "Il n'y a pas eu de message d'avertissement durant la création du point."
 
 #. Default: "There was an error evaluating the TAL expression '${expr}' for the field '${field_name}'! The error was : ${error}. Please contact system administrator."
 #: ../config.py:15
@@ -314,32 +318,36 @@ msgid "Unable to display informations about the potentially linked item in Plone
 msgstr "Impossible de montrer le viewlet affichant les informations liées dans PloneMeeting car il y a une erreur dans l'expression TAL liée à la condition d'affichage du viewlet.  Contactez votre administrateur système!"
 
 #. Default: "User ids mappings"
-#: ../browser/settings.py:134
+#: ../browser/settings.py:135
 msgid "User ids mappings"
 msgstr "Correspondances pour les nom d'utilisateurs"
 
-#: ../browser/settings.py:140
+#: ../browser/settings.py:141
 msgid "User mappings"
-msgstr ""
+msgstr "Correspondances d'utilisateur"
 
 #. Default: "Viewlet display condition"
-#: ../browser/settings.py:106
+#: ../browser/settings.py:107
 msgid "Viewlet display condition"
 msgstr "Condition d'affichage du viewlet"
 
 #. Default: "WS4PM Client settings"
-#: ../browser/settings.py:160
+#: ../browser/settings.py:167
 #: ../profiles/default/controlpanel.xml
 msgid "WS4PM Client settings"
 msgstr "Client webservices iA.Delib"
 
 #: ../configure.zcml:29
 msgid "Webservices Client for PloneMeeting"
-msgstr ""
+msgstr "Webservices Client for PloneMeeting"
 
 #: ../testing.zcml:15
 msgid "Webservices Client for PloneMeeting testing profile"
-msgstr ""
+msgstr "Webservices Client for PloneMeeting testing profile"
+
+#: ../browser/settings.py:156
+msgid "When enabled, all attachments are selected by default. Users can still manually deselect individual attachments if needed."
+msgstr "Si coché, toutes les annexes sont sélectionnées par défaut. L'utilisateur peut cependant désélectionner chaque annexe individuellement."
 
 #. Default: "You see these informations because the current element has been sent to PloneMeeting."
 #: ../browser/templates/plonemeeting_infos.pt:10

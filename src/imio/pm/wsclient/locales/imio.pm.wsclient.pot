@@ -1,10 +1,10 @@
-# --- PLEASE EDIT THE LINES BELOW CORRECTLY ---
-# SOME DESCRIPTIVE TITLE.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#--- PLEASE EDIT THE LINES BELOW CORRECTLY ---
+#SOME DESCRIPTIVE TITLE.
+#FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2023-11-24 09:33+0000\n"
+"POT-Creation-Date: 2026-01-15 18:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: imio.pm.wsclient\n"
 
-#: ../browser/settings.py:161
+#: ../browser/settings.py:168
 msgid ""
 msgstr ""
 
@@ -25,19 +25,19 @@ msgstr ""
 msgid "A filename is mandatory while generating a document! Please contact system administrator!"
 msgstr ""
 
-#: ../browser/settings.py:149
+#: ../browser/settings.py:150
 msgid "Actions"
 msgstr ""
 
-#: ../browser/settings.py:146
+#: ../browser/settings.py:147
 msgid "Actions to send an item to PloneMeeting can be generated. First enter a 'TAL condition' evaluated to show the action then choose permission(s) the user must have to see the action. Finally, choose the meetingConfig the item will be sent to."
 msgstr ""
 
-#: ../browser/settings.py:128
+#: ../browser/settings.py:129
 msgid "Allowed annex type"
 msgstr ""
 
-#: ../browser/settings.py:126
+#: ../browser/settings.py:127
 msgid "Allowed annexes types"
 msgstr ""
 
@@ -45,7 +45,7 @@ msgstr ""
 msgid "An annex id is mandatory to download an annex!"
 msgstr ""
 
-#: ../browser/settings.py:102
+#: ../browser/settings.py:103
 msgid "An element can be sent one time only"
 msgstr ""
 
@@ -57,28 +57,28 @@ msgstr ""
 msgid "An error occured during the item creation in PloneMeeting! The error message was : [{'field': 'proposingGroup', 'message': u'Proposing group is not available for user.', 'error': 'ValidationError'}]"
 msgstr ""
 
-#: ../browser/settings.py:450
+#: ../browser/settings.py:487
 msgid "An error occured while generating the document in PloneMeeting! The error message was : %s"
 msgstr ""
 
-#: ../browser/viewlets.py:97
+#: ../browser/viewlets.py:99
 msgid "An error occured while searching for linked items in PloneMeeting!  The error message was : %s"
 msgstr ""
 
-#: ../browser/settings.py:65
+#: ../browser/settings.py:66
 msgid "Annex type"
 msgstr ""
 
-#: ../browser/settings.py:135
+#: ../browser/settings.py:136
 msgid "By default, while sending an element to PloneMeeting, the user id of the logged in user is used and a binding is made to the same user id in PloneMeeting. If the local user id does not exist in PloneMeeting, you can define here the user mappings to use. For example : 'jdoe' in 'Local user id' of the current application correspond to 'johndoe' in PloneMeeting."
 msgstr ""
 
-#: ../browser/forms.py:169
-#: ../browser/settings.py:205
+#: ../browser/forms.py:172
+#: ../browser/settings.py:212
 msgid "Cancel"
 msgstr ""
 
-#: ../browser/settings.py:201
+#: ../browser/settings.py:208
 msgid "Changes saved"
 msgstr ""
 
@@ -90,39 +90,39 @@ msgstr ""
 msgid "Could not get userInfos in PloneMeeting for user '${userId}'!"
 msgstr ""
 
-#: ../browser/settings.py:207
+#: ../browser/settings.py:214
 msgid "Edit cancelled"
 msgstr ""
 
-#: ../browser/settings.py:107
+#: ../browser/settings.py:108
 msgid "Enter a TAL expression that will be evaluated to check if the viewlet displaying informations about the created items in PloneMeeting should be displayed. If empty, the viewlet will only be displayed if an item is actually linked to it. The 'isLinked' variable representing this default behaviour is available in the TAL expression."
 msgstr ""
 
-#: ../browser/settings.py:88
+#: ../browser/settings.py:89
 msgid "Enter the timeout while connecting to PloneMeeting. Do not set a too high timeout because it will impact the load of the viewlet showing PM infos on a sent element if PM is not available. Default is '10' seconds."
 msgstr ""
 
-#: ../browser/settings.py:114
+#: ../browser/settings.py:115
 msgid "Field accessor mappings"
 msgstr ""
 
-#: ../browser/settings.py:121
+#: ../browser/settings.py:122
 msgid "Field mappings"
 msgstr ""
 
-#: ../browser/settings.py:115
+#: ../browser/settings.py:116
 msgid "For every available data you can send, define in the mapping a TAL expression that will be executed to obtain the correct value to send. The 'meetingConfigId' and 'proposingGroupId' variables are also available for the expression. Special case for the 'proposingGroup' and 'category' fields, you can 'force' the use of a particular value by defining it here. If not defined the user will be able to use every 'proposingGroup' or 'category' he is allowed to use in PloneMeeting."
 msgstr ""
 
-#: ../browser/settings.py:145
+#: ../browser/settings.py:146
 msgid "Generated actions"
 msgstr ""
 
-#: ../browser/settings.py:127
+#: ../browser/settings.py:128
 msgid "List here the annexes types allowed to be display in the linked meeting item viewlet"
 msgstr ""
 
-#: ../browser/settings.py:72
+#: ../browser/settings.py:73
 msgid "Local user id"
 msgstr ""
 
@@ -142,23 +142,23 @@ msgstr ""
 msgid "No sufficient field mappings are defined in the configuration. It is recommended to define at least the 'title' mapping, but 'description' and 'decision' should also be defined. It will ne be possible to create the item in PloneMeeting."
 msgstr ""
 
-#: ../browser/settings.py:42
+#: ../browser/settings.py:43
 msgid "Permissions"
 msgstr ""
 
-#: ../browser/settings.py:84
+#: ../browser/settings.py:85
 msgid "PloneMeeting URL"
 msgstr ""
 
-#: ../browser/settings.py:87
+#: ../browser/settings.py:88
 msgid "PloneMeeting connection timeout"
 msgstr ""
 
-#: ../browser/settings.py:75
+#: ../browser/settings.py:76
 msgid "PloneMeeting corresponding user id"
 msgstr ""
 
-#: ../browser/settings.py:54
+#: ../browser/settings.py:55
 msgid "PloneMeeting field name"
 msgstr ""
 
@@ -166,15 +166,15 @@ msgstr ""
 msgid "PloneMeeting informations"
 msgstr ""
 
-#: ../browser/settings.py:46
+#: ../browser/settings.py:47
 msgid "PloneMeeting meetingConfig id"
 msgstr ""
 
-#: ../browser/settings.py:99
+#: ../browser/settings.py:100
 msgid "PloneMeeting password to use"
 msgstr ""
 
-#: ../browser/settings.py:94
+#: ../browser/settings.py:95
 msgid "PloneMeeting username to use"
 msgstr ""
 
@@ -186,8 +186,12 @@ msgstr ""
 msgid "Registration of the Webservices Client for PloneMeeting for the tests"
 msgstr ""
 
-#: ../browser/settings.py:193
+#: ../browser/settings.py:200
 msgid "Save"
+msgstr ""
+
+#: ../browser/settings.py:155
+msgid "Select all attachments by default"
 msgstr ""
 
 #: ../browser/forms.py:75
@@ -206,7 +210,7 @@ msgstr ""
 msgid "Select the proposing group to use for the created item in PloneMeeting"
 msgstr ""
 
-#: ../browser/forms.py:159
+#: ../browser/forms.py:162
 msgid "Send"
 msgstr ""
 
@@ -214,15 +218,15 @@ msgstr ""
 msgid "Send to ${meetingConfigTitle}"
 msgstr ""
 
-#: ../browser/forms.py:138
+#: ../browser/forms.py:137
 msgid "Send to PloneMeeting"
 msgstr ""
 
-#: ../browser/settings.py:39
+#: ../browser/settings.py:40
 msgid "TAL Condition"
 msgstr ""
 
-#: ../browser/settings.py:58
+#: ../browser/settings.py:59
 msgid "TAL expression to evaluate for the corresponding PloneMeeting field name"
 msgstr ""
 
@@ -242,7 +246,7 @@ msgstr ""
 msgid "The requested file could not be found on the item"
 msgstr ""
 
-#: ../browser/settings.py:95
+#: ../browser/settings.py:96
 msgid "The user must be at least a 'MeetingManager'. Nevertheless, items will be created regarding the <i>User ids mappings</i> defined here under."
 msgstr ""
 
@@ -274,19 +278,19 @@ msgstr ""
 msgid "Unable to display informations about the potentially linked item in PloneMeeting because there was an error evaluating the TAL expression '${expr}' for the field '${field_name}'! The error was : '${error}'.  Please contact system administrator."
 msgstr ""
 
-#: ../browser/settings.py:134
+#: ../browser/settings.py:135
 msgid "User ids mappings"
 msgstr ""
 
-#: ../browser/settings.py:140
+#: ../browser/settings.py:141
 msgid "User mappings"
 msgstr ""
 
-#: ../browser/settings.py:106
+#: ../browser/settings.py:107
 msgid "Viewlet display condition"
 msgstr ""
 
-#: ../browser/settings.py:160
+#: ../browser/settings.py:167
 #: ../profiles/default/controlpanel.xml
 msgid "WS4PM Client settings"
 msgstr ""
@@ -297,6 +301,10 @@ msgstr ""
 
 #: ../testing.zcml:15
 msgid "Webservices Client for PloneMeeting testing profile"
+msgstr ""
+
+#: ../browser/settings.py:156
+msgid "When enabled, all attachments are selected by default. Users can still manually deselect individual attachments if needed."
 msgstr ""
 
 #. Default: "You see these informations because the current element has been sent to PloneMeeting."
