@@ -1,12 +1,13 @@
 Changelog
 =========
 
-2.0.6 (unreleased)
+2.0.6 (2026-01-16)
 ------------------
 
 - SUP-49033: Add option to choose to select by default all annexes (default behavior)
   [jchandelle]
-
+- Updated translations
+  [sgeulette]
 
 2.0.5 (2025-11-24)
 ------------------
@@ -14,13 +15,11 @@ Changelog
 - SUP-48907: Add an upgrade step to force the refresh of js registry
   [mpeeters]
 
-
 2.0.4 (2025-11-24)
 ------------------
 
 - SUP-48907: Fix overlay for send to plone meeting combined with imio.actionspanel
   [mpeeters]
-
 
 2.0.3 (2025-08-07)
 ------------------
@@ -36,7 +35,6 @@ Changelog
 - Fixed annexes with invalid characters in title.
   [chris-adam]
 
-
 2.0.1 (2025-05-26)
 ------------------
 
@@ -51,7 +49,6 @@ Changelog
 - By default, send all annexes to plone meeting.
   [chris-adam]
 
-
 2.0.0 (2025-03-27)
 ------------------
 
@@ -63,7 +60,6 @@ Changelog
   [aduchene]
 - Fixed meeting dates vocabulary cache.
   [chris-adam]
-
 
 2.0.0b2 (2024-10-16)
 --------------------
@@ -79,13 +75,11 @@ Changelog
 - Add a new helper method `_rest_getDecidedMeetingDate` to get the actual decided meeting date.
   [aduchene]
 
-
 2.0.0b1 (2022-11-18)
 --------------------
 
 - Migrate to REST api
   [mpeeters]
-
 
 1.17 (2022-06-29)
 -----------------
@@ -105,7 +99,6 @@ Changelog
 
 - Make sure to always find selected annexes to send with unrestricted catalog search.
   [sdelcourt]
-
 
 1.15 (2021-03-29)
 -----------------
@@ -146,13 +139,11 @@ Changelog
   does not accept 'meetingConfig' paramter anymore.
   [gbastien]
 
-
 1.11 (2017-10-13)
 -----------------
 
 - Display preferred meeting date in the item infos viewlet.
   [sdelcourt]
-
 
 1.10 (2017-10-10)
 -----------------
@@ -160,13 +151,11 @@ Changelog
 - Rename IPreferredMeetings interface.
   [sdelcourt]
 
-
 1.9 (2017-10-10)
 ----------------
 
 - Add preferred meeting selection in the send form.
   [sdelcourt]
-
 
 1.8 (2017-08-22)
 ----------------
@@ -174,13 +163,11 @@ Changelog
 - Add translation for annex selection field.
   [sdelcourt]
 
-
 1.7 (2017-08-18)
 ----------------
 
 - Add annex selection in the send form.
   [sdelcourt]
-
 
 1.6 (2017-05-24)
 ----------------
@@ -188,20 +175,17 @@ Changelog
 - Adapted regarding changes in imio.pm.ws for Products.PloneMeeting 4.0.
   [gbastien]
 
-
 1.5 (2016-11-04)
 ----------------
 
 - Try to make a correct release.
   [sdelcourt]
 
-
 1.4 (2016-11-04)
 ----------------
 
 - Add zope events WillbeSendToPMEvent and SentToPMEvent.
   [sdelcourt]
-
 
 1.3 (2016-08-03)
 ----------------
