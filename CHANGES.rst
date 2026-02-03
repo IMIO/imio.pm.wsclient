@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.0.7 (unreleased)
+2.0.7 (2026-02-03)
 ------------------
 
 - SUP-50498: Fix an issue in `PloneMeetingInfosViewlet.getPloneMeetingLinkedInfos`
