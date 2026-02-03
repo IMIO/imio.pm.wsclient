@@ -93,6 +93,9 @@ class PloneMeetingInfosViewlet(ViewletBase):
                     'extra_include': 'linked_items',
                     'extra_include_linked_items_mode': 'every_successors',
                     'metadata_fields': 'review_state,creators,category,preferredMeeting',
+                    'type': None, # We need to pass None because we need to search across every type of MeetingItem
+                    # This is made to handle a special case where there is no user "inNameOf" so the PM side can't
+                    # get all the MeetingItems types based on the inNameOf user.
                 },
             )
         except Exception, exc:

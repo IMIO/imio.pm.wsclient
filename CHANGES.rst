@@ -4,7 +4,9 @@ Changelog
 2.0.7 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- SUP-50498: Fix an issue in `PloneMeetingInfosViewlet.getPloneMeetingLinkedInfos`
+  when there is no userInNameOF.
+  [aduchene]
 
 
 2.0.6 (2026-01-16)
