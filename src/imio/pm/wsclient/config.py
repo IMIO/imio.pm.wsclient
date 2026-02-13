@@ -1,5 +1,6 @@
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 
+
 # suffix used when adding our actions to portal_actions
 ACTION_SUFFIX = 'plonemeeting_wsclient_action_'
 
@@ -58,6 +59,3 @@ SEND_WITHOUT_SUFFICIENT_FIELD_MAPPINGS_DEFINED_WARNING = _(
 )
 ANNEXID_MANDATORY_ERROR = _(u"An annex id is mandatory to download an annex!")
 MISSING_FILE_ERROR = _(u"The requested file could not be found on the item")
-
-# annotations key
-WS4PMCLIENT_ANNOTATION_KEY = "imio.pm.wsclient-sent_to"

@@ -1,19 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from dateutil import tz
-from datetime import datetime
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import CAN_NOT_SEE_LINKED_ITEMS_INFO
 from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR
 from imio.pm.wsclient.config import UNABLE_TO_DISPLAY_VIEWLET_ERROR
-from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY
 from plone.app.layout.viewlets.common import ViewletBase
 from plone.memoize.instance import memoize
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
-from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
-from zope.component import queryUtility
-from zope.schema.interfaces import IVocabularyFactory
 
 
 class PloneMeetingInfosViewlet(ViewletBase):
@@ -55,16 +49,16 @@ class PloneMeetingInfosViewlet(ViewletBase):
                                                          vars)
             if not res:
                 return False
-        except Exception, e:
+        except Exception as e:
             return (_(UNABLE_TO_DISPLAY_VIEWLET_ERROR, mapping={'expr': settings.viewlet_display_condition,
                                                                 'field_name': 'viewlet_display_condition',
                                                                 'error': e}), 'error')
         # evaluate self.getPloneMeetingLinkedInfos
-        linkedInfos = self.getPloneMeetingLinkedInfos()
-        if isinstance(linkedInfos, tuple):
+        self.linkedInfos = self.getPloneMeetingLinkedInfos()
+        if isinstance(self.linkedInfos, tuple):
             # if self.getPloneMeetingLinkedInfos has errors, it returns
             # also a tuple with error message
-            return linkedInfos
+            return self.linkedInfos
         return True
 
     def get_item_info(self, item):
@@ -78,7 +72,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
             }
         )[0]
 
-    @memoize
+    # @memoize
     def getPloneMeetingLinkedInfos(self):
         """Search items created for context.
            To get every informations we need, we will use getItemInfos(showExtraInfos=True)
@@ -93,12 +87,12 @@ class PloneMeetingInfosViewlet(ViewletBase):
                     'extra_include': 'linked_items',
                     'extra_include_linked_items_mode': 'every_successors',
                     'metadata_fields': 'review_state,creators,category,preferredMeeting',
-                    'type': None, # We need to pass None because we need to search across every type of MeetingItem
+                    'type': None,  # We need to pass None because we need to search across every type of MeetingItem
                     # This is made to handle a special case where there is no user "inNameOf" so the PM side can't
                     # get all the MeetingItems types based on the inNameOf user.
                 },
             )
-        except Exception, exc:
+        except Exception as exc:
             return (_(u"An error occured while searching for linked items in PloneMeeting!  "
                       "The error message was : %s" % exc), 'error')
         # if we are here, it means that the current element is actually linked to item(s)
@@ -107,45 +101,14 @@ class PloneMeetingInfosViewlet(ViewletBase):
             # we return a message in a tuple
             return (_(CAN_NOT_SEE_LINKED_ITEMS_INFO), 'info')
 
-        annotations = IAnnotations(self.context)
-        sent_to = annotations[WS4PMCLIENT_ANNOTATION_KEY]
         res = []
         # to be able to know if some infos in PloneMeeting where not found
         # for current user, save the infos actually shown...
-        settings = self.ws4pmSettings.settings()
-        allowed_annexes_types = [line.values()[0] for line in settings.allowed_annexes_types]
-        shownItemsMeetingConfigId = []
         for item in items:
             res.append(self.get_item_info(item))
-            lastAddedItem = res[-1]
-            shownItemsMeetingConfigId.append(lastAddedItem['extra_include_config']['id'])
-            # XXX special case if something went wrong and there is an item in PM
-            # that is not in the context sent_to annotation
-            lastAddedItemMeetingConfigId = str(lastAddedItem['extra_include_config']['id'])
-            if lastAddedItemMeetingConfigId not in sent_to:
-                existingSentTo = list(sent_to)
-                existingSentTo.append(lastAddedItemMeetingConfigId)
-                annotations[WS4PMCLIENT_ANNOTATION_KEY] = existingSentTo
-                sent_to = annotations[WS4PMCLIENT_ANNOTATION_KEY]
             if "extra_include_linked_items" in item and item["extra_include_linked_items"]:
                 for linked_item in item["extra_include_linked_items"]:
                     res.append(self.get_item_info(linked_item))
-
-        # if the number of items found is inferior to elements sent, it means
-        # that some infos are not viewable by current user, we add special message
-        if not len(items) == len(sent_to):
-            # get meetingConfigs infos, use meetingConfig vocabulary
-            factory = queryUtility(IVocabularyFactory, u'imio.pm.wsclient.pm_meeting_config_id_vocabulary')
-            meetingConfigVocab = factory(self.portal_state.portal())
-            # add special result
-            for sent in annotations[WS4PMCLIENT_ANNOTATION_KEY]:
-                if sent not in shownItemsMeetingConfigId:
-                    # append a special result : nothing else but the meeting_config_id and title
-                    # in extraInfos so sort here under works correctly
-                    # in the linked viewlet template, we test if there is a 'UID' in the given infos, if not
-                    # it means that it is this special message
-                    res.append({'extra_include_config': {'id': sent,
-                                                         'title': meetingConfigVocab.getTerm(sent).title}})
 
         # sort res to comply with sent order, for example sent first to college then council
         def sortByMeetingConfigId(x, y):

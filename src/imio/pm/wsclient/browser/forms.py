@@ -10,7 +10,6 @@ from imio.pm.wsclient.config import NO_USER_INFOS_ERROR
 from imio.pm.wsclient.config import SEND_WITHOUT_SUFFICIENT_FIELD_MAPPINGS_DEFINED_WARNING
 from imio.pm.wsclient.config import TAL_EVAL_FIELD_ERROR
 from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR
-from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY
 from imio.pm.wsclient.events import SentToPMEvent
 from imio.pm.wsclient.events import WillbeSendToPMEvent
 from imio.pm.wsclient.interfaces import IRedirect
@@ -28,7 +27,6 @@ from z3c.form.interfaces import HIDDEN_MODE
 from z3c.form.interfaces import IFieldsAndContentProvidersForm
 from zope import interface
 from zope import schema
-from zope.annotation import IAnnotations
 from zope.browserpage.viewpagetemplatefile import ViewPageTemplateFile
 from zope.component import getAdapter
 from zope.component import getMultiAdapter
@@ -179,7 +177,7 @@ class SendToPloneMeetingForm(form.Form):
         # None if could not connect
         # True if already sent
         # False if not already sent, in this case we can proceed...
-        alreadySent = self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context, (self.meetingConfigId,))
+        alreadySent = self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context, self.meetingConfigId)
         settings = self.ws4pmSettings.settings()
         if alreadySent and settings.only_one_sending:
             IStatusMessage(self.request).addStatusMessage(_(ALREADY_SENT_TO_PM_ERROR), "error")
@@ -188,10 +186,7 @@ class SendToPloneMeetingForm(form.Form):
         else:
             # None means that it was already sent but that it could not connect to PloneMeeting
             # False means that is was not sent, so no connection test is made to PloneMeeting for performance reason
-            if alreadySent is not None:
-                # now connect to PloneMeeting
-                client = self.ws4pmSettings._rest_connectToPloneMeeting()
-            if alreadySent is None or not client:
+            if alreadySent is None:
                 IStatusMessage(self.request).addStatusMessage(_(UNABLE_TO_CONNECT_ERROR), "error")
                 self._changeFormForErrors()
                 return
@@ -313,16 +308,6 @@ class SendToPloneMeetingForm(form.Form):
                     # show warnings in the web interface and add it to the Zope log
                     logger.warning(warning)
                     IStatusMessage(self.request).addStatusMessage(_(warning), 'warning')
-            # finally save in the self.context annotation that the item has been sent
-            annotations = IAnnotations(self.context)
-            if WS4PMCLIENT_ANNOTATION_KEY not in annotations:
-                annotations[WS4PMCLIENT_ANNOTATION_KEY] = [self.meetingConfigId, ]
-            else:
-                # do not use .append directly on the annotations or it does not save
-                # correctly and when Zope restarts, the added annotation is lost???
-                existingAnnotations = list(annotations[WS4PMCLIENT_ANNOTATION_KEY])
-                existingAnnotations.append(self.meetingConfigId)
-                annotations[WS4PMCLIENT_ANNOTATION_KEY] = existingAnnotations
             self._finishedSent = True
 
             notify(SentToPMEvent(self.context))
@@ -392,7 +377,7 @@ class SendToPloneMeetingForm(form.Form):
                                                                           self.portal,
                                                                           expr,
                                                                           vars)
-            except Exception, e:
+            except Exception as e:
                 IStatusMessage(self.request).addStatusMessage(
                     _(TAL_EVAL_FIELD_ERROR, mapping={'expr': expr,
                                                      'field_name': field_name,

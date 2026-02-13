@@ -7,7 +7,6 @@ from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import ACTION_SUFFIX
 from imio.pm.wsclient.config import CONFIG_CREATE_ITEM_PM_ERROR
 from imio.pm.wsclient.config import CONFIG_UNABLE_TO_CONNECT_ERROR
-from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY
 from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 from plone.app.registry.browser.controlpanel import RegistryEditForm
 from plone.memoize.view import memoize
@@ -21,7 +20,6 @@ from StringIO import StringIO
 from z3c.form import button
 from z3c.form import field
 from zope import schema
-from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
 from zope.component import queryUtility
 from zope.component.hooks import getSite
@@ -289,20 +287,24 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         """Query the checkIsLinked REST server method."""
         session = self._rest_connectToPloneMeeting()
         if session is not None:
-            if 'inTheNameOf' not in data:
-                data["inTheNameOf"] = self._getUserIdToUseInTheNameOfWith()
             url = self._format_rest_query_url(
                 "@get",
-                extra_include="linked_items",
-                **{k: v for k, v in data.items() if k != "inTheNameOf"}
+                **data
             )
             response = session.get(url)
-            if response.status_code != 200:
+            # first 2 tests for plonemeeting.restapi 2.12+
+            if response.status_code == 403:
+                # forbidden item
+                return True
+            elif response.status_code == 404:
+                # item not found
                 return False
-            if response.json().get("items_total") == 0:
-                # When there is no item found, we still get a response but items_total is 0
+            elif response.status_code != 200:
+                return False
+            elif response.json().get("items_total") == 0:
                 return False
             return response.json()
+        return None
 
     @memoize
     def _rest_getConfigInfos(self, showCategories=False):
@@ -612,7 +614,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                             return None
         return memberId
 
-    def checkAlreadySentToPloneMeeting(self, context, meetingConfigIds=[]):
+    def checkAlreadySentToPloneMeeting(self, context, meetingConfigId=None):
         """
           Check if the element has already been sent to PloneMeeting to avoid double sents
           If an item needs to be doubled in PloneMeeting, it is PloneMeeting's duty
@@ -621,44 +623,19 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
           - 'None' if could not connect to PloneMeeting
           - True if the p_context is linked to an item of p_meetingConfigIds
           - False if p_context is not linked to an item of p_meetingConfigIds
-          This script also wipe out every meetingConfigIds for wich the item does not exist anymore in PloneMeeting
+          This script also wipe out every meetingConfigId for wich the item does not exist anymore in PloneMeeting
         """
-        annotations = IAnnotations(context)
-        # for performance reason (avoid to connect to REST if no annotations)
-        # if there are no relevant annotations, it means that the p_context
-        # is not linked and we return False
         isLinked = False
-        if WS4PMCLIENT_ANNOTATION_KEY in annotations:
-            # the item seems to have been sent, but double check in case it was
-            # deleted in PloneMeeting after having been sent
-            # warning, here searchItems inTheNameOf the super user to be sure
-            # that we can access it in PloneMeeting
-            if not meetingConfigIds:
-                # evaluate the meetingConfigIds in the annotation
-                # this will wipe out the entire annotation
-                meetingConfigIds = list(annotations[WS4PMCLIENT_ANNOTATION_KEY])
-            for meetingConfigId in meetingConfigIds:
-                res = self._rest_checkIsLinked({'externalIdentifier': context.UID(),
-                                                'config_id': meetingConfigId, })
-                # if res is None, it means that it could not connect to PloneMeeting
-                if res is None:
-                    return None
-                # we found at least one linked item
-                elif res:
-                    isLinked = True
-                # could connect to PM but did not find a result
-                elif not res:
-                    # either the item was deleted in PloneMeeting
-                    # or it was never send, wipe out if it was deleted in PloneMeeting
-                    if meetingConfigId in annotations[WS4PMCLIENT_ANNOTATION_KEY]:
-                        # do not use .remove directly on the annotations or it does not save
-                        # correctly and when Zope restarts, the removed annotation is still there???
-                        existingAnnotations = list(annotations[WS4PMCLIENT_ANNOTATION_KEY])
-                        existingAnnotations.remove(meetingConfigId)
-                        annotations[WS4PMCLIENT_ANNOTATION_KEY] = existingAnnotations
-                    if not annotations[WS4PMCLIENT_ANNOTATION_KEY]:
-                        # remove the entire annotation key if empty
-                        del annotations[WS4PMCLIENT_ANNOTATION_KEY]
+        data = {"externalIdentifier": context.UID()}
+        if meetingConfigId:
+            data["config_id"] = meetingConfigId
+        res = self._rest_checkIsLinked(data)
+        # if res is None, it means that it could not connect to PloneMeeting
+        if res is None:
+            return None
+        # we found at least one linked item
+        elif res:
+            isLinked = True
         return isLinked
 
     def renderTALExpression(self, context, portal, expression, vars={}):

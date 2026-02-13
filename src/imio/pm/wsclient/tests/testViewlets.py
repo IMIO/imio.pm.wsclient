@@ -5,18 +5,16 @@
 # GNU General Public License (GPL)
 #
 
-from Products.statusmessages.interfaces import IStatusMessage
 from imio.pm.wsclient.browser.viewlets import PloneMeetingInfosViewlet
 from imio.pm.wsclient.config import CAN_NOT_SEE_LINKED_ITEMS_INFO
 from imio.pm.wsclient.config import CORRECTLY_SENT_TO_PM_INFO
 from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR
-from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY
-from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import cleanMemoize
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import createDocument
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
+from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
 from mock import patch
-from zope.annotation import IAnnotations
+from Products.statusmessages.interfaces import IStatusMessage
 
 import transaction
 
@@ -242,8 +240,6 @@ class testViewlets(WS4PMCLIENTTestCase):
         # no available
         # a message is returned in the viewlet by the viewlet.available method
         self.assertTrue(viewlet.available() == (UNABLE_TO_CONNECT_ERROR, 'error'))
-        # the annotations on the document are still correct
-        self.assertTrue(IAnnotations(document)[WS4PMCLIENT_ANNOTATION_KEY] == ['plonemeeting-assembly'])
 
     def test_displayMeetingDate(self):
         """
@@ -277,7 +273,8 @@ class testViewlets(WS4PMCLIENTTestCase):
 
 
 def test_suite():
-    from unittest import TestSuite, makeSuite
+    from unittest import makeSuite
+    from unittest import TestSuite
     suite = TestSuite()
     # add a prefix because we heritate from testMeeting and we do not want every tests of testMeeting to be run here...
     suite.addTest(makeSuite(testViewlets, prefix='test_'))
