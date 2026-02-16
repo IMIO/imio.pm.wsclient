@@ -15,6 +15,7 @@ from plone.registry.interfaces import IRegistry
 from Products.CMFCore.ActionInformation import Action
 from Products.CMFCore.Expression import createExprContext
 from Products.CMFCore.Expression import Expression
+from Products.CMFPlone.utils import base_hasattr
 from Products.statusmessages.interfaces import IStatusMessage
 from StringIO import StringIO
 from z3c.form import button
@@ -626,6 +627,8 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
           This script also wipe out every meetingConfigId for wich the item does not exist anymore in PloneMeeting
         """
         isLinked = False
+        if not base_hasattr(context, "UID"):
+            return False
         data = {"externalIdentifier": context.UID()}
         if meetingConfigId:
             data["config_id"] = meetingConfigId

@@ -93,7 +93,8 @@ class DisplayDataToSendProvider(ContentProviderBase):
           Prepare extraAttrs and annexes to be displayed correctly.
         """
         data = self.__parent__.form._buildDataDict()
-        for data_elem in ('externalIdentifier', 'annexes', 'ignore_validation_for', 'ignore_not_used_data', '__children__'):
+        for data_elem in ('externalIdentifier', 'annexes', 'ignore_validation_for', 'ignore_not_used_data',
+                          '__children__'):
             if data_elem in data:
                 data.pop(data_elem)
         for elt in data:
@@ -179,17 +180,15 @@ class SendToPloneMeetingForm(form.Form):
         # False if not already sent, in this case we can proceed...
         alreadySent = self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context, self.meetingConfigId)
         settings = self.ws4pmSettings.settings()
-        if alreadySent and settings.only_one_sending:
+        # None means that it could not connect to PloneMeeting
+        if alreadySent is None:
+            IStatusMessage(self.request).addStatusMessage(_(UNABLE_TO_CONNECT_ERROR), "error")
+            self._changeFormForErrors()
+            return
+        elif alreadySent and settings.only_one_sending:
             IStatusMessage(self.request).addStatusMessage(_(ALREADY_SENT_TO_PM_ERROR), "error")
             self._changeFormForErrors()
             return
-        else:
-            # None means that it was already sent but that it could not connect to PloneMeeting
-            # False means that is was not sent, so no connection test is made to PloneMeeting for performance reason
-            if alreadySent is None:
-                IStatusMessage(self.request).addStatusMessage(_(UNABLE_TO_CONNECT_ERROR), "error")
-                self._changeFormForErrors()
-                return
 
         # do not go further if current user can not create an item in
         # PloneMeeting with any proposingGroup

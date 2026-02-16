@@ -186,7 +186,7 @@ class testForms(WS4PMCLIENTTestCase):
         self.assertTrue(view._doSendToPloneMeeting())
         # is linked to one item
         self.assertTrue(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
-                        self.request.get('meetingConfigId'),))
+                        self.request.get('meetingConfigId')))
         self.assertTrue(len(ws4pmSettings._rest_searchItems({'externalIdentifier': document.UID()})) == 1)
         messages = IStatusMessage(self.request)
         # there is one message saying that the item was correctly sent
@@ -223,13 +223,13 @@ class testForms(WS4PMCLIENTTestCase):
         self.assertFalse(
             view.ws4pmSettings.checkAlreadySentToPloneMeeting(
                 document,
-                (self.request.get('meetingConfigId'),)))
+                self.request.get('meetingConfigId')))
         # now it is consistent
         self.assertTrue(len(ws4pmSettings._rest_searchItems({'externalIdentifier': document.UID()})) == 0)
         # the item can be sent again and will be linked to a new created item
         self.assertTrue(view._doSendToPloneMeeting())
         self.assertTrue(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
-                        (self.request.get('meetingConfigId'),)))
+                        self.request.get('meetingConfigId')))
         self.assertTrue(len(ws4pmSettings._rest_searchItems({'externalIdentifier': document.UID()})) == 1)
         # the item can also been send to another meetingConfig
         self.request.set('meetingConfigId', 'plonegov-assembly')
@@ -238,11 +238,11 @@ class testForms(WS4PMCLIENTTestCase):
         self.assertFalse(
             view.ws4pmSettings.checkAlreadySentToPloneMeeting(
                 document,
-                (self.request.get('meetingConfigId'),)))
+                self.request.get('meetingConfigId')))
         self.request.form['form.widgets.category'] = [u'deployment', ]
         self.assertTrue(view._doSendToPloneMeeting())
         self.assertTrue(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
-                        (self.request.get('meetingConfigId'),)))
+                        self.request.get('meetingConfigId')))
         # if we remove the 2 items, a call to checkAlreadySentToPloneMeeting
         # without meetingConfigs will wipeout the annotations
         transaction.commit()

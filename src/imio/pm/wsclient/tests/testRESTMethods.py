@@ -61,7 +61,7 @@ class testRESTMethods(WS4PMCLIENTTestCase):
         }
         result = ws4pmSettings._rest_checkIsLinked(data)
         self.assertEqual(item1.UID(), result["UID"])
-        self.assertEqual(0, result["extra_include_linked_items_items_total"])
+        self.assertEqual(0, result.get("extra_include_linked_items_items_total", 0))
 
         cfg.setItemManualSentToOtherMCStates(("itemcreated", ))
         self.changeUser("pmCreator2")
@@ -496,7 +496,8 @@ class testRESTMethods(WS4PMCLIENTTestCase):
 
 
 def test_suite():
-    from unittest import TestSuite, makeSuite
+    from unittest import makeSuite
+    from unittest import TestSuite
     suite = TestSuite()
     # add a prefix because we heritate from testMeeting and we do not want every tests of testMeeting to be run here...
     suite.addTest(makeSuite(testRESTMethods, prefix='test_'))

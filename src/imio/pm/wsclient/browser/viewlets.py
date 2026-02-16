@@ -37,22 +37,23 @@ class PloneMeetingInfosViewlet(ViewletBase):
             return (_(UNABLE_TO_CONNECT_ERROR), 'error')
         viewlet_display_condition = settings.viewlet_display_condition
         # if we have no defined viewlet_display_condition, use the isLinked value
-        if not viewlet_display_condition or not viewlet_display_condition.strip():
-            return isLinked
-        # add 'isLinked' to data available in the TAL expression
-        vars = {}
-        vars['isLinked'] = isLinked
-        try:
-            res = self.ws4pmSettings.renderTALExpression(self.context,
-                                                         self.portal_state.portal(),
-                                                         settings.viewlet_display_condition,
-                                                         vars)
-            if not res:
-                return False
-        except Exception as e:
-            return (_(UNABLE_TO_DISPLAY_VIEWLET_ERROR, mapping={'expr': settings.viewlet_display_condition,
-                                                                'field_name': 'viewlet_display_condition',
-                                                                'error': e}), 'error')
+        # if not viewlet_display_condition or not viewlet_display_condition.strip():
+        #     return isLinked
+        if viewlet_display_condition and viewlet_display_condition.strip():
+            # add 'isLinked' to data available in the TAL expression
+            vars = {}
+            vars['isLinked'] = isLinked
+            try:
+                res = self.ws4pmSettings.renderTALExpression(self.context,
+                                                             self.portal_state.portal(),
+                                                             settings.viewlet_display_condition,
+                                                             vars)
+                if not res:
+                    return False
+            except Exception as e:
+                return (_(UNABLE_TO_DISPLAY_VIEWLET_ERROR, mapping={'expr': settings.viewlet_display_condition,
+                                                                    'field_name': 'viewlet_display_condition',
+                                                                    'error': e}), 'error')
         # evaluate self.getPloneMeetingLinkedInfos
         self.linkedInfos = self.getPloneMeetingLinkedInfos()
         if isinstance(self.linkedInfos, tuple):
