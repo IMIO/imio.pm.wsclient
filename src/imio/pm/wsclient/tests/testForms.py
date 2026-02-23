@@ -63,7 +63,7 @@ class testForms(WS4PMCLIENTTestCase):
         # only available to connected users
         self.changeUser('pmCreator1')
         self._configureRequestForView(self.portal)
-        view = self.portal.restrictedTraverse(SEND_TO_PM_VIEW_NAME).form_instance
+        view = self.own_org.restrictedTraverse(SEND_TO_PM_VIEW_NAME).form_instance
         # when we can not connect, a message is displayed to the user
         messages = IStatusMessage(self.request)
         self.assertTrue(len(messages.show()) == 2)

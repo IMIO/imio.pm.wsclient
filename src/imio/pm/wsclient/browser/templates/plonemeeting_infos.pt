@@ -3,6 +3,7 @@
                    DateTime python:modules['DateTime'].DateTime;
                    toLocalizedTime nocall:context/@@plone/toLocalizedTime;
                    portal_url context/@@plone_portal_state/portal_url;"
+           condition="available"
            i18n:domain="imio.pm.wsclient">
 
     <fieldset><legend i18n:translate="">PloneMeeting informations</legend>

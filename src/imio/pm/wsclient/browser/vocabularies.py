@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from collective.behavior.talcondition.utils import _evaluateExpression
 from datetime import datetime
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import CAN_NOT_CREATE_FOR_PROPOSING_GROUP_ERROR
@@ -125,8 +126,8 @@ class proposing_groups_for_user_vocabulary(object):
             # try to find out if a proposingGroup is forced in the configuration
             if field_mapping[u"field_name"] == "proposingGroup":
                 try:
-                    forcedProposingGroup = ws4pmsettings.renderTALExpression(
-                        context, portal, field_mapping["expression"], vars
+                    forcedProposingGroup = _evaluateExpression(
+                        context, expression=field_mapping["expression"], extra_expr_ctx=vars
                     )
                     break
                 except Exception, e:
@@ -210,8 +211,8 @@ class categories_for_user_vocabulary(object):
             # try to find out if a proposingGroup is forced in the configuration
             if field_mapping[u"field_name"] == "category":
                 try:
-                    forcedCategory = ws4pmsettings.renderTALExpression(
-                        context, portal, field_mapping["expression"], vars
+                    forcedCategory = _evaluateExpression(
+                        context, expression=field_mapping["expression"], extra_expr_ctx=vars
                     )
                     break
                 except Exception, e:

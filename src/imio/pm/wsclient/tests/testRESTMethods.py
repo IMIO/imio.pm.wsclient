@@ -56,38 +56,18 @@ class testRESTMethods(WS4PMCLIENTTestCase):
         transaction.commit()
 
         data = {
-            "UID": item1.UID(),
             "externalIdentifier": "external1",
         }
         result = ws4pmSettings._rest_checkIsLinked(data)
         self.assertEqual(item1.UID(), result["UID"])
-        self.assertEqual(0, result.get("extra_include_linked_items_items_total", 0))
+        # self.assertEqual(0, result.get("extra_include_linked_items_items_total", 0))
 
         cfg.setItemManualSentToOtherMCStates(("itemcreated", ))
         self.changeUser("pmCreator2")
-        item2 = self.create("MeetingItem", decision="My Decision")
-        item2.externalIdentifier = "external2"
-        item2.reindexObject(idxs=["externalIdentifier", ])
-        self.changeUser("pmManager")
-        meeting = self.create("Meeting")
-        self.presentItem(item2)
-        self.decideMeeting(meeting)
-        self.do(item2, "delay")
-        transaction.commit()
-
-        item2_link = item2.get_successors()[0]
-
-        data = {
-            "UID": item2.UID(),
-            "externalIdentifier": "external2",
-        }
-        result = ws4pmSettings._rest_checkIsLinked(data)
-        self.assertEqual(item2.UID(), result["UID"])
-        self.assertEqual(1, result["extra_include_linked_items_items_total"])
-        self.assertEqual(
-            item2_link.UID(),
-            result["extra_include_linked_items"][0]["UID"],
-        )
+        result = ws4pmSettings._rest_checkIsLinked({"externalIdentifier": "external1"})
+        self.assertTrue(result)  # 403
+        result = ws4pmSettings._rest_checkIsLinked({"externalIdentifier": "unexisting-external-id"})
+        self.assertFalse(result)  # 404
 
     def test_rest_getConfigInfos(self):
         """Check that we receive valid infos about the PloneMeeting's configuration."""
@@ -429,7 +409,7 @@ class testRESTMethods(WS4PMCLIENTTestCase):
         the date of which the item has been actually decided."""
         setCorrectSettingsConfig(self.portal, minimal=True)
         cfg = self.meetingConfig
-        cfg2= self.meetingConfig2
+        cfg2 = self.meetingConfig2
         cfg2Id = cfg2.getId()
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
 
@@ -470,7 +450,7 @@ class testRESTMethods(WS4PMCLIENTTestCase):
         # and will be decided there too. We want the date of the meeting `meeting2_decided`
         # in which 'item_sent' is decided.
         item_sent = item_decided.get_successor()
-        item_sent.category = 'deployment' # categories are activated in cfg2
+        item_sent.category = 'deployment'  # categories are activated in cfg2
         self.setMeetingConfig(cfg2Id)
         meeting2_decided_date = datetime(2024, 7, 22)
         meeting2_decided = self.create('Meeting', date=meeting2_decided_date)

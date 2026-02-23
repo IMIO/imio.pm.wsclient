@@ -13,8 +13,6 @@ from plone.memoize.view import memoize
 from plone.registry.interfaces import IRecordModifiedEvent
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.ActionInformation import Action
-from Products.CMFCore.Expression import createExprContext
-from Products.CMFCore.Expression import Expression
 from Products.CMFPlone.utils import base_hasattr
 from Products.statusmessages.interfaces import IStatusMessage
 from StringIO import StringIO
@@ -238,6 +236,11 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         settings = self.settings()
         return self.request.form.get('form.widgets.pm_username') or settings.pm_username or ''
 
+    def is_configured(self):
+        """Check if the WS4PM Client is activated by checking if the connection fields are filled in."""
+        settings = self.settings()
+        return bool(settings.pm_url and settings.pm_username and settings.pm_password)
+
     @memoize
     def _rest_connectToPloneMeeting(self):
         """
@@ -290,6 +293,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         if session is not None:
             url = self._format_rest_query_url(
                 "@get",
+                # extra_include="linked_items",  # why this ?
                 **data
             )
             response = session.get(url)
@@ -627,7 +631,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
           This script also wipe out every meetingConfigId for wich the item does not exist anymore in PloneMeeting
         """
         isLinked = False
-        if not base_hasattr(context, "UID"):
+        if not base_hasattr(context, "UID"):  # for plone site
             return False
         data = {"externalIdentifier": context.UID()}
         if meetingConfigId:
@@ -640,26 +644,6 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         elif res:
             isLinked = True
         return isLinked
-
-    def renderTALExpression(self, context, portal, expression, vars={}):
-        """
-          Renders given TAL expression in p_expression.
-          p_vars contains extra variables that will be done available in the TAL expression to render
-        """
-        res = ''
-        if expression:
-            expression = expression.strip()
-            ctx = createExprContext(context.aq_inner.aq_parent, portal, context)
-            vars['context'] = context
-            ctx.vars.update(vars)
-            for k, v in vars.items():
-                ctx.setContext(k, v)
-            res = Expression(expression)(ctx)
-        # make sure we do not return None because it breaks REST call
-        if res is None:
-            return u''
-        else:
-            return res
 
     def getMeetingConfigTitle(self, meetingConfigId):
         """

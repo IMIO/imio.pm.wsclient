@@ -15,6 +15,7 @@ from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
 from mock import patch
 from Products.statusmessages.interfaces import IStatusMessage
+from zope.i18n import translate
 
 import transaction
 
@@ -28,54 +29,65 @@ class testViewlets(WS4PMCLIENTTestCase):
         """ """
         self.changeUser('admin')
         document = createDocument(self.portal)
-        # by default, no viewlet_display_condition TAL expression
         viewlet = PloneMeetingInfosViewlet(document, self.request, None, None)
         viewlet.update()
         settings = viewlet.ws4pmSettings.settings()
+        # not configured
+        self.assertFalse(viewlet.available())
+        cleanMemoize(self.request)
+        # cannot connect
+        settings.pm_url = u'http://fake-url'
+        settings.pm_username = u'fake-user'
+        settings.pm_password = u'fake-password'
+        self.assertIsInstance(viewlet.available(), tuple)
+        cleanMemoize(self.request)
+        # can connect but not linked
+        setCorrectSettingsConfig(self.portal, minimal=True)
+        self.assertFalse(viewlet.available())
+        cleanMemoize(self.request)
+        # link to PM
+        item = self._sendToPloneMeeting(document)
+        # by default, no viewlet_display_condition TAL expression
         settings.viewlet_display_condition = u''
         # no items created/linked, so the viewlet is not displayed
-        self.assertFalse(viewlet.available())
+        self.assertTrue(viewlet.available())
+        cleanMemoize(self.request)
         # viewlet is displayed depending on :
         # by default, the fact that it is linked to an item
         # or if a TAL expression is defined in the config and returns True
         # test with a defined TAL expression in the configuration
-        settings.viewlet_display_condition = u'python: True'
+        settings.viewlet_display_condition = u'python: False'
         # if a TAL expression is defined, it take precedence
-        # available is memoized so it is still False...
         self.assertFalse(viewlet.available())
-        # remove memoized informations
-        cleanMemoize(self.request, viewlet)
-        self.assertTrue(viewlet.available())
-        cleanMemoize(self.request, viewlet)
-        # now remove the TAL expression and send the object to PloneMeeting
-        settings.viewlet_display_condition = u''
-        self.assertFalse(viewlet.available())
-        cleanMemoize(self.request, viewlet)
-        item = self._sendToPloneMeeting(document)
-        # now that the element has been sent, the viewlet is available
-        self.assertTrue(viewlet.available())
-        cleanMemoize(self.request, viewlet)
+        cleanMemoize(self.request)
         # define a TAL expression taking care of the 'isLinked'
         settings.viewlet_display_condition = u'python: isLinked and object.portal_type == "wrong_value"'
         self.assertFalse(viewlet.available())
-        cleanMemoize(self.request, viewlet)
+        cleanMemoize(self.request)
         settings.viewlet_display_condition = u'python: isLinked and object.portal_type == "Document"'
         self.assertTrue(viewlet.available())
-        cleanMemoize(self.request, viewlet)
         # if the TAL expression has errors, available is False and a message is displayed
         messages = IStatusMessage(self.request)
         # by default, 2 messages already exist, these are item creation related messages
         shownMessages = messages.show()
         self.assertTrue(len(shownMessages) == 1)
         self.assertTrue(shownMessages[0].message, CORRECTLY_SENT_TO_PM_INFO)
+        cleanMemoize(self.request)
         settings.viewlet_display_condition = u'python: object.getUnexistingAttribute()'
         # in case there is a problem, a message is displayed in a tuple (msg, error_level)
-        self.assertTrue(isinstance(viewlet.available(), tuple))
-        cleanMemoize(self.request, viewlet)
+        ret = viewlet.available()
+        self.assertTrue(isinstance(ret, tuple))
+        self.assertEqual(
+            translate(ret[0], context=self.request),
+            u"Unable to display informations about the potentially linked item in PloneMeeting because there was an "
+            u"error evaluating the TAL expression 'python: object.getUnexistingAttribute()' for the field "
+            u"'viewlet_display_condition'! The error was : 'getUnexistingAttribute'.  Please contact system "
+            u"administrator.")
+        cleanMemoize(self.request)
         # now check when the linked item is removed
         settings.viewlet_display_condition = u''
         self.assertTrue(viewlet.available())
-        cleanMemoize(self.request, viewlet)
+        cleanMemoize(self.request)
         item.aq_inner.aq_parent.manage_delObjects(ids=[item.getId(), ])
         transaction.commit()
         self.assertFalse(viewlet.available())
@@ -266,7 +278,7 @@ class testViewlets(WS4PMCLIENTTestCase):
         viewlet.update()
         # now send an element to PloneMeeting and check again
         cleanMemoize(self.request, viewlet)
-        item = self._sendToPloneMeeting(document)
+        item = self._sendToPloneMeeting(document)  # noqa F841
         render = viewlet.render()
         self.assertTrue("Document title" in render)
         self.assertTrue("PloneMeeting assembly" in render)

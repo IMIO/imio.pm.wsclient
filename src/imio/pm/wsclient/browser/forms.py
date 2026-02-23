@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from AccessControl import Unauthorized
+from collective.behavior.talcondition.utils import _evaluateExpression
 from imio.pm.wsclient import PMMessageFactory as _PM
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import ALREADY_SENT_TO_PM_ERROR
@@ -372,10 +373,7 @@ class SendToPloneMeetingForm(form.Form):
             vars['proposingGroupId'] = self.proposingGroupId
             # evaluate the expression
             try:
-                data[field_name] = self.ws4pmSettings.renderTALExpression(self.context,
-                                                                          self.portal,
-                                                                          expr,
-                                                                          vars)
+                data[field_name] = _evaluateExpression(self.context, expression=expr, extra_expr_ctx=vars)
             except Exception as e:
                 IStatusMessage(self.request).addStatusMessage(
                     _(TAL_EVAL_FIELD_ERROR, mapping={'expr': expr,

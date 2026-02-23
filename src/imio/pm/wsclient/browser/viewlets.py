@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
+from collective.behavior.talcondition.utils import _evaluateExpression
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import CAN_NOT_SEE_LINKED_ITEMS_INFO
 from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR
 from imio.pm.wsclient.config import UNABLE_TO_DISPLAY_VIEWLET_ERROR
 from plone.app.layout.viewlets.common import ViewletBase
-from plone.memoize.instance import memoize
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from zope.component import getMultiAdapter
 
@@ -21,7 +21,6 @@ class PloneMeetingInfosViewlet(ViewletBase):
                                             name=u'plone_portal_state')
         self.ws4pmSettings = getMultiAdapter((self.portal_state.portal(), self.request), name='ws4pmclient-settings')
 
-    @memoize
     def available(self):
         """
           Check if the viewlet is available and needs to be shown.
@@ -30,30 +29,28 @@ class PloneMeetingInfosViewlet(ViewletBase):
           and str2 is the message type : info, error, warning).
         """
         # if we have an annotation specifying that the item was sent, we show the viewlet
-        settings = self.ws4pmSettings.settings()
+        if not self.ws4pmSettings.is_configured():
+            return False
         isLinked = self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context)
         # in case it could not connect to PloneMeeting, checkAlreadySentToPloneMeeting returns None
         if isLinked is None:
             return (_(UNABLE_TO_CONNECT_ERROR), 'error')
-        viewlet_display_condition = settings.viewlet_display_condition
-        # if we have no defined viewlet_display_condition, use the isLinked value
-        # if not viewlet_display_condition or not viewlet_display_condition.strip():
-        #     return isLinked
-        if viewlet_display_condition and viewlet_display_condition.strip():
-            # add 'isLinked' to data available in the TAL expression
-            vars = {}
-            vars['isLinked'] = isLinked
-            try:
-                res = self.ws4pmSettings.renderTALExpression(self.context,
-                                                             self.portal_state.portal(),
-                                                             settings.viewlet_display_condition,
-                                                             vars)
-                if not res:
-                    return False
-            except Exception as e:
-                return (_(UNABLE_TO_DISPLAY_VIEWLET_ERROR, mapping={'expr': settings.viewlet_display_condition,
-                                                                    'field_name': 'viewlet_display_condition',
-                                                                    'error': e}), 'error')
+        elif isLinked is False:
+            # if the item is not linked to PloneMeeting, we don't show the viewlet
+            return False
+        settings = self.ws4pmSettings.settings()
+        # add 'isLinked' to data available in the TAL expression
+        vars = {}
+        vars['isLinked'] = isLinked
+        try:
+            res = _evaluateExpression(self.context, expression=settings.viewlet_display_condition, extra_expr_ctx=vars,
+                                      raise_on_error=True)
+            if not res:
+                return False
+        except Exception as e:
+            return (_(UNABLE_TO_DISPLAY_VIEWLET_ERROR, mapping={'expr': settings.viewlet_display_condition,
+                                                                'field_name': 'viewlet_display_condition',
+                                                                'error': e}), 'error')
         # evaluate self.getPloneMeetingLinkedInfos
         self.linkedInfos = self.getPloneMeetingLinkedInfos()
         if isinstance(self.linkedInfos, tuple):
