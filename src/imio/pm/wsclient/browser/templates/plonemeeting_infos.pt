@@ -16,7 +16,7 @@
         </tal:unavailable>
         <tal:showInfos condition="python: available is True">
         <table tal:define="items view/linkedInfos;"
-               class="listing" tal:condition="python: available is True and items">
+               class="listing" tal:condition="python: items">
             <thead i18n:domain="PloneMeeting">
                <th i18n:translate="listingheader_title">Title</th>
                <th i18n:translate="creator">Creator</th>
