@@ -416,7 +416,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 in_name_of=data["inTheNameOf"],
                 type="meeting",
                 meetings_accepting_items="true",
-                fullobjects=1,
+                # fullobjects=1,
             )
             response = session.get(url)
             if response.status_code == 200:

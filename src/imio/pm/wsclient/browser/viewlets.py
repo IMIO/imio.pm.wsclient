@@ -9,6 +9,11 @@ from plone.app.layout.viewlets.common import ViewletBase
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from zope.component import getMultiAdapter
 
+import logging
+
+
+logger = logging.getLogger('imio.pm.wsclient')
+
 
 class PloneMeetingInfosViewlet(ViewletBase):
     """This viewlet display informations from PloneMeeting if the current object has been 'sent' to it.
@@ -66,7 +71,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
                 'extra_include': 'meeting,pod_templates,annexes,config',
                 'extra_include_meeting_additional_values': '*',
                 'metadata_fields': 'review_state,creators,category,preferredMeeting',
-                'fullobjects': None,
+                # 'fullobjects': None,
             }
         )[0]
 
@@ -91,6 +96,8 @@ class PloneMeetingInfosViewlet(ViewletBase):
                 },
             )
         except Exception as exc:
+            logger.error("An error occured while searching for linked items in PloneMeeting! "
+                         "The error message was : %s" % exc)
             return (_(u"An error occured while searching for linked items in PloneMeeting!  "
                       "The error message was : %s" % exc), 'error')
         # if we are here, it means that the current element is actually linked to item(s)
@@ -110,7 +117,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
 
         # sort res to comply with sent order, for example sent first to college then council
         def sortByMeetingConfigId(x, y):
-            return cmp(x["created"], y["created"])
+            return cmp(x["created"], y["created"])  # noqa F821
         res.sort(sortByMeetingConfigId, reverse=True)
         return res
 
