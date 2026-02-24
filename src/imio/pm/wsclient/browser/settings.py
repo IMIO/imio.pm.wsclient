@@ -305,7 +305,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 # item not found
                 return False
             elif response.status_code != 200:
-                return False
+                return None
             elif response.json().get("items_total") == 0:
                 return False
             return response.json()
@@ -625,8 +625,8 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
           If an item needs to be doubled in PloneMeeting, it is PloneMeeting's duty
           The script will return :
           - 'None' if could not connect to PloneMeeting
-          - True if the p_context is linked to an item of p_meetingConfigIds
-          - False if p_context is not linked to an item of p_meetingConfigIds
+          - True if the p_context is linked to an item of p_meetingConfigId
+          - False if p_context is not linked to an item of p_meetingConfigId
         """
         isLinked = False
         if not base_hasattr(context, "UID"):  # for plone site
