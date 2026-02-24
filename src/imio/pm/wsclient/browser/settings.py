@@ -305,7 +305,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 # item not found
                 return False
             elif response.status_code != 200:
-                return None
+                return False
             elif response.json().get("items_total") == 0:
                 return False
             return response.json()
