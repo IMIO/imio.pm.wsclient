@@ -5,6 +5,7 @@ from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import CAN_NOT_SEE_LINKED_ITEMS_INFO
 from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR
 from imio.pm.wsclient.config import UNABLE_TO_DISPLAY_VIEWLET_ERROR
+from operator import itemgetter
 from plone.app.layout.viewlets.common import ViewletBase
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from zope.component import getMultiAdapter
@@ -115,9 +116,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
                     res.append(self.get_item_info(linked_item))
 
         # sort res to comply with sent order, for example sent first to college then council
-        def sortByMeetingConfigId(x, y):
-            return cmp(x["created"], y["created"])  # noqa F821
-        res.sort(sortByMeetingConfigId, reverse=True)
+        res.sort(key=itemgetter("created"), reverse=True)
         return res
 
     def displayMeetingDate(self, meeting_date):
