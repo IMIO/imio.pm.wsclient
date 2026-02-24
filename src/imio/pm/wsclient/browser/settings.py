@@ -623,12 +623,10 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         """
           Check if the element has already been sent to PloneMeeting to avoid double sents
           If an item needs to be doubled in PloneMeeting, it is PloneMeeting's duty
-          If p_meetingConfigIds is empty (), then it checks every available meetingConfigId it was sent to...
           The script will return :
           - 'None' if could not connect to PloneMeeting
           - True if the p_context is linked to an item of p_meetingConfigIds
           - False if p_context is not linked to an item of p_meetingConfigIds
-          This script also wipe out every meetingConfigId for wich the item does not exist anymore in PloneMeeting
         """
         isLinked = False
         if not base_hasattr(context, "UID"):  # for plone site

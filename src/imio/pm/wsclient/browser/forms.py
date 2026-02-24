@@ -286,8 +286,10 @@ class SendToPloneMeetingForm(form.Form):
         # check again if already sent before sending
         # this avoid double sent from 2 opened form to send
         settings = self.ws4pmSettings.settings()
-        if self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context, self.meetingConfigId) and \
-                settings.only_one_sending:
+        already_sent = self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context, self.meetingConfigId)
+        if already_sent is None:
+            return False
+        if already_sent and settings.only_one_sending:
             return False
         # build the creationData
         client = self.ws4pmSettings._rest_connectToPloneMeeting()

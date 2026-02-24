@@ -96,8 +96,8 @@ class PloneMeetingInfosViewlet(ViewletBase):
                 },
             )
         except Exception as exc:
-            logger.error("An error occured while searching for linked items in PloneMeeting! "
-                         "The error message was : %s" % exc)
+            logger.exception("An error occured while searching for linked items in PloneMeeting! "
+                             "The error message was : %s" % exc)
             return (_(u"An error occured while searching for linked items in PloneMeeting!  "
                       "The error message was : %s" % exc), 'error')
         # if we are here, it means that the current element is actually linked to item(s)
