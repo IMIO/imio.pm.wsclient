@@ -95,7 +95,7 @@ class IWS4PMClientSettings(Interface):
         required=True, )
     pm_password = schema.Password(
         title=_("PloneMeeting password to use"),
-        required=True, )
+        required=False, )
     only_one_sending = schema.Bool(
         title=_("An element can be sent one time only"),
         default=True,

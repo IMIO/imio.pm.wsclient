@@ -401,9 +401,8 @@ class testRESTMethods(WS4PMCLIENTTestCase):
         )
         self.assertEqual(len(meetings), 2)
 
-        self.assertNotIn("date", meetings[0])  # without fullobjects parameter
-        # Ensure that meetings have a date (with fullobjects parameter)
-        # self.assertEqual("2013-03-03T00:00:00", meetings[0]["date"])
+        # Ensure that meetings have a date
+        self.assertEqual("2013-03-03T00:00:00", meetings[0]["date"])
 
     def test_rest_getDecidedMeetingDate(self):
         """Test the _rest_getDecidedMeetingDate method that should return
