@@ -130,7 +130,7 @@ class proposing_groups_for_user_vocabulary(object):
                         context, expression=field_mapping["expression"], extra_expr_ctx=vars
                     )
                     break
-                except Exception, e:
+                except Exception as e:
                     portal.REQUEST.set("error_in_vocabularies", True)
                     IStatusMessage(portal.REQUEST).addStatusMessage(
                         _(
@@ -215,7 +215,7 @@ class categories_for_user_vocabulary(object):
                         context, expression=field_mapping["expression"], extra_expr_ctx=vars
                     )
                     break
-                except Exception, e:
+                except Exception as e:
                     portal.REQUEST.set("error_in_vocabularies", True)
                     IStatusMessage(portal.REQUEST).addStatusMessage(
                         _(
@@ -310,21 +310,16 @@ class desired_meetingdates_vocabulary(object):
         local = pytz.timezone("Europe/Brussels")
         if not possible_meetings:
             return SimpleVocabulary([])
-        for meeting in possible_meetings:
-            meeting["date"] = datetime.strptime(meeting["date"], "%Y-%m-%dT%H:%M:%S")
-            meeting["date"] = local.localize(meeting["date"])
-            meeting['date'] = meeting['date'].astimezone(local)
         terms = []
         allowed_meetings = queryMultiAdapter((context, possible_meetings), IPreferredMeetings)
         meetings = allowed_meetings and allowed_meetings.get() or possible_meetings
         for meeting_info in meetings:
-            display_date = datetime.strftime(meeting_info["date"], "%d/%m/%Y %H:%M") \
-                if isinstance(meeting_info["date"], datetime) else meeting_info["date"]
             terms.append(
                 SimpleTerm(
                     unicode(meeting_info["UID"]),
                     unicode(meeting_info["UID"]),
-                    unicode(display_date),
+                    # unicode(meeting_info["title"]),
+                    unicode(meeting_info["formatted_date"]),
                 )
             )
         return SimpleVocabulary(terms)
