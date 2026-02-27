@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from AccessControl import Unauthorized
+from collective.behavior.talcondition.utils import _evaluateExpression
 from imio.pm.wsclient import PMMessageFactory as _PM
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import ALREADY_SENT_TO_PM_ERROR
@@ -10,7 +11,6 @@ from imio.pm.wsclient.config import NO_USER_INFOS_ERROR
 from imio.pm.wsclient.config import SEND_WITHOUT_SUFFICIENT_FIELD_MAPPINGS_DEFINED_WARNING
 from imio.pm.wsclient.config import TAL_EVAL_FIELD_ERROR
 from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR
-from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY
 from imio.pm.wsclient.events import SentToPMEvent
 from imio.pm.wsclient.events import WillbeSendToPMEvent
 from imio.pm.wsclient.interfaces import IRedirect
@@ -28,7 +28,6 @@ from z3c.form.interfaces import HIDDEN_MODE
 from z3c.form.interfaces import IFieldsAndContentProvidersForm
 from zope import interface
 from zope import schema
-from zope.annotation import IAnnotations
 from zope.browserpage.viewpagetemplatefile import ViewPageTemplateFile
 from zope.component import getAdapter
 from zope.component import getMultiAdapter
@@ -95,7 +94,8 @@ class DisplayDataToSendProvider(ContentProviderBase):
           Prepare extraAttrs and annexes to be displayed correctly.
         """
         data = self.__parent__.form._buildDataDict()
-        for data_elem in ('externalIdentifier', 'annexes', 'ignore_validation_for', 'ignore_not_used_data', '__children__'):
+        for data_elem in ('externalIdentifier', 'annexes', 'ignore_validation_for', 'ignore_not_used_data',
+                          '__children__'):
             if data_elem in data:
                 data.pop(data_elem)
         for elt in data:
@@ -179,22 +179,20 @@ class SendToPloneMeetingForm(form.Form):
         # None if could not connect
         # True if already sent
         # False if not already sent, in this case we can proceed...
-        alreadySent = self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context, (self.meetingConfigId,))
+        alreadySent = self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context, self.meetingConfigId)
         settings = self.ws4pmSettings.settings()
-        if alreadySent and settings.only_one_sending:
-            IStatusMessage(self.request).addStatusMessage(_(ALREADY_SENT_TO_PM_ERROR), "error")
+        # None means that it could not connect to PloneMeeting
+        if alreadySent is None:
+            IStatusMessage(self.request).addStatusMessage(_(UNABLE_TO_CONNECT_ERROR), "error")
             self._changeFormForErrors()
             return
-        else:
-            # None means that it was already sent but that it could not connect to PloneMeeting
-            # False means that is was not sent, so no connection test is made to PloneMeeting for performance reason
-            if alreadySent is not None:
-                # now connect to PloneMeeting
-                client = self.ws4pmSettings._rest_connectToPloneMeeting()
-            if alreadySent is None or not client:
-                IStatusMessage(self.request).addStatusMessage(_(UNABLE_TO_CONNECT_ERROR), "error")
-                self._changeFormForErrors()
-                return
+        elif alreadySent and settings.only_one_sending:
+            IStatusMessage(self.request).addStatusMessage(
+                _(ALREADY_SENT_TO_PM_ERROR,
+                  mapping={"config_name": self.ws4pmSettings.getMeetingConfigTitle(self.meetingConfigId)}),
+                "error")
+            self._changeFormForErrors()
+            return
 
         # do not go further if current user can not create an item in
         # PloneMeeting with any proposingGroup
@@ -291,8 +289,10 @@ class SendToPloneMeetingForm(form.Form):
         # check again if already sent before sending
         # this avoid double sent from 2 opened form to send
         settings = self.ws4pmSettings.settings()
-        if self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context, (self.meetingConfigId,)) and \
-                settings.only_one_sending:
+        already_sent = self.ws4pmSettings.checkAlreadySentToPloneMeeting(self.context, self.meetingConfigId)
+        if already_sent is None:
+            return False
+        if already_sent and settings.only_one_sending:
             return False
         # build the creationData
         client = self.ws4pmSettings._rest_connectToPloneMeeting()
@@ -313,16 +313,6 @@ class SendToPloneMeetingForm(form.Form):
                     # show warnings in the web interface and add it to the Zope log
                     logger.warning(warning)
                     IStatusMessage(self.request).addStatusMessage(_(warning), 'warning')
-            # finally save in the self.context annotation that the item has been sent
-            annotations = IAnnotations(self.context)
-            if WS4PMCLIENT_ANNOTATION_KEY not in annotations:
-                annotations[WS4PMCLIENT_ANNOTATION_KEY] = [self.meetingConfigId, ]
-            else:
-                # do not use .append directly on the annotations or it does not save
-                # correctly and when Zope restarts, the added annotation is lost???
-                existingAnnotations = list(annotations[WS4PMCLIENT_ANNOTATION_KEY])
-                existingAnnotations.append(self.meetingConfigId)
-                annotations[WS4PMCLIENT_ANNOTATION_KEY] = existingAnnotations
             self._finishedSent = True
 
             notify(SentToPMEvent(self.context))
@@ -388,11 +378,8 @@ class SendToPloneMeetingForm(form.Form):
             vars['proposingGroupId'] = self.proposingGroupId
             # evaluate the expression
             try:
-                data[field_name] = self.ws4pmSettings.renderTALExpression(self.context,
-                                                                          self.portal,
-                                                                          expr,
-                                                                          vars)
-            except Exception, e:
+                data[field_name] = _evaluateExpression(self.context, expression=expr, extra_expr_ctx=vars)
+            except Exception as e:
                 IStatusMessage(self.request).addStatusMessage(
                     _(TAL_EVAL_FIELD_ERROR, mapping={'expr': expr,
                                                      'field_name': field_name,

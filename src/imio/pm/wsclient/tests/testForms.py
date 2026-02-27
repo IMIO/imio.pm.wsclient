@@ -24,19 +24,16 @@
 
 from AccessControl import Unauthorized
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
-from imio.pm.wsclient.config import ALREADY_SENT_TO_PM_ERROR
 from imio.pm.wsclient.config import CORRECTLY_SENT_TO_PM_INFO
 from imio.pm.wsclient.config import NO_PROPOSING_GROUP_ERROR
 from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR
-from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import createAnnex
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import createDocument
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import SEND_TO_PM_VIEW_NAME
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
-from Products.statusmessages.interfaces import IStatusMessage
 from plone.app.testing import logout
-from zope.annotation import IAnnotations
+from Products.statusmessages.interfaces import IStatusMessage
 from zope.component import getMultiAdapter
 from zope.i18n import translate
 
@@ -65,7 +62,7 @@ class testForms(WS4PMCLIENTTestCase):
         # only available to connected users
         self.changeUser('pmCreator1')
         self._configureRequestForView(self.portal)
-        view = self.portal.restrictedTraverse(SEND_TO_PM_VIEW_NAME).form_instance
+        view = self.own_org.restrictedTraverse(SEND_TO_PM_VIEW_NAME).form_instance
         # when we can not connect, a message is displayed to the user
         messages = IStatusMessage(self.request)
         self.assertTrue(len(messages.show()) == 2)
@@ -182,16 +179,13 @@ class testForms(WS4PMCLIENTTestCase):
         # does not have the freshly created member area...
         transaction.commit()
         # before sending, the element is not linked
-        annotations = IAnnotations(document)
-        self.assertFalse(WS4PMCLIENT_ANNOTATION_KEY in annotations)
         self.assertFalse(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
                                                                            self.request.get('meetingConfigId')))
-        # send the document
+        # send the document to plonemeeting-assembly
         self.assertTrue(view._doSendToPloneMeeting())
         # is linked to one item
-        self.assertTrue(annotations[WS4PMCLIENT_ANNOTATION_KEY] == [self.request.get('meetingConfigId'), ])
         self.assertTrue(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
-                        (self.request.get('meetingConfigId'),)))
+                        self.request.get('meetingConfigId')))
         self.assertTrue(len(ws4pmSettings._rest_searchItems({'externalIdentifier': document.UID()})) == 1)
         messages = IStatusMessage(self.request)
         # there is one message saying that the item was correctly sent
@@ -203,11 +197,11 @@ class testForms(WS4PMCLIENTTestCase):
         self.assertTrue(view() == u'')
         # the item is not created again
         # is still linked to one item
-        self.assertTrue(annotations[WS4PMCLIENT_ANNOTATION_KEY] == [self.request.get('meetingConfigId'), ])
         self.assertTrue(len(ws4pmSettings._rest_searchItems({'externalIdentifier': document.UID()})) == 1)
         # a warning is displayed to the user
         self.request.response.status = 200  # if status in 300, messages are not deleted with show
-        self.assertEquals(messages.show()[-1].message, ALREADY_SENT_TO_PM_ERROR)
+        self.assertEquals(messages.show()[-1].message,
+                          u"This element has already been sent to « PloneMeeting Assembly » PloneMeeting assembly!")
         settings.only_one_sending = False
         self.assertFalse(settings.only_one_sending)
         view._finishedSent = False
@@ -224,20 +218,16 @@ class testForms(WS4PMCLIENTTestCase):
         # remove the item
         item.aq_inner.aq_parent.manage_delObjects(ids=[item.getId(), ])
         transaction.commit()
-        # checkAlreadySentToPloneMeeting will wipe out inconsistent annotations
-        # for now, annotations are inconsistent
-        self.assertTrue(annotations[WS4PMCLIENT_ANNOTATION_KEY] == [self.request.get('meetingConfigId'), ])
+        # document no more linked
         self.assertFalse(
             view.ws4pmSettings.checkAlreadySentToPloneMeeting(
                 document,
-                (self.request.get('meetingConfigId'),)))
-        # now it is consistent
-        self.assertFalse(WS4PMCLIENT_ANNOTATION_KEY in annotations)
+                self.request.get('meetingConfigId')))
         self.assertTrue(len(ws4pmSettings._rest_searchItems({'externalIdentifier': document.UID()})) == 0)
-        # the item can be sent again and will be linked to a new created item
+        # the item can be sent again in plonemeeting-assembly and will be linked to a new created item
         self.assertTrue(view._doSendToPloneMeeting())
         self.assertTrue(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
-                        (self.request.get('meetingConfigId'),)))
+                        self.request.get('meetingConfigId')))
         self.assertTrue(len(ws4pmSettings._rest_searchItems({'externalIdentifier': document.UID()})) == 1)
         # the item can also been send to another meetingConfig
         self.request.set('meetingConfigId', 'plonegov-assembly')
@@ -246,13 +236,11 @@ class testForms(WS4PMCLIENTTestCase):
         self.assertFalse(
             view.ws4pmSettings.checkAlreadySentToPloneMeeting(
                 document,
-                (self.request.get('meetingConfigId'),)))
+                self.request.get('meetingConfigId')))
         self.request.form['form.widgets.category'] = [u'deployment', ]
         self.assertTrue(view._doSendToPloneMeeting())
         self.assertTrue(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
-                        (self.request.get('meetingConfigId'),)))
-        self.assertTrue(annotations[WS4PMCLIENT_ANNOTATION_KEY] == ['plonemeeting-assembly',
-                                                                    self.request.get('meetingConfigId'), ])
+                        self.request.get('meetingConfigId')))
         # if we remove the 2 items, a call to checkAlreadySentToPloneMeeting
         # without meetingConfigs will wipeout the annotations
         transaction.commit()
@@ -263,12 +251,8 @@ class testForms(WS4PMCLIENTTestCase):
         item1.aq_inner.aq_parent.manage_delObjects(ids=[item1.getId(), ])
         item2.aq_inner.aq_parent.manage_delObjects(ids=[item2.getId(), ])
         transaction.commit()
-        # annotations are still messed up
-        self.assertTrue(annotations[WS4PMCLIENT_ANNOTATION_KEY] == ['plonemeeting-assembly',
-                                                                    self.request.get('meetingConfigId'), ])
         # wipe out annotations
         view.ws4pmSettings.checkAlreadySentToPloneMeeting(document)
-        self.assertFalse(WS4PMCLIENT_ANNOTATION_KEY in annotations)
 
     def _configureRequestForView(self, obj):
         """Helper method that configure the request values so the view to test works..."""
@@ -278,7 +262,8 @@ class testForms(WS4PMCLIENTTestCase):
 
 
 def test_suite():
-    from unittest import TestSuite, makeSuite
+    from unittest import makeSuite
+    from unittest import TestSuite
     suite = TestSuite()
     # add a prefix because we heritate from testMeeting and we do not want every tests of testMeeting to be run here...
     suite.addTest(makeSuite(testForms, prefix='test_'))

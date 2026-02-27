@@ -4,8 +4,8 @@ Changelog
 2.0.8 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Removed WS4PMCLIENT_ANNOTATION_KEY annotation key and simplified settings, viewlets, etc.
+  [sgeulette,gbastien]
 
 2.0.7 (2026-02-03)
 ------------------

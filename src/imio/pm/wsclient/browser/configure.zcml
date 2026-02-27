@@ -75,13 +75,13 @@
       />
 
     <!-- Viewlets -->
-    <browser:viewlet
+    <!--browser:viewlet
         name="imio.pm.wsclient.pminfos"
         layer="imio.pm.wsclient.interfaces.IWS4PMClientLayer"
         manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
         class=".viewlets.PloneMeetingInfosViewlet"
         permission="ws.client.Access"
-        />
+        /-->
 
     <!-- Vocabularies -->
     <utility
