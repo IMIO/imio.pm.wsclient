@@ -24,7 +24,6 @@
 
 from AccessControl import Unauthorized
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
-from imio.pm.wsclient.config import ALREADY_SENT_TO_PM_ERROR
 from imio.pm.wsclient.config import CORRECTLY_SENT_TO_PM_INFO
 from imio.pm.wsclient.config import NO_PROPOSING_GROUP_ERROR
 from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR
@@ -182,7 +181,7 @@ class testForms(WS4PMCLIENTTestCase):
         # before sending, the element is not linked
         self.assertFalse(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
                                                                            self.request.get('meetingConfigId')))
-        # send the document
+        # send the document to plonemeeting-assembly
         self.assertTrue(view._doSendToPloneMeeting())
         # is linked to one item
         self.assertTrue(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
@@ -201,7 +200,8 @@ class testForms(WS4PMCLIENTTestCase):
         self.assertTrue(len(ws4pmSettings._rest_searchItems({'externalIdentifier': document.UID()})) == 1)
         # a warning is displayed to the user
         self.request.response.status = 200  # if status in 300, messages are not deleted with show
-        self.assertEquals(messages.show()[-1].message, ALREADY_SENT_TO_PM_ERROR)
+        self.assertEquals(messages.show()[-1].message,
+                          u"This element has already been sent to « PloneMeeting assembly » PloneMeeting assembly!")
         settings.only_one_sending = False
         self.assertFalse(settings.only_one_sending)
         view._finishedSent = False
@@ -218,15 +218,13 @@ class testForms(WS4PMCLIENTTestCase):
         # remove the item
         item.aq_inner.aq_parent.manage_delObjects(ids=[item.getId(), ])
         transaction.commit()
-        # checkAlreadySentToPloneMeeting will wipe out inconsistent annotations
-        # for now, annotations are inconsistent
+        # document no more linked
         self.assertFalse(
             view.ws4pmSettings.checkAlreadySentToPloneMeeting(
                 document,
                 self.request.get('meetingConfigId')))
-        # now it is consistent
         self.assertTrue(len(ws4pmSettings._rest_searchItems({'externalIdentifier': document.UID()})) == 0)
-        # the item can be sent again and will be linked to a new created item
+        # the item can be sent again in plonemeeting-assembly and will be linked to a new created item
         self.assertTrue(view._doSendToPloneMeeting())
         self.assertTrue(view.ws4pmSettings.checkAlreadySentToPloneMeeting(document,
                         self.request.get('meetingConfigId')))

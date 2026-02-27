@@ -47,7 +47,7 @@ msgstr "Un id d'annexe est obligatoire pour la downloader!"
 #. Default: "An element can be sent one time only"
 #: ../browser/settings.py:103
 msgid "An element can be sent one time only"
-msgstr "Un élément ne peut être envoyé qu'une seule fois"
+msgstr "Un élément ne peut être envoyé qu'une seule fois par séance"
 
 #. Default: "An error occured during the item creation in PloneMeeting! The error message was : ${error}"
 #: ../config.py:32
@@ -292,10 +292,10 @@ msgstr "Il n'y a pas eu de message d'avertissement durant la création du point.
 msgid "There was an error evaluating the TAL expression '${expr}' for the field '${field_name}'! The error was : ${error}. Please contact system administrator."
 msgstr "Une erreur s'est produite lors de l'évaluation de l'expression TAL '${expr} pour le champ '${field_name}'!  L'erreur est : ${error}.  Contactez votre administrateur système."
 
-#. Default: "This element has already been sent to PloneMeeting!"
+#. Default: "This element has already been sent to ${config_name} PloneMeeting assembly!"
 #: ../config.py:14
-msgid "This element has already been sent to PloneMeeting!"
-msgstr "Cet élément a déjà été envoyé vers iA.Delib!"
+msgid "This element has already been sent to ${config_name} PloneMeeting assembly!"
+msgstr "Cet élément a déjà été envoyé vers la séance « ${config_name} » d'iA.Delib!"
 
 #. Default: "This element is linked to item(s) in PloneMeeting but your are not allowed to see it."
 #: ../config.py:10

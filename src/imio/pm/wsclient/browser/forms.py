@@ -187,7 +187,10 @@ class SendToPloneMeetingForm(form.Form):
             self._changeFormForErrors()
             return
         elif alreadySent and settings.only_one_sending:
-            IStatusMessage(self.request).addStatusMessage(_(ALREADY_SENT_TO_PM_ERROR), "error")
+            IStatusMessage(self.request).addStatusMessage(
+                _(ALREADY_SENT_TO_PM_ERROR,
+                  mapping={"config_name": self.ws4pmSettings.getMeetingConfigTitle(self.meetingConfigId)}),
+                "error")
             self._changeFormForErrors()
             return
 

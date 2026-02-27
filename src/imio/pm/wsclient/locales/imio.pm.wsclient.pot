@@ -259,7 +259,7 @@ msgid "There was an error evaluating the TAL expression '${expr}' for the field 
 msgstr ""
 
 #: ../config.py:14
-msgid "This element has already been sent to PloneMeeting!"
+msgid "This element has already been sent to ${config_name} PloneMeeting assembly!"
 msgstr ""
 
 #: ../config.py:10
