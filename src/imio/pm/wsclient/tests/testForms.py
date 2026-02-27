@@ -201,7 +201,7 @@ class testForms(WS4PMCLIENTTestCase):
         # a warning is displayed to the user
         self.request.response.status = 200  # if status in 300, messages are not deleted with show
         self.assertEquals(messages.show()[-1].message,
-                          u"This element has already been sent to « PloneMeeting assembly » PloneMeeting assembly!")
+                          u"This element has already been sent to « PloneMeeting Assembly » PloneMeeting assembly!")
         settings.only_one_sending = False
         self.assertFalse(settings.only_one_sending)
         view._finishedSent = False
