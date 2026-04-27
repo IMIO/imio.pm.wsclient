@@ -2,15 +2,20 @@
 
 from datetime import datetime
 from imio.pm.ws.config import POD_TEMPLATE_ID_PATTERN
+from imio.pm.wsclient.config import CONFIG_UNABLE_TO_CONNECT_ERROR
+from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import cleanMemoize
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import setCorrectSettingsConfig
 from imio.pm.wsclient.tests.WS4PMCLIENTTestCase import WS4PMCLIENTTestCase
+from mock import MagicMock
+from mock import patch
 from plone import api
 from Products.Archetypes.event import ObjectEditedEvent
 from Products.statusmessages.interfaces import IStatusMessage
 from zope.component import getMultiAdapter
 from zope.event import notify
 
+import requests as requests_module
 import transaction
 
 
@@ -19,24 +24,36 @@ class testRESTMethods(WS4PMCLIENTTestCase):
         Tests the browser.settings REST client methods
     """
 
+    def setUp(self):
+        super(testRESTMethods, self).setUp()
+        IStatusMessage(self.request).show()  # drain messages added by test env setup
+
     def test_rest_connectToPloneMeeting(self):
-        """Check that we can actually connect to PloneMeeting with given parameters."""
+        """Check that _rest_connectToPloneMeeting returns a session when configured and None when not.
+        """
         ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
         settings = ws4pmSettings.settings()
         setCorrectSettingsConfig(self.portal, minimal=True)
-        # with valid informations, we can connect to PloneMeeting SOAP webservices
-        self.failUnless(ws4pmSettings._rest_connectToPloneMeeting())
-        # if either url or username/password is not valid, we can not connect...
+        # with valid settings, an authenticated session is returned
+        session = ws4pmSettings._rest_connectToPloneMeeting()
+        self.assertIsInstance(session, requests_module.Session)
+        self.assertEqual(session.auth[0], settings.pm_username)
+        # not configured: empty url returns None
         valid_url = settings.pm_url
-        settings.pm_url = settings.pm_url + 'invalidEndOfURL'
+        settings.pm_url = u''
         cleanMemoize(self.request)
-        # with invalid url, it fails...
-        self.failIf(ws4pmSettings._rest_connectToPloneMeeting())
+        self.assertIsNone(ws4pmSettings._rest_connectToPloneMeeting())
+        # not configured: empty username returns None
         settings.pm_url = valid_url
-        # with valid url but wrong password, it fails...
-        settings.pm_password = u'wrongPassword'
+        valid_username = settings.pm_username
+        settings.pm_username = u''
         cleanMemoize(self.request)
-        self.failIf(ws4pmSettings._rest_connectToPloneMeeting())
+        self.assertIsNone(ws4pmSettings._rest_connectToPloneMeeting())
+        # not configured: empty password returns None
+        settings.pm_username = valid_username
+        settings.pm_password = u''
+        cleanMemoize(self.request)
+        self.assertIsNone(ws4pmSettings._rest_connectToPloneMeeting())
 
     def test_rest_checkIsLinked(self):
         """Verify that we can get link informations"""
@@ -473,6 +490,68 @@ class testRESTMethods(WS4PMCLIENTTestCase):
             ),
             meeting_decided_date
         )
+
+    def test_with_pm_session(self):
+        """with_pm_session catches requests.RequestException and returns the configured empty_return."""
+        setCorrectSettingsConfig(self.portal, minimal=True)
+        ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
+        with patch('requests.Session.get', side_effect=requests_module.ConnectionError("connection timeout")):
+            cleanMemoize(self.request)
+            # default empty_return is None
+            self.assertIsNone(ws4pmSettings._rest_checkIsLinked({'inTheNameOf': 'pmCreator1'}))
+            # methods that declare empty_return=[] return that instead
+            cleanMemoize(self.request)
+            self.assertEqual(
+                ws4pmSettings._rest_searchItems(
+                    {'meetingConfigId': 'plonemeeting-assembly', 'inTheNameOf': 'pmCreator1'}
+                ),
+                []
+            )
+
+    def test_handle_rest_error(self):
+        """_handle_rest_error always adds an error status message"""
+        setCorrectSettingsConfig(self.portal, minimal=True)
+        ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
+        # not on the settings panel: generic message without error detail
+        with patch('requests.Session.get', side_effect=requests_module.ConnectionError("bad credentials")):
+            cleanMemoize(self.request)
+            ws4pmSettings._rest_checkIsLinked({'inTheNameOf': 'pmCreator1'})
+        messages = IStatusMessage(self.request).show()
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0].type, 'error')
+        self.assertEqual(messages[0].message, UNABLE_TO_CONNECT_ERROR)
+        # on the settings panel: detailed message including the error text
+        self.request.set('URL', self.portal.absolute_url() + '/@@ws4pmclient-settings')
+        with patch('requests.Session.get', side_effect=requests_module.ConnectionError("bad credentials")):
+            cleanMemoize(self.request)
+            ws4pmSettings._rest_checkIsLinked({'inTheNameOf': 'pmCreator1'})
+        messages = IStatusMessage(self.request).show()
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0].type, 'error')
+        self.assertEqual(messages[0].message,
+                         u'Unable to connect to PloneMeeting! The error message was : bad credentials!')
+
+    def test_rest_checkConnection(self):
+        """_rest_checkConnection probes PloneMeeting and surfaces errors via _handle_rest_error."""
+        setCorrectSettingsConfig(self.portal, minimal=True)
+        ws4pmSettings = getMultiAdapter((self.portal, self.request), name='ws4pmclient-settings')
+        self.request.set('URL', self.portal.absolute_url() + '/@@ws4pmclient-settings')
+        # non-200 response raises and routes to _handle_rest_error
+        mock_response = MagicMock()
+        mock_response.status_code = 401
+        mock_response.content = b''
+        with patch('requests.Session.get', return_value=mock_response):
+            cleanMemoize(self.request)
+            ws4pmSettings._rest_checkConnection()
+        messages = IStatusMessage(self.request).show()
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0].type, 'error')
+        # 200 response: no error message
+        mock_response.status_code = 200
+        with patch('requests.Session.get', return_value=mock_response):
+            cleanMemoize(self.request)
+            ws4pmSettings._rest_checkConnection()
+        self.assertEqual(len(IStatusMessage(self.request).show()), 0)
 
 
 def test_suite():

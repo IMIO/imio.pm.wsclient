@@ -295,8 +295,7 @@ class SendToPloneMeetingForm(form.Form):
         if already_sent and settings.only_one_sending:
             return False
         # build the creationData
-        client = self.ws4pmSettings._rest_connectToPloneMeeting()
-        creation_data = self._getCreationData(client)
+        creation_data = self._getCreationData()
 
         notify(WillbeSendToPMEvent(self.context))
 
@@ -320,7 +319,7 @@ class SendToPloneMeetingForm(form.Form):
             return True
         return False
 
-    def _getCreationData(self, client):
+    def _getCreationData(self):
         """
           Build creationData dict that will be used to actually create
           the item in PloneMeeting thru REST createItem call
