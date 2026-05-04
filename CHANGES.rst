@@ -6,6 +6,9 @@ Changelog
 
 - Removed WS4PMCLIENT_ANNOTATION_KEY annotation key and simplified settings, viewlets, etc.
   [sgeulette,gbastien]
+- Fixed duplicate HTTP queries.
+  [chris-adam]
+
 
 2.0.7 (2026-02-03)
 ------------------
