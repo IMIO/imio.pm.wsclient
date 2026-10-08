@@ -27,12 +27,25 @@ SUITE_LAYERS = {}
 
 
 def test_suite():
-    os.environ.setdefault('ROBOT_PLONE_MAJOR', version('Products.CMFPlone').split('.')[0])
+    os.environ.setdefault(
+        "ROBOT_PLONE_MAJOR", version("Products.CMFPlone").split(".")[0]
+    )
     suite = unittest.TestSuite()
-    robot_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'robot')
+    robot_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "robot")
     for name in sorted(os.listdir(robot_dir)):
-        if name.startswith('test_') and name.endswith('.robot'):
-            tests = [test for test in robotsuite.RobotTestSuite(os.path.join('robot', name))
-                     if os.environ['ROBOT_PLONE_MAJOR'] == '4' or 'plone4-only' not in (test._tags or [])]
-            suite.addTests([layered(unittest.TestSuite(tests), layer=SUITE_LAYERS.get(name, ACCEPTANCE))])
+        if name.startswith("test_") and name.endswith(".robot"):
+            tests = [
+                test
+                for test in robotsuite.RobotTestSuite(os.path.join("robot", name))
+                if os.environ["ROBOT_PLONE_MAJOR"] == "4"
+                or "plone4-only" not in (test._tags or [])
+            ]
+            suite.addTests(
+                [
+                    layered(
+                        unittest.TestSuite(tests),
+                        layer=SUITE_LAYERS.get(name, ACCEPTANCE),
+                    )
+                ]
+            )
     return suite

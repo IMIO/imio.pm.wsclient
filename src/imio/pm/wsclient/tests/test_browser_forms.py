@@ -5,7 +5,9 @@ from datetime import datetime
 from imio.pm.wsclient.config import ALREADY_SENT_TO_PM_ERROR
 from imio.pm.wsclient.config import CORRECTLY_SENT_TO_PM_INFO
 from imio.pm.wsclient.config import NO_PROPOSING_GROUP_ERROR
-from imio.pm.wsclient.config import SEND_WITHOUT_SUFFICIENT_FIELD_MAPPINGS_DEFINED_WARNING
+from imio.pm.wsclient.config import (
+    SEND_WITHOUT_SUFFICIENT_FIELD_MAPPINGS_DEFINED_WARNING,
+)
 from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR
 from imio.pm.wsclient.config import WS4PMCLIENT_ANNOTATION_KEY
 from imio.pm.wsclient.interfaces import ISentToPMEvent
@@ -26,7 +28,6 @@ import unittest
 
 
 class TestDisplayDataToSendProvider(WS4PMClientTestCase):
-
     def provider(self, obj):
         view = self.send_form(obj)
         view.update()
@@ -42,11 +43,19 @@ class TestDisplayDataToSendProvider(WS4PMClientTestCase):
         self.assertEqual(self.messages(), [])
         # extraAttrs and no title mapping
         self.settings.field_mappings = [
-            {"field_name": u"extraAttrs", "expression": u"python: [{'key': 'internalNotes', 'value': '<p>Notes</p>'}]"}]
+            {
+                "field_name": u"extraAttrs",
+                "expression": u"python: [{'key': 'internalNotes', 'value': '<p>Notes</p>'}]",
+            }
+        ]
         data = self.provider(document).getDisplayableData()
-        self.assertEqual(data["extraAttrs"],
-                         "<fieldset><legend>PloneMeeting_label_internalNotes</legend><p>Notes</p></fieldset>")
-        self.assertEqual(self.messages(), [SEND_WITHOUT_SUFFICIENT_FIELD_MAPPINGS_DEFINED_WARNING])
+        self.assertEqual(
+            data["extraAttrs"],
+            "<fieldset><legend>PloneMeeting_label_internalNotes</legend><p>Notes</p></fieldset>",
+        )
+        self.assertEqual(
+            self.messages(), [SEND_WITHOUT_SUFFICIENT_FIELD_MAPPINGS_DEFINED_WARNING]
+        )
 
     def test_render(self):
         html = self.provider(self.create_document()).render()
@@ -56,7 +65,6 @@ class TestDisplayDataToSendProvider(WS4PMClientTestCase):
 
 
 class TestSendToPloneMeetingForm(WS4PMClientTestCase):
-
     def setUp(self):
         super(TestSendToPloneMeetingForm, self).setUp()
         self.document = self.create_document()
@@ -70,7 +78,9 @@ class TestSendToPloneMeetingForm(WS4PMClientTestCase):
         logout()
         self.assertRaises(Unauthorized, self.send_form, self.document)
         login(self.portal, "pmCreator1")
-        self.assertEqual(self.send_form(self.document).label, u"Send to PloneMeeting assembly")
+        self.assertEqual(
+            self.send_form(self.document).label, u"Send to PloneMeeting assembly"
+        )
 
     def test_handleSendToPloneMeeting(self):
         # the form is shown, nothing is sent
@@ -94,33 +104,59 @@ class TestSendToPloneMeetingForm(WS4PMClientTestCase):
         self.assertEqual(item["decision"], u"<p>Document description</p>")
         self.assertEqual(item["category"], u"")
         self.assertEqual(item["annexes"], [])
-        self.assertEqual(IAnnotations(self.document)[WS4PMCLIENT_ANNOTATION_KEY], ["plonemeeting-assembly"])
-        self.assertEqual(self.request.response.getHeader("location"), "{0}/@@redirect_view?url={1}".format(
-            self.portal.absolute_url(), self.document.absolute_url()))
+        self.assertEqual(
+            IAnnotations(self.document)[WS4PMCLIENT_ANNOTATION_KEY],
+            ["plonemeeting-assembly"],
+        )
+        self.assertEqual(
+            self.request.response.getHeader("location"),
+            "{0}/@@redirect_view?url={1}".format(
+                self.portal.absolute_url(), self.document.absolute_url()
+            ),
+        )
         # with a category, a preferred meeting and the files of a folder
         folder = api.content.create(container=self.portal, type="Folder", title=u"Mail")
         annex = self.create_file(folder)
         meeting = FAKE_PM.add_meeting(u"plonegov-assembly", datetime(2013, 3, 3))
-        item = self.send_to_pm(folder, "plonegov-assembly", **{
-            "form.widgets.category": [u"deployment"], "form.widgets.preferredMeeting": [meeting["UID"]],
-            "form.widgets.annexes": [annex.UID()]})
+        item = self.send_to_pm(
+            folder,
+            "plonegov-assembly",
+            **{
+                "form.widgets.category": [u"deployment"],
+                "form.widgets.preferredMeeting": [meeting["UID"]],
+                "form.widgets.annexes": [annex.UID()],
+            }
+        )
         self.assertEqual(item["category"], u"deployment")
         self.assertEqual(item["preferredMeeting"], meeting["UID"])
-        self.assertEqual([annex_info["id"] for annex_info in item["annexes"]], [u"annexe-oubliee.txt"])
-        self.assertEqual(FAKE_PM.files[item["annexes"][0]["file"]["download"]], b"hello\n")
+        self.assertEqual(
+            [annex_info["id"] for annex_info in item["annexes"]],
+            [u"annexe-oubliee.txt"],
+        )
+        self.assertEqual(
+            FAKE_PM.files[item["annexes"][0]["file"]["download"]], b"hello\n"
+        )
 
     def test_handleCancel(self):
         self.request.form["form.buttons.cancel"] = "Cancel"
         self.assertEqual(self.send_form(self.document)(), "")
         self.assertEqual(FAKE_PM.items, [])
-        self.assertEqual(self.request.response.getHeader("location"), "{0}/@@redirect_view?url={1}".format(
-            self.portal.absolute_url(), self.document.absolute_url()))
+        self.assertEqual(
+            self.request.response.getHeader("location"),
+            "{0}/@@redirect_view?url={1}".format(
+                self.portal.absolute_url(), self.document.absolute_url()
+            ),
+        )
         # in the overlay
         self.request.response.setStatus(200)
         self.request.form["ajax_load"] = "1234"
         self.assertEqual(self.send_form(self.document)(), "")
-        self.assertEqual(self.request.response.getHeader("location"), "{0}/@@redirect_view?ajax_load=1234&url={1}"
-                         .format(self.portal.absolute_url(), self.document.absolute_url()))
+        self.assertEqual(
+            self.request.response.getHeader("location"),
+            "{0}/@@redirect_view?ajax_load=1234&url={1}".format(
+                self.portal.absolute_url(), self.document.absolute_url()
+            ),
+        )
 
     def test_update(self):
         view = self.send_form(self.document)
@@ -145,7 +181,10 @@ class TestSendToPloneMeetingForm(WS4PMClientTestCase):
         users = dict(FAKE_PM.users)
         del FAKE_PM.users[u"pmCreator1"]
         self.assertEqual(self.send_form(self.document)(), "")
-        self.assertEqual(self.messages(), [u"Could not get userInfos in PloneMeeting for user 'pmCreator1'!"])
+        self.assertEqual(
+            self.messages(),
+            [u"Could not get userInfos in PloneMeeting for user 'pmCreator1'!"],
+        )
         del self.request.other["error_in_vocabularies"]
         # the user is not a creator: no proposing group to choose
         FAKE_PM.users = users
@@ -158,10 +197,16 @@ class TestSendToPloneMeetingForm(WS4PMClientTestCase):
         FAKE_PM.users[u"pmCreator1"]["groups"] = [u"developers_creators"]
         self.clean_memoize()
         # the URL of an action that is not available to the user
-        self.assertRaises(Unauthorized, self.send_form(self.document, "wrong-meeting-config-id"))
+        self.assertRaises(
+            Unauthorized, self.send_form(self.document, "wrong-meeting-config-id")
+        )
         login(self.portal, "pmCreator1")
-        self.assertRaises(Unauthorized, self.send_form(self.document, "plonegov-assembly"))
-        self.assertIn("form-buttons-send_to_plonemeeting", self.send_form(self.document)())
+        self.assertRaises(
+            Unauthorized, self.send_form(self.document, "plonegov-assembly")
+        )
+        self.assertIn(
+            "form-buttons-send_to_plonemeeting", self.send_form(self.document)()
+        )
         # already sent, the form is only shown again if an element can be sent several times
         login(self.portal, TEST_USER_NAME)
         self.send_to_pm(self.document)
@@ -169,7 +214,9 @@ class TestSendToPloneMeetingForm(WS4PMClientTestCase):
         self.assertEqual(self.send_form(self.document)(), "")
         self.assertEqual(self.messages(), [ALREADY_SENT_TO_PM_ERROR])
         self.settings.only_one_sending = False
-        self.assertIn("form-buttons-send_to_plonemeeting", self.send_form(self.document)())
+        self.assertIn(
+            "form-buttons-send_to_plonemeeting", self.send_form(self.document)()
+        )
         self.assertEqual(self.messages(), [])
 
     def test_check_if_all_annexes_selection(self):
@@ -190,14 +237,20 @@ class TestSendToPloneMeetingForm(WS4PMClientTestCase):
         self.assertEqual(view.widgets["annexes"].mode, "hidden")
         # the category forced by the field mappings, the files of a folder selected by default
         folder = api.content.create(container=self.portal, type="Folder", title=u"Mail")
-        annexes = [self.create_file(folder, title=title) for title in (u"Annex 1", u"Annex 2")]
+        annexes = [
+            self.create_file(folder, title=title) for title in (u"Annex 1", u"Annex 2")
+        ]
         view = self.send_form(folder, "plonegov-assembly")
         view.update()
         self.assertEqual(view.widgets["category"].mode, "input")
         self.assertTrue(view.widgets["category"].field.required)
-        self.assertEqual([term.value for term in view.widgets["category"].terms], [u"deployment"])
+        self.assertEqual(
+            [term.value for term in view.widgets["category"].terms], [u"deployment"]
+        )
         self.assertEqual(view.widgets["annexes"].mode, "input")
-        self.assertEqual(view.widgets["annexes"].value, [annex.UID() for annex in annexes])
+        self.assertEqual(
+            view.widgets["annexes"].value, [annex.UID() for annex in annexes]
+        )
         self.settings.select_all_attachments_by_default = False
         view = self.send_form(folder, "plonegov-assembly")
         view.update()
@@ -209,8 +262,12 @@ class TestSendToPloneMeetingForm(WS4PMClientTestCase):
         self.assertIn("form-buttons-send_to_plonemeeting", view.render())
         view._finishedSent = True
         self.assertEqual(view.render(), "")
-        self.assertEqual(self.request.response.getHeader("location"), "{0}/@@redirect_view?url={1}".format(
-            self.portal.absolute_url(), self.document.absolute_url()))
+        self.assertEqual(
+            self.request.response.getHeader("location"),
+            "{0}/@@redirect_view?url={1}".format(
+                self.portal.absolute_url(), self.document.absolute_url()
+            ),
+        )
 
     def test__findMeetingConfigId(self):
         view = self.send_form(self.document, "plonegov-assembly")
@@ -248,8 +305,10 @@ class TestSendToPloneMeetingForm(WS4PMClientTestCase):
         # or several times
         self.settings.only_one_sending = False
         self.assertTrue(view._doSendToPloneMeeting())
-        self.assertEqual(IAnnotations(self.document)[WS4PMCLIENT_ANNOTATION_KEY],
-                         ["plonemeeting-assembly", "plonemeeting-assembly"])
+        self.assertEqual(
+            IAnnotations(self.document)[WS4PMCLIENT_ANNOTATION_KEY],
+            ["plonemeeting-assembly", "plonemeeting-assembly"],
+        )
         # a proposing group the user can not use: PloneMeeting refuses the item
         view.proposingGroupId = u"vendors"
         self.assertFalse(view._doSendToPloneMeeting())
@@ -260,32 +319,59 @@ class TestSendToPloneMeetingForm(WS4PMClientTestCase):
     def test__doSendToPloneMeeting_warnings(self):
         """Master bug: the warnings of PloneMeeting are never shown to a Manager ('@warnings' in the answer)."""
         self.settings.field_mappings = list(self.settings.field_mappings) + [
-            {"field_name": u"ignore_validation_for", "expression": u"string:category"}]
+            {"field_name": u"ignore_validation_for", "expression": u"string:category"}
+        ]
         view = self.send_form(self.document, "plonegov-assembly")
         view.proposingGroupId = u"developers"
         self.assertTrue(view._doSendToPloneMeeting())
-        self.assertIn(u"Validation was ignored for following fields: category.", self.messages())
+        self.assertIn(
+            u"Validation was ignored for following fields: category.", self.messages()
+        )
 
     def test__getCreationData(self):
         view = self.send_form(self.document)
         data = view._getCreationData(None)
-        self.assertEqual(data, {
-            "__children__": [], "category": u"", "decision": u"<p>Document description</p>",
-            "description": u"Document description", "externalIdentifier": self.document.UID(),
-            "title": u"Document title"})
+        self.assertEqual(
+            data,
+            {
+                "__children__": [],
+                "category": u"",
+                "decision": u"<p>Document description</p>",
+                "description": u"Document description",
+                "externalIdentifier": self.document.UID(),
+                "title": u"Document title",
+            },
+        )
 
     def test__buildDataDict(self):
         view = self.send_form(self.document)
-        self.request.form.update({"form.widgets.preferredMeeting": ["--NOVALUE--"],
-                                  "form.widgets.category": ["--NOVALUE--"]})
+        self.request.form.update(
+            {
+                "form.widgets.preferredMeeting": ["--NOVALUE--"],
+                "form.widgets.category": ["--NOVALUE--"],
+            }
+        )
         data = view._buildDataDict()
-        self.assertEqual(list(data), ["__children__", "category", "title", "description", "decision",
-                                      "externalIdentifier"])
+        self.assertEqual(
+            list(data),
+            [
+                "__children__",
+                "category",
+                "title",
+                "description",
+                "decision",
+                "externalIdentifier",
+            ],
+        )
         self.assertEqual(data["category"], u"")
         # the category of the form when the config uses categories, a preferred meeting
         view = self.send_form(self.document, "plonegov-assembly")
-        self.request.form.update({"form.widgets.preferredMeeting": ["meeting-uid"],
-                                  "form.widgets.category": ["deployment"]})
+        self.request.form.update(
+            {
+                "form.widgets.preferredMeeting": ["meeting-uid"],
+                "form.widgets.category": ["deployment"],
+            }
+        )
         data = view._buildDataDict()
         self.assertEqual(data["preferredMeeting"], "meeting-uid")
         self.assertEqual(data["category"], "deployment")
@@ -294,10 +380,15 @@ class TestSendToPloneMeetingForm(WS4PMClientTestCase):
     def test__buildDataDict_wrong_expression(self):
         """Master bug: on a TAL error, _buildDataDict returns the redirect URL instead of
         the data and the form crashes (TypeError in DisplayDataToSendProvider)."""
-        self.settings.field_mappings = [{"field_name": u"title", "expression": u"python: object.unknown()"}]
+        self.settings.field_mappings = [
+            {"field_name": u"title", "expression": u"python: object.unknown()"}
+        ]
         self.send_form(self.document)()
-        self.assertIn(u"There was an error evaluating the TAL expression 'python: object.unknown()' for "
-                      u"the field 'title'!", self.messages()[0])
+        self.assertIn(
+            u"There was an error evaluating the TAL expression 'python: object.unknown()' for "
+            u"the field 'title'!",
+            self.messages()[0],
+        )
 
     def test__buildAnnexesData(self):
         folder = api.content.create(container=self.portal, type="Folder", title=u"Mail")
@@ -305,18 +396,32 @@ class TestSendToPloneMeetingForm(WS4PMClientTestCase):
         view = self.send_form(folder)
         self.assertEqual(view._buildAnnexesData(), [])
         self.request.form["form.widgets.annexes"] = [annex.UID(), "unknown-uid"]
-        self.assertEqual(view._buildAnnexesData(), [{
-            "@type": "annex", "title": u"Annexe oubliee",
-            "file": {"filename": u"annexe oubliee.txt", "data": base64.b64encode(b"hello\n").decode("ascii")}}])
+        self.assertEqual(
+            view._buildAnnexesData(),
+            [
+                {
+                    "@type": "annex",
+                    "title": u"Annexe oubliee",
+                    "file": {
+                        "filename": u"annexe oubliee.txt",
+                        "data": base64.b64encode(b"hello\n").decode("ascii"),
+                    },
+                }
+            ],
+        )
 
     def test__getCategoriesVocab(self):
         self.assertEqual(len(self.send_form(self.document)._getCategoriesVocab()), 0)
         view = self.send_form(self.document, "plonegov-assembly")
-        self.assertEqual([term.value for term in view._getCategoriesVocab()], [u"deployment"])
+        self.assertEqual(
+            [term.value for term in view._getCategoriesVocab()], [u"deployment"]
+        )
 
     def test__getProposingGroupsVocab(self):
         view = self.send_form(self.document)
-        self.assertEqual([term.title for term in view._getProposingGroupsVocab()], [u"Developers"])
+        self.assertEqual(
+            [term.title for term in view._getProposingGroupsVocab()], [u"Developers"]
+        )
 
     def test__changeFormForErrors(self):
         view = self.send_form(self.document)

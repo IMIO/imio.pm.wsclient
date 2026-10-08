@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 """browser/vocabularies.py: values queried in PloneMeeting (F9)."""
 from datetime import datetime
-from imio.pm.wsclient.browser.vocabularies import desired_meetingdates_vocabulary__call___cachekey
+from imio.pm.wsclient.browser.vocabularies import (
+    desired_meetingdates_vocabulary__call___cachekey,
+)
 from imio.pm.wsclient.config import CAN_NOT_CREATE_FOR_PROPOSING_GROUP_ERROR
 from imio.pm.wsclient.config import CAN_NOT_CREATE_WITH_CATEGORY_ERROR
 from imio.pm.wsclient.config import NO_CONFIG_INFOS_ERROR
@@ -49,8 +51,13 @@ class TestPmMeetingConfigIdVocabulary(VocabularyTestCase):
     name = u"imio.pm.wsclient.pm_meeting_config_id_vocabulary"
 
     def test___call__(self):
-        self.assertEqual(self.terms(), [(u"plonemeeting-assembly", u"PloneMeeting assembly"),
-                                        (u"plonegov-assembly", u"PloneGov assembly")])
+        self.assertEqual(
+            self.terms(),
+            [
+                (u"plonemeeting-assembly", u"PloneMeeting assembly"),
+                (u"plonegov-assembly", u"PloneGov assembly"),
+            ],
+        )
         self.not_connected()
         self.assertEqual(self.terms(), [])
 
@@ -87,11 +94,15 @@ class TestProposingGroupsForUserVocabulary(VocabularyTestCase):
         # the creators groups of the user, sorted by title
         FAKE_PM.users[u"pmCreator1"]["groups"].append(u"vendors_creators")
         self.clean_memoize()
-        self.assertEqual(self.terms(), [(developers["UID"], u"Developers"), (vendors["UID"], u"Vendors")])
+        self.assertEqual(
+            self.terms(),
+            [(developers["UID"], u"Developers"), (vendors["UID"], u"Vendors")],
+        )
         # a proposing group forced by the field mappings
         field_mappings = self.settings.field_mappings
         self.settings.field_mappings = field_mappings + [
-            {"field_name": u"proposingGroup", "expression": u"string:vendors"}]
+            {"field_name": u"proposingGroup", "expression": u"string:vendors"}
+        ]
         self.assertEqual(self.terms(), [(vendors["UID"], u"Vendors")])
         self.assertFalse(self.request.get("error_in_vocabularies"))
         FAKE_PM.users[u"pmCreator1"]["groups"] = [u"developers_creators"]
@@ -101,11 +112,15 @@ class TestProposingGroupsForUserVocabulary(VocabularyTestCase):
         self.assertEqual(self.messages(), [CAN_NOT_CREATE_FOR_PROPOSING_GROUP_ERROR])
         # a wrong expression
         self.settings.field_mappings = field_mappings + [
-            {"field_name": u"proposingGroup", "expression": u"python: object.unknown()"}]
+            {"field_name": u"proposingGroup", "expression": u"python: object.unknown()"}
+        ]
         self.assertEqual(self.terms(), [])
-        self.assertTrue(self.messages()[0].startswith(
-            u"There was an error evaluating the TAL expression 'python: object.unknown()' for the field "
-            u"'proposingGroup'! The error was : "))
+        self.assertTrue(
+            self.messages()[0].startswith(
+                u"There was an error evaluating the TAL expression 'python: object.unknown()' for the field "
+                u"'proposingGroup'! The error was : "
+            )
+        )
         # no field mappings
         self.settings.field_mappings = []
         self.assertEqual(self.terms(), [])
@@ -132,9 +147,20 @@ class TestCategoriesForUserVocabulary(VocabularyTestCase):
         self.assertEqual(self.terms(), [(u"deployment", u"Deployment topics")])
         # the categories of the config, sorted by title
         field_mappings = self.settings.field_mappings
-        self.settings.field_mappings = [mapping for mapping in field_mappings if mapping["field_name"] != "category"]
-        self.assertEqual([value for value, title in self.terms()], [
-            u"deployment", u"development", u"events", u"maintenance", u"projects", u"research"])
+        self.settings.field_mappings = [
+            mapping for mapping in field_mappings if mapping["field_name"] != "category"
+        ]
+        self.assertEqual(
+            [value for value, title in self.terms()],
+            [
+                u"deployment",
+                u"development",
+                u"events",
+                u"maintenance",
+                u"projects",
+                u"research",
+            ],
+        )
         # the config of the submitted form
         self.request.set("meetingConfigId", "")
         self.request.form["form.widgets.meetingConfigId"] = u"plonegov-assembly"
@@ -145,15 +171,22 @@ class TestCategoriesForUserVocabulary(VocabularyTestCase):
         self.assertFalse(self.request.get("error_in_vocabularies"))
         # a forced category that does not exist
         self.request.set("meetingConfigId", "plonegov-assembly")
-        self.settings.field_mappings = [{"field_name": u"category", "expression": u"string:unknown"}]
+        self.settings.field_mappings = [
+            {"field_name": u"category", "expression": u"string:unknown"}
+        ]
         self.assertEqual(self.terms(), [])
         self.assertTrue(self.request.get("error_in_vocabularies"))
         self.assertEqual(self.messages(), [CAN_NOT_CREATE_WITH_CATEGORY_ERROR])
         # a wrong expression
-        self.settings.field_mappings = [{"field_name": u"category", "expression": u"python: object.unknown()"}]
+        self.settings.field_mappings = [
+            {"field_name": u"category", "expression": u"python: object.unknown()"}
+        ]
         self.assertEqual(self.terms(), [])
-        self.assertTrue(self.messages()[0].startswith(
-            u"There was an error evaluating the TAL expression 'python: object.unknown()' for the field 'category'!"))
+        self.assertTrue(
+            self.messages()[0].startswith(
+                u"There was an error evaluating the TAL expression 'python: object.unknown()' for the field 'category'!"
+            )
+        )
         # no field mappings
         self.settings.field_mappings = []
         self.assertEqual(self.terms(), [])
@@ -179,24 +212,37 @@ class TestDesiredMeetingdatesVocabulary(VocabularyTestCase):
         FAKE_PM.add_meeting(u"plonemeeting-assembly", datetime(2013, 3, 3, 14, 30))
         meeting_3 = FAKE_PM.add_meeting(u"plonegov-assembly", datetime(2013, 8, 3))
         self.request.set("meetingConfigId", "plonemeeting-assembly")
-        self.assertEqual(self.terms(), [(meeting_1["UID"], u"03/03/2013 00:00"),
-                                        (FAKE_PM.meetings[1]["UID"], u"03/03/2013 14:30")])
+        self.assertEqual(
+            self.terms(),
+            [
+                (meeting_1["UID"], u"03/03/2013 00:00"),
+                (FAKE_PM.meetings[1]["UID"], u"03/03/2013 14:30"),
+            ],
+        )
         # cached for the config
         FAKE_PM.meetings.remove(meeting_1)
         self.assertEqual(len(self.terms()), 2)
         self.request.set("meetingConfigId", "plonegov-assembly")
         vocabulary = self.vocabulary()
-        self.assertEqual([(term.value, term.token, term.title) for term in vocabulary],
-                         [(meeting_3["UID"], meeting_3["UID"], u"03/08/2013 00:00")])
+        self.assertEqual(
+            [(term.value, term.token, term.title) for term in vocabulary],
+            [(meeting_3["UID"], meeting_3["UID"], u"03/08/2013 00:00")],
+        )
         # the meetings preferred by the consumer
         getUtility(IRAMCache).invalidateAll()
         FAKE_PM.add_meeting(u"plonegov-assembly", datetime(2013, 3, 3))
         gsm = getGlobalSiteManager()
-        gsm.registerAdapter(PreferredMeetings, (Interface, Interface), IPreferredMeetings)
+        gsm.registerAdapter(
+            PreferredMeetings, (Interface, Interface), IPreferredMeetings
+        )
         try:
-            self.assertEqual([title for value, title in self.terms()], [u"03/03/2013 00:00"])
+            self.assertEqual(
+                [title for value, title in self.terms()], [u"03/03/2013 00:00"]
+            )
         finally:
-            gsm.unregisterAdapter(PreferredMeetings, (Interface, Interface), IPreferredMeetings)
+            gsm.unregisterAdapter(
+                PreferredMeetings, (Interface, Interface), IPreferredMeetings
+            )
         # no meetings
         getUtility(IRAMCache).invalidateAll()
         del FAKE_PM.meetings[:]
@@ -236,9 +282,13 @@ class TestAnnexesForUserVocabulary(VocabularyTestCase):
 
 
 class TestVocabularies(WS4PMClientTestCase):
-
     def test_desired_meetingdates_vocabulary__call___cachekey(self):
         self.request.set("meetingConfigId", "plonegov-assembly")
-        self.assertEqual(desired_meetingdates_vocabulary__call___cachekey(None, None, None), "plonegov-assembly")
+        self.assertEqual(
+            desired_meetingdates_vocabulary__call___cachekey(None, None, None),
+            "plonegov-assembly",
+        )
         self.request.set("meetingConfigId", "")
-        self.assertEqual(desired_meetingdates_vocabulary__call___cachekey(None, None, None), "")
+        self.assertEqual(
+            desired_meetingdates_vocabulary__call___cachekey(None, None, None), ""
+        )

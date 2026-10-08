@@ -15,19 +15,19 @@ except ImportError:
 @implementer(IPMWSClientEvent)
 class PMWSClientEvent(ObjectEvent):
     """
-      Abstract pm ws event. All pm ws events should inherit from it
+    Abstract pm ws event. All pm ws events should inherit from it
     """
 
 
 @implementer(IWillbeSendToPMEvent)
 class WillbeSendToPMEvent(PMWSClientEvent):
     """
-      Notified when an item is about to be sent to PM.
+    Notified when an item is about to be sent to PM.
     """
 
 
 @implementer(ISentToPMEvent)
 class SentToPMEvent(PMWSClientEvent):
     """
-       Notified when an item has been successfully sent to PM.
+    Notified when an item has been successfully sent to PM.
     """

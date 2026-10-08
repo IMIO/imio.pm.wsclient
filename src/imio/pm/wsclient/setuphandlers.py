@@ -10,10 +10,10 @@
 import logging
 
 
-logger = logging.getLogger('imio.pm.wsclient: setuphandlers')
+logger = logging.getLogger("imio.pm.wsclient: setuphandlers")
 
 __author__ = """Gauthier Bastien <gauthier@imio.be>"""
-__docformat__ = 'plaintext'
+__docformat__ = "plaintext"
 
 
 def isNotImioPmWsClientProfile(context):
@@ -21,7 +21,7 @@ def isNotImioPmWsClientProfile(context):
 
 
 def postInstall(context):
-    """Called as at the end of the setup process. """
+    """Called as at the end of the setup process."""
     # the right place for your custom code
     if isNotImioPmWsClientProfile(context):
         return

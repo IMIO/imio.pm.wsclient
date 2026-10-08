@@ -9,16 +9,21 @@ from zope.component import getUtility
 
 
 class TestInstall(WS4PMClientTestCase):
-
     def test_browserlayer(self):
         self.assertIn(IWS4PMClientLayer, registered_layers())
 
     def test_controlpanel(self):
-        configlet = [action for action in self.portal.portal_controlpanel.listActions()
-                     if action.id == "ws4pmclientsettings"][0]
+        configlet = [
+            action
+            for action in self.portal.portal_controlpanel.listActions()
+            if action.id == "ws4pmclientsettings"
+        ][0]
         self.assertEqual(configlet.title, "WS4PM Client settings")
         self.assertEqual(configlet.permissions, ("Manage portal",))
-        self.assertEqual(configlet.getActionExpression(), "string:${portal_url}/@@ws4pmclient-settings")
+        self.assertEqual(
+            configlet.getActionExpression(),
+            "string:${portal_url}/@@ws4pmclient-settings",
+        )
 
     def test_registry(self):
         settings = getUtility(IRegistry).forInterface(IWS4PMClientSettings)
@@ -31,16 +36,30 @@ class TestInstall(WS4PMClientTestCase):
 
     def test_rolemap(self):
         for permission in ("WS Client Access", "WS Client Send"):
-            roles = [role["name"] for role in self.portal.rolesOfPermission(permission) if role["selected"]]
+            roles = [
+                role["name"]
+                for role in self.portal.rolesOfPermission(permission)
+                if role["selected"]
+            ]
             self.assertEqual(sorted(roles), ["Manager", "Member"])
 
     def test_resources(self):
-        self.assertTrue(self.portal.restrictedTraverse(
-            "++resource++imio.pm.wsclient.images/send_to_plonemeeting.png"))
-        self.assertTrue(self.portal.restrictedTraverse("++resource++imio.pm.wsclient.javascripts/popups.js"))
+        self.assertTrue(
+            self.portal.restrictedTraverse(
+                "++resource++imio.pm.wsclient.images/send_to_plonemeeting.png"
+            )
+        )
+        self.assertTrue(
+            self.portal.restrictedTraverse(
+                "++resource++imio.pm.wsclient.javascripts/popups.js"
+            )
+        )
 
     def test_postInstall(self):
         # the import step of the default profile does nothing
         result = self.portal.portal_setup.runImportStepFromProfile(
-            "profile-imio.pm.wsclient:default", "imio.pm.wsclient-postInstall", run_dependencies=False)
+            "profile-imio.pm.wsclient:default",
+            "imio.pm.wsclient-postInstall",
+            run_dependencies=False,
+        )
         self.assertEqual(result["steps"], ["imio.pm.wsclient-postInstall"])

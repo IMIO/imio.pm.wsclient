@@ -15,10 +15,11 @@ except ImportError:  # Plone 5.2+: no Archetypes
 
 @unittest.skipIf(IATFile is None, "Archetypes File only")
 class TestATRawReadFile(WS4PMClientTestCase):
-
     def setUp(self):
         super(TestATRawReadFile, self).setUp()
-        self.reader = IRawReadFile(self.create_file(self.portal, data=b"hello\nworld\n"))
+        self.reader = IRawReadFile(
+            self.create_file(self.portal, data=b"hello\nworld\n")
+        )
 
     def test___init__(self):
         self.assertIsInstance(self.reader, ATRawReadFile)

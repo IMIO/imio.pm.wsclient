@@ -6,9 +6,9 @@ from zope.interface import implementer
 
 @implementer(IRawReadFile)
 class ATRawReadFile(object):
-    """
-    """
-    encoding = 'utf-8'
+    """ """
+
+    encoding = "utf-8"
     name = None
 
     def __init__(self, context):
@@ -54,7 +54,7 @@ class ATRawReadFile(object):
 
     @property
     def encoding(self):
-        return self._getMessage().get_charset() or 'utf-8'
+        return self._getMessage().get_charset() or "utf-8"
 
     @property
     def name(self):
