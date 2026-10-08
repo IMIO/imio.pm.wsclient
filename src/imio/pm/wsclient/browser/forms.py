@@ -43,6 +43,7 @@ from zope.schema.interfaces import IVocabularyFactory
 
 import base64
 import logging
+import six
 
 
 try:
@@ -98,20 +99,20 @@ class DisplayDataToSendProvider(ContentProviderBase):
         for data_elem in ('externalIdentifier', 'annexes', 'ignore_validation_for', 'ignore_not_used_data', '__children__'):
             if data_elem in data:
                 data.pop(data_elem)
-        for elt in data:
+        for elt in list(data):
             # remove empty data but keep category and proposingGroup even if empty
-            value = isinstance(data[elt], str) and data[elt].strip() or data[elt]
+            value = isinstance(data[elt], six.string_types) and data[elt].strip() or data[elt]
             if not value and elt not in ['category', 'proposingGroup', ]:
                 data.pop(elt)
                 continue
 
             if elt == 'extraAttrs':
-                res = ['<fieldset><legend>{0}</legend>{1}</fieldset>'.format(
+                res = [u'<fieldset><legend>{0}</legend>{1}</fieldset>'.format(
                     translate('PloneMeeting_label_' + extraAttr['key'],
                               domain="PloneMeeting",
-                              context=self.request).encode("utf-8"),
-                    extraAttr['value']) for extraAttr in data[elt]]
-                data[elt] = '<br />'.join(res)
+                              context=self.request),
+                    safe_unicode(extraAttr['value'])) for extraAttr in data[elt]]
+                data[elt] = u'<br />'.join(res)
 
         if 'title' not in data:
             IStatusMessage(self.request).addStatusMessage(_(SEND_WITHOUT_SUFFICIENT_FIELD_MAPPINGS_DEFINED_WARNING),
@@ -214,7 +215,7 @@ class SendToPloneMeetingForm(form.Form):
         # check that the real currentUrl is on available in object_buttons actions for the user
         availableActions = self.portal.portal_actions.listFilteredActionsFor(self.context).get('object_buttons', [])
         # rebuild real url called by the action
-        currentUrl = unicode(self.request['ACTUAL_URL'] + '?meetingConfigId=' + self.meetingConfigId, 'utf-8')
+        currentUrl = safe_unicode(self.request['ACTUAL_URL'] + '?meetingConfigId=' + self.meetingConfigId)
         # now check if this url is available in the actions for the user
         mayDoAction = False
         for action in availableActions:
@@ -344,8 +345,8 @@ class SendToPloneMeetingForm(form.Form):
             # proposingGroup is managed apart
             if elt == u'proposingGroup':
                 continue
-            if isinstance(data[elt], str):
-                data[elt] = unicode(data[elt], 'utf-8')
+            if isinstance(data[elt], bytes):
+                data[elt] = data[elt].decode('utf-8')
             if elt == 'extraAttrs':
                 for attr in data[elt]:
                     attr['value'] = safe_unicode(attr['value'])
@@ -409,15 +410,15 @@ class SendToPloneMeetingForm(form.Form):
             if annex_brains:
                 annex = annex_brains[0].getObject()
                 annex_file = getAdapter(annex, IRawReadFile)
-                annex_title = type(annex.title) in [unicode] and annex.title or annex.title.decode('utf-8')
-                annex_name = type(annex_file.name) in [unicode] and annex_file.name or annex_file.name.decode('utf-8')
+                annex_title = safe_unicode(annex.title)
+                annex_name = safe_unicode(annex_file.name)
                 annexes_data.append(
                     {
                         "@type": "annex",
                         "title": unidecode(annex_title),
                         "file": {
                             "filename": unidecode(annex_name),
-                            "data": base64.b64encode(annex_file.read()),
+                            "data": base64.b64encode(annex_file.read()).decode("ascii"),
                         }
                     }
                 )

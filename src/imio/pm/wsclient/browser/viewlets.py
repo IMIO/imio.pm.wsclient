@@ -144,9 +144,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
                                                          'title': meetingConfigVocab.getTerm(sent).title}})
 
         # sort res to comply with sent order, for example sent first to college then council
-        def sortByMeetingConfigId(x, y):
-            return cmp(x["created"], y["created"])
-        res.sort(sortByMeetingConfigId, reverse=True)
+        res.sort(key=lambda x: x["created"], reverse=True)
         return res
 
     def displayMeetingDate(self, meeting_date):

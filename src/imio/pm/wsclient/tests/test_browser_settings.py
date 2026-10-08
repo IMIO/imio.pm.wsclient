@@ -59,8 +59,8 @@ class TestWS4PMClientSettingsEditForm(WS4PMClientTestCase):
 
     @unittest.expectedFailure
     def test_updateFields_wrong_password_message(self):
-        """Master bug: the error answered by PloneMeeting is lost: "global name 'ConnectionError'
-        is not defined" on Python 2 (then KeyError: plone.restapi errors have no 'error' key)."""
+        """Master bug: the error answered by PloneMeeting is lost: KeyError, plone.restapi
+        errors have no 'error' key."""
         self.edit_form(**{"form.widgets.pm_password": u"wrongPassword"})
         self.assertEqual(self.messages(), [
             u"Unable to connect to PloneMeeting! The error message was : Wrong login and/or password.!"])

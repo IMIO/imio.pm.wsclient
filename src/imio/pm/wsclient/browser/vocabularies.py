@@ -25,6 +25,7 @@ from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
 import pytz
+import six
 
 
 @implementer(IVocabularyFactory)
@@ -44,9 +45,9 @@ class pm_meeting_config_id_vocabulary(object):
             for pmConfigInfo in pmConfigInfos:
                 terms.append(
                     SimpleTerm(
-                        unicode(pmConfigInfo["id"]),
-                        unicode(pmConfigInfo["id"]),
-                        unicode(pmConfigInfo["title"]),
+                        six.text_type(pmConfigInfo["id"]),
+                        six.text_type(pmConfigInfo["id"]),
+                        six.text_type(pmConfigInfo["title"]),
                     )
                 )
         return SimpleVocabulary(terms)
@@ -91,9 +92,9 @@ class pm_item_data_vocabulary(object):
             for availableData in availableDatas:
                 terms.append(
                     SimpleTerm(
-                        unicode(availableData),
-                        unicode(availableData),
-                        unicode(availableData),
+                        six.text_type(availableData),
+                        six.text_type(availableData),
+                        six.text_type(availableData),
                     )
                 )
         return SimpleVocabulary(terms)
@@ -160,18 +161,18 @@ class proposing_groups_for_user_vocabulary(object):
                 forcedProposingGroupExists = True
                 terms.append(
                     SimpleTerm(
-                        unicode(group["UID"]),
-                        unicode(group["UID"]),
-                        unicode(group["title"]),
+                        six.text_type(group["UID"]),
+                        six.text_type(group["UID"]),
+                        six.text_type(group["title"]),
                     )
                 )
                 break
             if not forcedProposingGroup:
                 terms.append(
                     SimpleTerm(
-                        unicode(group["UID"]),
-                        unicode(group["UID"]),
-                        unicode(group["title"]),
+                        six.text_type(group["UID"]),
+                        six.text_type(group["UID"]),
+                        six.text_type(group["title"]),
                     )
                 )
         if not forcedProposingGroupExists:
@@ -252,18 +253,18 @@ class categories_for_user_vocabulary(object):
                 forcedCategoryExists = True
                 terms.append(
                     SimpleTerm(
-                        unicode(category["id"]),
-                        unicode(category["id"]),
-                        unicode(category["title"]),
+                        six.text_type(category["id"]),
+                        six.text_type(category["id"]),
+                        six.text_type(category["title"]),
                     )
                 )
                 break
             if not forcedCategory:
                 terms.append(
                     SimpleTerm(
-                        unicode(category["id"]),
-                        unicode(category["id"]),
-                        unicode(category["title"]),
+                        six.text_type(category["id"]),
+                        six.text_type(category["id"]),
+                        six.text_type(category["title"]),
                     )
                 )
         if not forcedCategoryExists:
@@ -320,9 +321,9 @@ class desired_meetingdates_vocabulary(object):
                 if isinstance(meeting_info["date"], datetime) else meeting_info["date"]
             terms.append(
                 SimpleTerm(
-                    unicode(meeting_info["UID"]),
-                    unicode(meeting_info["UID"]),
-                    unicode(display_date),
+                    six.text_type(meeting_info["UID"]),
+                    six.text_type(meeting_info["UID"]),
+                    six.text_type(display_date),
                 )
             )
         return SimpleVocabulary(terms)

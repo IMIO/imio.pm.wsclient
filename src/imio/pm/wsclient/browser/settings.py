@@ -17,7 +17,6 @@ from Products.CMFCore.ActionInformation import Action
 from Products.CMFCore.Expression import createExprContext
 from Products.CMFCore.Expression import Expression
 from Products.statusmessages.interfaces import IStatusMessage
-from StringIO import StringIO
 from z3c.form import button
 from z3c.form import field
 from zope import schema
@@ -29,7 +28,6 @@ from zope.i18n import translate
 from zope.interface import Interface
 from zope.schema.interfaces import IVocabularyFactory
 
-import json
 import requests
 import six
 
@@ -255,13 +253,13 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             session.headers.update({'Accept': 'application/json', 'Content-Type': 'application/json'})
             login = session.get(infos_url, timeout=int(timeout))
             if login.status_code != 200:
-                response = json.load(StringIO(login.content))
-                raise ConnectionError(response['error']['message'])  # noqa: F821 (builtin on Python 3 only)
+                response = login.json()
+                raise requests.exceptions.ConnectionError(response['error']['message'])
         except Exception as e:
             # if we are really on the configuration panel, display relevant message
             if self.request.get('URL', '').endswith('@@ws4pmclient-settings'):
                 IStatusMessage(self.request).addStatusMessage(
-                    _(CONFIG_UNABLE_TO_CONNECT_ERROR, mapping={'error': (e.message or str(e.reason))}), "error")
+                    _(CONFIG_UNABLE_TO_CONNECT_ERROR, mapping={'error': e}), "error")
             return None
         return session
 
@@ -525,8 +523,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
                 )
                 response = session.get(url)
                 attributes = response.json()["usedItemAttributes"]
-                map(
-                    available_data.append,
+                available_data.extend(
                     [k["token"] for k in attributes
                      if k["token"] not in available_data
                      and k["token"] not in ignored_data],

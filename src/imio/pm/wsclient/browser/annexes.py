@@ -50,6 +50,8 @@ class ATRawReadFile(object):
     def __next__(self):
         return next(self._getStream())
 
+    next = __next__
+
     @property
     def encoding(self):
         return self._getMessage().get_charset() or 'utf-8'

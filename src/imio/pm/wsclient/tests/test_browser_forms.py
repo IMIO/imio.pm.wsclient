@@ -307,7 +307,7 @@ class TestSendToPloneMeetingForm(WS4PMClientTestCase):
         self.request.form["form.widgets.annexes"] = [annex.UID(), "unknown-uid"]
         self.assertEqual(view._buildAnnexesData(), [{
             "@type": "annex", "title": u"Annexe oubliee",
-            "file": {"filename": u"annexe oubliee.txt", "data": base64.b64encode(b"hello\n")}}])
+            "file": {"filename": u"annexe oubliee.txt", "data": base64.b64encode(b"hello\n").decode("ascii")}}])
 
     def test__getCategoriesVocab(self):
         self.assertEqual(len(self.send_form(self.document)._getCategoriesVocab()), 0)
