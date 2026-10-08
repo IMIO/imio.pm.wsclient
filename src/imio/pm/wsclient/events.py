@@ -3,11 +3,13 @@
 from imio.pm.wsclient.interfaces import IPMWSClientEvent
 from imio.pm.wsclient.interfaces import ISentToPMEvent
 from imio.pm.wsclient.interfaces import IWillbeSendToPMEvent
+from zope.interface import implementer
+
+
 try:
     from zope.interface.interfaces import ObjectEvent
 except ImportError:
     from zope.component.interfaces import ObjectEvent
-from zope.interface import implementer
 
 
 @implementer(IPMWSClientEvent)

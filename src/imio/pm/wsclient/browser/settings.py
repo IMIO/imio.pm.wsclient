@@ -256,7 +256,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
             login = session.get(infos_url, timeout=int(timeout))
             if login.status_code != 200:
                 response = json.load(StringIO(login.content))
-                raise ConnectionError(response['error']['message'])
+                raise ConnectionError(response['error']['message'])  # noqa: F821 (builtin on Python 3 only)
         except Exception as e:
             # if we are really on the configuration panel, display relevant message
             if self.request.get('URL', '').endswith('@@ws4pmclient-settings'):

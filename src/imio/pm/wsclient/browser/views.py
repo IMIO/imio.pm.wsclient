@@ -10,7 +10,6 @@ from Products.Five import BrowserView
 from Products.statusmessages.interfaces import IStatusMessage
 from zope.component import getMultiAdapter
 
-import base64
 import logging
 
 

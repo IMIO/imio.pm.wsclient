@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from dateutil import tz
-from datetime import datetime
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import CAN_NOT_SEE_LINKED_ITEMS_INFO
 from imio.pm.wsclient.config import UNABLE_TO_CONNECT_ERROR
@@ -93,7 +91,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
                     'extra_include': 'linked_items',
                     'extra_include_linked_items_mode': 'every_successors',
                     'metadata_fields': 'review_state,creators,category,preferredMeeting',
-                    'type': None, # We need to pass None because we need to search across every type of MeetingItem
+                    'type': None,  # We need to pass None because we need to search across every type of MeetingItem
                     # This is made to handle a special case where there is no user "inNameOf" so the PM side can't
                     # get all the MeetingItems types based on the inNameOf user.
                 },
@@ -112,8 +110,6 @@ class PloneMeetingInfosViewlet(ViewletBase):
         res = []
         # to be able to know if some infos in PloneMeeting where not found
         # for current user, save the infos actually shown...
-        settings = self.ws4pmSettings.settings()
-        allowed_annexes_types = [list(line.values())[0] for line in settings.allowed_annexes_types]
         shownItemsMeetingConfigId = []
         for item in items:
             res.append(self.get_item_info(item))
