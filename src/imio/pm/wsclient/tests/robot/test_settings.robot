@@ -9,7 +9,7 @@ Test Teardown  Close all browsers
 The settings are in the control panel
     Enable autologin as  Manager
     Go to  ${PLONE_URL}/@@overview-controlpanel
-    Click link  css=#content a[href$="/@@ws4pmclient-settings"]
+    Click link  css=#content a[href$="/@@ws4pmclient-settings"]:not(.dropdown-item)
     Wait until page contains element  css=#form-widgets-pm_url
     Textfield value should be  css=#form-widgets-pm_url  http://pm.example.org/plone
     The page is not an error

@@ -9,7 +9,7 @@ from zope.interface import implementer
 class RedirectView(BrowserView):
     """ """
 
-    DEFAULT = """<html><head><base href="{0}" /></head></html>"""
+    DEFAULT = """<html><head></head><body data-base-url="{0}" data-view-url="{0}"></body></html>"""
 
     def __call__(self):
         """ """
@@ -26,7 +26,10 @@ class Redirect(object):
 
     def __init__(self, request):
         self.request = request
-        self.ajax_load = self.request.form.get("ajax_load", "")
+        # the Plone 6 modal posts the form by XHR without ajax_load
+        self.ajax_load = self.request.form.get("ajax_load", "") or (
+            self.request.getHeader("X-Requested-With") == "XMLHttpRequest" and "1" or ""
+        )
 
     def redirect(self, url):
         """

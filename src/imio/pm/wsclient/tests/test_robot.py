@@ -6,20 +6,12 @@ ROBOT_* environment variables to the suites as robot variables.
 Scenarios tagged plone4-only run on Plone 4 only.
 """
 from ..testing import ACCEPTANCE
+from importlib.metadata import version
 from plone.testing import layered
 
 import os
 import robotsuite
 import unittest
-
-
-try:
-    from importlib.metadata import version
-except ImportError:  # Python 2
-    from pkg_resources import get_distribution
-
-    def version(name):
-        return get_distribution(name).version
 
 
 # suites needing an optional integration layer, e.g. {'test_facetednav.robot': ADDONS_ACCEPTANCE}

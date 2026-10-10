@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from AccessControl import Unauthorized
+from collections import OrderedDict
 from imio.pm.wsclient import PMMessageFactory as _PM
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 from imio.pm.wsclient.config import ALREADY_SENT_TO_PM_ERROR
@@ -17,8 +18,8 @@ from imio.pm.wsclient.events import SentToPMEvent
 from imio.pm.wsclient.events import WillbeSendToPMEvent
 from imio.pm.wsclient.interfaces import IRedirect
 from plone import api
+from plone.base.utils import safe_text
 from plone.z3cform.layout import wrap_form
-from Products.CMFPlone.utils import safe_unicode
 from Products.statusmessages.interfaces import IStatusMessage
 from unidecode import unidecode
 from z3c.form import button
@@ -45,14 +46,6 @@ from zope.schema.interfaces import IVocabularyFactory
 
 import base64
 import logging
-import six
-
-
-try:
-    from collections import OrderedDict
-except ImportError:
-    # Python < 2.7 compatibility
-    from ordereddict import OrderedDict
 
 
 logger = logging.getLogger("imio.pm.wsclient")
@@ -123,11 +116,7 @@ class DisplayDataToSendProvider(ContentProviderBase):
                 data.pop(data_elem)
         for elt in list(data):
             # remove empty data but keep category and proposingGroup even if empty
-            value = (
-                isinstance(data[elt], six.string_types)
-                and data[elt].strip()
-                or data[elt]
-            )
+            value = isinstance(data[elt], str) and data[elt].strip() or data[elt]
             if not value and elt not in [
                 "category",
                 "proposingGroup",
@@ -143,7 +132,7 @@ class DisplayDataToSendProvider(ContentProviderBase):
                             domain="PloneMeeting",
                             context=self.request,
                         ),
-                        safe_unicode(extraAttr["value"]),
+                        safe_text(extraAttr["value"]),
                     )
                     for extraAttr in data[elt]
                 ]
@@ -273,7 +262,7 @@ class SendToPloneMeetingForm(form.Form):
             self.context
         ).get("object_buttons", [])
         # rebuild real url called by the action
-        currentUrl = safe_unicode(
+        currentUrl = safe_text(
             self.request["ACTUAL_URL"] + "?meetingConfigId=" + self.meetingConfigId
         )
         # now check if this url is available in the actions for the user
@@ -423,7 +412,7 @@ class SendToPloneMeetingForm(form.Form):
                 data[elt] = data[elt].decode("utf-8")
             if elt == "extraAttrs":
                 for attr in data[elt]:
-                    attr["value"] = safe_unicode(attr["value"])
+                    attr["value"] = safe_text(attr["value"])
             creation_data[elt] = data[elt]
         # initialize the externalIdentifier to the context UID
         creation_data["externalIdentifier"] = self.context.UID()
@@ -494,8 +483,8 @@ class SendToPloneMeetingForm(form.Form):
             if annex_brains:
                 annex = annex_brains[0].getObject()
                 annex_file = getAdapter(annex, IRawReadFile)
-                annex_title = safe_unicode(annex.title)
-                annex_name = safe_unicode(annex_file.name)
+                annex_title = safe_text(annex.title)
+                annex_name = safe_text(annex_file.name)
                 annexes_data.append(
                     {
                         "@type": "annex",
@@ -526,8 +515,8 @@ class SendToPloneMeetingForm(form.Form):
 
     def _changeFormForErrors(self):
         """ """
-        # if we use an overlay popup do some nasty things...
-        if "ajax_load" in self.request.form:
+        # if we use an overlay popup (or the Plone 6 modal) do some nasty things...
+        if IRedirect(self.request).ajax_load:
             self.template = ViewPageTemplateFile(
                 "templates/show_errors_in_overlay_form.pt"
             ).__get__(self, "")

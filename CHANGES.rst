@@ -1,10 +1,12 @@
 Changelog
 =========
 
-2.0.8 (unreleased)
+3.0.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Migrate to Plone 6.2 and Python 3 (Plone 4 and Python 2 dropped), tests on a fake PloneMeeting REST server,
+  based on the work started by @laulaz on `python3`.
+  [laulaz, chris-adam]
 
 
 2.0.7 (2026-02-03)

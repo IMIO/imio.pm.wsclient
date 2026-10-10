@@ -24,6 +24,7 @@ class TestInstall(WS4PMClientTestCase):
             configlet.getActionExpression(),
             "string:${portal_url}/@@ws4pmclient-settings",
         )
+        self.assertEqual(configlet.getIconExpression(), "string:send")
 
     def test_registry(self):
         settings = getUtility(IRegistry).forInterface(IWS4PMClientSettings)
@@ -47,11 +48,6 @@ class TestInstall(WS4PMClientTestCase):
         self.assertTrue(
             self.portal.restrictedTraverse(
                 "++resource++imio.pm.wsclient.images/send_to_plonemeeting.png"
-            )
-        )
-        self.assertTrue(
-            self.portal.restrictedTraverse(
-                "++resource++imio.pm.wsclient.javascripts/popups.js"
             )
         )
 

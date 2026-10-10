@@ -14,11 +14,11 @@
         factory=".redirect.Redirect"
         />
 
-    <!-- <adapter
-        for="Products.ATContentTypes.interfaces.file.IATFile"
-        factory=".annexes.ATRawReadFile"
+    <adapter
+        for="plone.app.contenttypes.interfaces.IFile"
+        factory=".annexes.FileRawReadFile"
         provides="zope.filerepresentation.interfaces.IRawReadFile"
-    />  MIGRATION-PLONE6 -->
+    />
 
     <!-- special view that make it possible to redirect from an overlay and show status messages afterward -->
     <browser:page
@@ -131,13 +131,6 @@
         name="imio.pm.wsclient.images"
         layer="imio.pm.wsclient.interfaces.IWS4PMClientLayer"
         directory="images"
-    />
-
-    <!-- Resource directory for js -->
-    <browser:resourceDirectory
-        name="imio.pm.wsclient.javascripts"
-        layer="imio.pm.wsclient.interfaces.IWS4PMClientLayer"
-        directory="javascripts"
     />
 
 </configure>

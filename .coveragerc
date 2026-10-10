@@ -1,0 +1,5 @@
+[report]
+include =
+    src/imio/pm/wsclient/*
+omit =
+    */tests/*

@@ -23,7 +23,6 @@ from zope.annotation import IAnnotations
 from zope.component import getUtility
 from zope.tales.tales import CompilerError
 
-import six
 import unittest
 
 
@@ -320,7 +319,7 @@ class TestWS4PMClientSettings(WS4PMClientTestCase):
         )
         # the user of the settings sees everything
         self.settings.user_mappings = [
-            {"local_userid": six.text_type(TEST_USER_ID), "pm_userid": u"pmManager"}
+            {"local_userid": str(TEST_USER_ID), "pm_userid": u"pmManager"}
         ]
         self.assertEqual(
             len(self.ws4pmSettings._rest_getItemInfos({"UID": item["UID"]})), 1
@@ -479,7 +478,7 @@ class TestWS4PMClientSettings(WS4PMClientTestCase):
         )
         data = {"itemUID": item["UID"], "templateId": u"itemTemplate__format__odt"}
         self.settings.user_mappings = [
-            {"local_userid": six.text_type(TEST_USER_ID), "pm_userid": u"pmManager"}
+            {"local_userid": str(TEST_USER_ID), "pm_userid": u"pmManager"}
         ]
         self.assertEqual(
             self.ws4pmSettings._rest_getItemTemplate(dict(data)).content,
@@ -642,7 +641,7 @@ class TestWS4PMClientSettings(WS4PMClientTestCase):
             self.ws4pmSettings._getUserIdToUseInTheNameOfWith(), TEST_USER_ID
         )
         # the connected user is the user of the settings
-        self.settings.pm_username = six.text_type(TEST_USER_ID)
+        self.settings.pm_username = str(TEST_USER_ID)
         self.assertIsNone(self.ws4pmSettings._getUserIdToUseInTheNameOfWith())
         self.assertEqual(
             self.ws4pmSettings._getUserIdToUseInTheNameOfWith(mandatory=True),
@@ -662,7 +661,7 @@ class TestWS4PMClientSettings(WS4PMClientTestCase):
         )
         # a user mapping to the user of the settings
         self.settings.user_mappings = [
-            {"local_userid": u"lambda", "pm_userid": six.text_type(TEST_USER_ID)}
+            {"local_userid": u"lambda", "pm_userid": str(TEST_USER_ID)}
         ]
         self.assertIsNone(self.ws4pmSettings._getUserIdToUseInTheNameOfWith())
         self.assertEqual(
@@ -823,6 +822,10 @@ class TestSettings(WS4PMClientTestCase):
         )
         self.assertEqual(action.permissions, ("View",))
         self.assertTrue(action.visible)
+        # Plone 6 opens it in a modal
+        self.assertEqual(
+            action.modal, '{"actionOptions": {"redirectOnResponse": true}}'
+        )
         # 2 of the generated actions are not available to a Member
         setRoles(self.portal, TEST_USER_ID, ["Member"])
         self.request.set("URL", self.portal.absolute_url())

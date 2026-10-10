@@ -10,6 +10,7 @@ from imio.pm.wsclient.interfaces import IWS4PMClientLayer
 from json import dumps
 from json import loads
 from plone import api
+from plone.app.contenttypes.testing import PLONE_APP_CONTENTTYPES_FIXTURE
 from plone.app.robotframework.testing import REMOTE_LIBRARY_BUNDLE_FIXTURE
 from plone.app.testing import applyProfile
 from plone.app.testing import FunctionalTesting
@@ -19,13 +20,13 @@ from plone.app.testing import PloneSandboxLayer
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
-from plone.dexterity.interfaces import IDexterityContent
 from plone.namedfile.file import NamedBlobFile
 from plone.registry.interfaces import IRegistry
 from plone.testing import Layer
+from plone.testing.zope import WSGI_SERVER_FIXTURE
 from Products.statusmessages.interfaces import IStatusMessage
-from six.moves.urllib.parse import parse_qs
 from unidecode import unidecode
+from urllib.parse import parse_qs
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getMultiAdapter
 from zope.component import getUtility
@@ -38,19 +39,8 @@ import itertools
 import mimetypes
 import re
 import requests
-import six
 import transaction
 import unittest
-
-
-try:
-    from plone.app.contenttypes.testing import (
-        PLONE_APP_CONTENTTYPES_FIXTURE as PLONE_FIXTURE,
-    )
-    from plone.testing.zope import WSGI_SERVER_FIXTURE as SERVER_FIXTURE
-except ImportError:  # Plone 4: Archetypes content types
-    from plone.app.testing import PLONE_FIXTURE
-    from plone.testing.z2 import ZSERVER_FIXTURE as SERVER_FIXTURE
 
 
 PM_URL = u"http://pm.example.org/plone"
@@ -589,13 +579,15 @@ class SendableAnnexes(object):
 
 class WS4PMClientLayer(PloneSandboxLayer):
 
-    defaultBases = (PLONE_FIXTURE, FAKE_PM_FIXTURE)
+    defaultBases = (PLONE_APP_CONTENTTYPES_FIXTURE, FAKE_PM_FIXTURE)
 
     def setUpZope(self, app, configurationContext):
         self.loadZCML(package=imio.pm.wsclient, name="testing.zcml")
 
     def setUpPloneSite(self, portal):
         applyProfile(portal, "imio.pm.wsclient:testing")
+        # no workflow, as Plone 4's PLONE_FIXTURE: content is visible to the members
+        portal.portal_workflow.setDefaultChain("")
         for user_id in ("pmCreator1", "pmCreator2"):
             api.user.create(
                 username=user_id,
@@ -610,7 +602,7 @@ class WS4PMClientLayer(PloneSandboxLayer):
         settings.pm_username = PM_USERNAME
         settings.pm_password = PM_PASSWORD
         settings.user_mappings = [
-            {"local_userid": six.text_type(TEST_USER_ID), "pm_userid": u"pmCreator1"}
+            {"local_userid": str(TEST_USER_ID), "pm_userid": u"pmCreator1"}
         ]
         settings.field_mappings = [
             {"field_name": u"title", "expression": u"object/Title"},
@@ -648,7 +640,8 @@ INTEGRATION = IntegrationTesting(bases=(FIXTURE,), name="INTEGRATION")
 FUNCTIONAL = FunctionalTesting(bases=(FIXTURE,), name="FUNCTIONAL")
 
 ACCEPTANCE = FunctionalTesting(
-    bases=(FIXTURE, REMOTE_LIBRARY_BUNDLE_FIXTURE, SERVER_FIXTURE), name="ACCEPTANCE"
+    bases=(FIXTURE, REMOTE_LIBRARY_BUNDLE_FIXTURE, WSGI_SERVER_FIXTURE),
+    name="ACCEPTANCE",
 )
 
 
@@ -682,10 +675,7 @@ class WS4PMClientTestCase(unittest.TestCase):
         filename=u"annexe oubliée.txt",
     ):
         obj = api.content.create(container=container, type="File", title=title)
-        if IDexterityContent.providedBy(obj):
-            obj.file = NamedBlobFile(data=data, filename=filename)
-        else:
-            obj.setFile(data, filename=filename.encode("utf-8"))
+        obj.file = NamedBlobFile(data=data, filename=filename)
         return obj
 
     def send_form(self, obj, meeting_config_id="plonemeeting-assembly"):
@@ -708,7 +698,7 @@ class WS4PMClientTestCase(unittest.TestCase):
         view = self.send_form(obj, meeting_config_id)
         self.request.form.update(
             {
-                "form.widgets.meetingConfigId": six.text_type(meeting_config_id),
+                "form.widgets.meetingConfigId": str(meeting_config_id),
                 "form.widgets.proposingGroup": [
                     FAKE_PM.find(FAKE_PM.orgs, proposing_group)["UID"]
                 ],

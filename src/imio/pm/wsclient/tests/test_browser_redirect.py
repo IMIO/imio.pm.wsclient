@@ -17,7 +17,7 @@ class TestRedirectView(WS4PMClientTestCase):
         self.request.form["ajax_load"] = "1234"
         self.assertEqual(
             view(),
-            '<html><head><base href="{0}" /></head></html>'.format(
+            '<html><head></head><body data-base-url="{0}" data-view-url="{0}"></body></html>'.format(
                 document.absolute_url()
             ),
         )
@@ -35,4 +35,12 @@ class TestRedirect(WS4PMClientTestCase):
         self.assertEqual(
             self.request.response.getHeader("location"),
             "http://nohost/plone/@@redirect_view?ajax_load=1234&url=http://nohost/plone/document",
+        )
+        # the Plone 6 modal posts the form by XHR without ajax_load
+        del self.request.form["ajax_load"]
+        self.request.environ["HTTP_X_REQUESTED_WITH"] = "XMLHttpRequest"
+        IRedirect(self.request).redirect("http://nohost/plone/document")
+        self.assertEqual(
+            self.request.response.getHeader("location"),
+            "http://nohost/plone/@@redirect_view?ajax_load=1&url=http://nohost/plone/document",
         )

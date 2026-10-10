@@ -55,7 +55,8 @@ The personal action is not available
 
 The modal is open
     [Documentation]  Overlay (Plone 4) or modal (Plone 6) showing a form
-    Wait until element is visible  ${MODAL} form
+    # an error page (already sent…) has no form
+    Wait until element is visible  ${MODAL}
 
 Modal element
     [Documentation]  Locator of the element with this id inside the modal

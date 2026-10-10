@@ -29,7 +29,6 @@ from zope.interface import Interface
 from zope.schema.interfaces import IVocabularyFactory
 
 import requests
-import six
 
 
 class IGeneratedActionsSchema(Interface):
@@ -322,7 +321,7 @@ class WS4PMClientSettings(ControlPanelFormWrapper):
         """Return a rest query URL formatted for the given endpoint and arguments"""
         arguments = []
         for k, v in kwargs.items():
-            if isinstance(v, six.string_types) and "," in v:
+            if isinstance(v, str) and "," in v:
                 for v in v.split(","):
                     arguments.append("{0}={1}".format(k, v))
             else:
@@ -829,4 +828,8 @@ def notify_configuration_changed(event):
                     visible=True,
                 )
                 object_buttons._setObject(actionId, action)
+                # opened in a modal (pat-plone-modal) that follows the redirect after sending
+                object_buttons[actionId]._setProperty(
+                    "modal", '{"actionOptions": {"redirectOnResponse": true}}', "string"
+                )
                 i = i + 1

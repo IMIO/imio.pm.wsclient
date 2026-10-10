@@ -104,7 +104,10 @@ class TestDownloadAnnexFromItemView(WS4PMClientTestCase):
             ],
         )
         self.assertEqual(download(itemUID=item["UID"]), b"Hello!")
-        self.assertEqual(self.request.response.getHeader("content-type"), "text/plain")
+        # Zope 4+ adds "; charset=utf-8" to text/* types
+        self.assertEqual(
+            self.request.response.getHeader("content-type").split(";")[0], "text/plain"
+        )
         self.assertEqual(
             self.request.response.getHeader("content-disposition"),
             'inline;filename="annexe.txt"',

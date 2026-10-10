@@ -433,3 +433,9 @@ class TestSendToPloneMeetingForm(WS4PMClientTestCase):
         view._changeFormForErrors()
         self.assertFalse(view._finishedSent)
         self.assertNotIn("form-widgets-proposingGroup", view.render())
+        # in the Plone 6 modal (XHR without ajax_load)
+        del self.request.form["ajax_load"]
+        self.request.environ["HTTP_X_REQUESTED_WITH"] = "XMLHttpRequest"
+        view = self.send_form(self.document)
+        view._changeFormForErrors()
+        self.assertFalse(view._finishedSent)
