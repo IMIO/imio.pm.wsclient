@@ -1,16 +1,23 @@
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 
+
 # suffix used when adding our actions to portal_actions
-ACTION_SUFFIX = 'plonemeeting_wsclient_action_'
+ACTION_SUFFIX = "plonemeeting_wsclient_action_"
 
 # taken from imio.pm.ws
-DEFAULT_NO_WARNING_MESSAGE = _('There was NO WARNING message during item creation.')
+DEFAULT_NO_WARNING_MESSAGE = _("There was NO WARNING message during item creation.")
 
 # messages
-CAN_NOT_SEE_LINKED_ITEMS_INFO = _(u"This element is linked to item(s) in PloneMeeting but your are not allowed to see it.")
+CAN_NOT_SEE_LINKED_ITEMS_INFO = _(
+    u"This element is linked to item(s) in PloneMeeting but your are not allowed to see it."
+)
 CORRECTLY_SENT_TO_PM_INFO = _(u"The item has been correctly sent to PloneMeeting.")
-CONFIG_UNABLE_TO_CONNECT_ERROR = _(u"Unable to connect to PloneMeeting! The error message was : ${error}!")
-UNABLE_TO_CONNECT_ERROR = _(u"Unable to connect to PloneMeeting! Please contact system administrator!")
+CONFIG_UNABLE_TO_CONNECT_ERROR = _(
+    u"Unable to connect to PloneMeeting! The error message was : ${error}!"
+)
+UNABLE_TO_CONNECT_ERROR = _(
+    u"Unable to connect to PloneMeeting! Please contact system administrator!"
+)
 ALREADY_SENT_TO_PM_ERROR = _(u"This element has already been sent to PloneMeeting!")
 TAL_EVAL_FIELD_ERROR = _(
     u"There was an error evaluating the TAL expression '${expr}' for the field '${field_name}'! "
@@ -38,8 +45,12 @@ NO_PROPOSING_GROUP_ERROR = _(
     u": [{'field': 'proposingGroup', 'message': u'Proposing group is not available for "
     u"user.', 'error': 'ValidationError'}]"
 )
-NO_USER_INFOS_ERROR = _(u"Could not get userInfos in PloneMeeting for user '${userId}'!")
-NO_FIELD_MAPPINGS_ERROR = _(u"No field_mappings defined in the WS4PMClient configuration!")
+NO_USER_INFOS_ERROR = _(
+    u"Could not get userInfos in PloneMeeting for user '${userId}'!"
+)
+NO_FIELD_MAPPINGS_ERROR = _(
+    u"No field_mappings defined in the WS4PMClient configuration!"
+)
 CAN_NOT_CREATE_FOR_PROPOSING_GROUP_ERROR = _(
     u"The current user can not create an item with the proposingGroup forced "
     "thru the configuration! Please contact system administrator!"

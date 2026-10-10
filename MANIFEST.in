@@ -1,18 +1,3 @@
 graft src/imio
-graft docs
-include *.cfg *.rst *.in
-include *.py
-include .coveragerc
-include .travis.yml
-include Makefile
-include *.conf
-include requirements.txt
-include Jenkinsfile
-exclude *.ignore
-exclude .installed.cfg
-exclude .mr.developer.cfg
-exclude buildout.d
-recursive-exclude buildout.d *.cfg
-recursive-include docs *.GPL
-recursive-include docs *.rst
+include *.rst *.txt
 global-exclude *.pyc

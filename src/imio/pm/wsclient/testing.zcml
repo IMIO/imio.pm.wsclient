@@ -2,9 +2,8 @@
            xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
            i18n_domain="imio.pm.wsclient">
 
-   <include package="collective.z3cform.datagridfield"/>
-   <include package="plonemeeting.restapi" file="testing.zcml"/>
-   <include file="configure.zcml"/>
+    <include package="collective.z3cform.datagridfield"/>
+    <include file="configure.zcml"/>
 
     <genericsetup:registerProfile
       name="testing"
@@ -12,6 +11,13 @@
       directory="profiles/testing"
       description="Registration of the Webservices Client for PloneMeeting for the tests"
       provides="Products.GenericSetup.interfaces.EXTENSION"
+    />
+
+    <!-- provided by the consumer (imio.dms.mail: the files of a mail) -->
+    <adapter
+      for="Products.CMFCore.interfaces.IFolderish"
+      provides="imio.pm.wsclient.interfaces.ISendableAnnexesToPM"
+      factory=".testing.SendableAnnexes"
     />
 
 </configure>
