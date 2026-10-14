@@ -19,7 +19,7 @@ from zope.component import getMultiAdapter
 from zope.component import queryAdapter
 from zope.component import queryMultiAdapter
 from zope.component.hooks import getSite
-from zope.interface import implements
+from zope.interface import implementer
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
@@ -27,10 +27,8 @@ from zope.schema.vocabulary import SimpleVocabulary
 import pytz
 
 
+@implementer(IVocabularyFactory)
 class pm_meeting_config_id_vocabulary(object):
-
-    implements(IVocabularyFactory)
-
     def __call__(self, context=None):
         """Query every existing MeetingConfigs in a distant PloneMeeting."""
         # query existing MeetingGroups from distant PM site if the default_pm_url is defined and working
@@ -38,16 +36,18 @@ class pm_meeting_config_id_vocabulary(object):
         # while called in an inline_validation, portal is not correct...
         if not portal.__module__ == "Products.CMFPlone.Portal":
             portal = portal.aq_inner.aq_parent
-        settings = getMultiAdapter((portal, portal.REQUEST), name="ws4pmclient-settings")
+        settings = getMultiAdapter(
+            (portal, portal.REQUEST), name="ws4pmclient-settings"
+        )
         pmConfigInfos = settings._rest_getConfigInfos()
         terms = []
         if pmConfigInfos:
             for pmConfigInfo in pmConfigInfos:
                 terms.append(
                     SimpleTerm(
-                        unicode(pmConfigInfo["id"]),
-                        unicode(pmConfigInfo["id"]),
-                        unicode(pmConfigInfo["title"]),
+                        str(pmConfigInfo["id"]),
+                        str(pmConfigInfo["id"]),
+                        str(pmConfigInfo["title"]),
                     )
                 )
         return SimpleVocabulary(terms)
@@ -56,9 +56,8 @@ class pm_meeting_config_id_vocabulary(object):
 pm_meeting_config_id_vocabularyFactory = pm_meeting_config_id_vocabulary()
 
 
+@implementer(IVocabularyFactory)
 class possible_permissions_vocabulary(object):
-    implements(IVocabularyFactory)
-
     def __call__(self, context):
         """Query every existing permissions."""
         terms = []
@@ -66,17 +65,22 @@ class possible_permissions_vocabulary(object):
         # while called in an inline_validation, portal is not correct...
         if not portal.__module__ == "Products.CMFPlone.Portal":
             portal = portal.aq_inner.aq_parent
-        for possible_permission in portal.acl_users.portal_role_manager.possible_permissions():
-            terms.append(SimpleTerm(possible_permission, possible_permission, possible_permission))
+        for (
+            possible_permission
+        ) in portal.acl_users.portal_role_manager.possible_permissions():
+            terms.append(
+                SimpleTerm(
+                    possible_permission, possible_permission, possible_permission
+                )
+            )
         return SimpleVocabulary(terms)
 
 
 possible_permissions_vocabularyFactory = possible_permissions_vocabulary()
 
 
+@implementer(IVocabularyFactory)
 class pm_item_data_vocabulary(object):
-    implements(IVocabularyFactory)
-
     def __call__(self, context):
         """Query every available data we can use to create an item in the distant PloneMeeting."""
         terms = []
@@ -86,15 +90,17 @@ class pm_item_data_vocabulary(object):
         # while called in an inline_validation, portal is not correct...
         if not portal.__module__ == "Products.CMFPlone.Portal":
             portal = portal.aq_inner.aq_parent
-        settings = getMultiAdapter((portal, portal.REQUEST), name="ws4pmclient-settings")
+        settings = getMultiAdapter(
+            (portal, portal.REQUEST), name="ws4pmclient-settings"
+        )
         availableDatas = settings._rest_getItemCreationAvailableData()
         if availableDatas:
             for availableData in availableDatas:
                 terms.append(
                     SimpleTerm(
-                        unicode(availableData),
-                        unicode(availableData),
-                        unicode(availableData),
+                        str(availableData),
+                        str(availableData),
+                        str(availableData),
                     )
                 )
         return SimpleVocabulary(terms)
@@ -103,20 +109,23 @@ class pm_item_data_vocabulary(object):
 pm_item_data_vocabularyFactory = pm_item_data_vocabulary()
 
 
+@implementer(IVocabularyFactory)
 class proposing_groups_for_user_vocabulary(object):
-    implements(IVocabularyFactory)
-
     def __call__(self, context):
         """Query every available proposingGroups for current user in a distant PloneMeeting."""
         portal = getSite()
         # while called in an inline_validation, portal is not correct...
         if not portal.__module__ == "Products.CMFPlone.Portal":
             portal = portal.aq_inner.aq_parent
-        ws4pmsettings = getMultiAdapter((portal, portal.REQUEST), name="ws4pmclient-settings")
+        ws4pmsettings = getMultiAdapter(
+            (portal, portal.REQUEST), name="ws4pmclient-settings"
+        )
         field_mappings = ws4pmsettings.settings().field_mappings
         if not field_mappings:
             portal.REQUEST.set("error_in_vocabularies", True)
-            IStatusMessage(portal.REQUEST).addStatusMessage(_(NO_FIELD_MAPPINGS_ERROR), "error")
+            IStatusMessage(portal.REQUEST).addStatusMessage(
+                _(NO_FIELD_MAPPINGS_ERROR), "error"
+            )
             return SimpleVocabulary([])
         forcedProposingGroup = None
         vars = {}
@@ -129,7 +138,7 @@ class proposing_groups_for_user_vocabulary(object):
                         context, portal, field_mapping["expression"], vars
                     )
                     break
-                except Exception, e:
+                except Exception as e:
                     portal.REQUEST.set("error_in_vocabularies", True)
                     IStatusMessage(portal.REQUEST).addStatusMessage(
                         _(
@@ -151,33 +160,38 @@ class proposing_groups_for_user_vocabulary(object):
             if userInfos is not None:
                 userThatWillCreate = ws4pmsettings._getUserIdToUseInTheNameOfWith()
                 IStatusMessage(portal.REQUEST).addStatusMessage(
-                    _(NO_USER_INFOS_ERROR, mapping={"userId": userThatWillCreate}), "error"
+                    _(NO_USER_INFOS_ERROR, mapping={"userId": userThatWillCreate}),
+                    "error",
                 )
             return SimpleVocabulary([])
         terms = []
         forcedProposingGroupExists = not forcedProposingGroup and True or False
-        for group in humansorted(userInfos["extra_include_groups"], key=lambda x: itemgetter("title")(x)):
+        for group in humansorted(
+            userInfos["extra_include_groups"], key=lambda x: itemgetter("title")(x)
+        ):
             if forcedProposingGroup == group["id"]:
                 forcedProposingGroupExists = True
                 terms.append(
                     SimpleTerm(
-                        unicode(group["UID"]),
-                        unicode(group["UID"]),
-                        unicode(group["title"]),
+                        str(group["UID"]),
+                        str(group["UID"]),
+                        str(group["title"]),
                     )
                 )
                 break
             if not forcedProposingGroup:
                 terms.append(
                     SimpleTerm(
-                        unicode(group["UID"]),
-                        unicode(group["UID"]),
-                        unicode(group["title"]),
+                        str(group["UID"]),
+                        str(group["UID"]),
+                        str(group["title"]),
                     )
                 )
         if not forcedProposingGroupExists:
             portal.REQUEST.set("error_in_vocabularies", True)
-            IStatusMessage(portal.REQUEST).addStatusMessage(_(CAN_NOT_CREATE_FOR_PROPOSING_GROUP_ERROR), "error")
+            IStatusMessage(portal.REQUEST).addStatusMessage(
+                _(CAN_NOT_CREATE_FOR_PROPOSING_GROUP_ERROR), "error"
+            )
             return SimpleVocabulary([])
         return SimpleVocabulary(terms)
 
@@ -185,26 +199,29 @@ class proposing_groups_for_user_vocabulary(object):
 proposing_groups_for_user_vocabularyFactory = proposing_groups_for_user_vocabulary()
 
 
+@implementer(IVocabularyFactory)
 class categories_for_user_vocabulary(object):
-    implements(IVocabularyFactory)
-
     def __call__(self, context):
         """Query every available categories for current user in a distant PloneMeeting."""
         portal = getSite()
         # while called in an inline_validation, portal is not correct...
         if not portal.__module__ == "Products.CMFPlone.Portal":
             portal = portal.aq_inner.aq_parent
-        ws4pmsettings = getMultiAdapter((portal, portal.REQUEST), name="ws4pmclient-settings")
+        ws4pmsettings = getMultiAdapter(
+            (portal, portal.REQUEST), name="ws4pmclient-settings"
+        )
         field_mappings = ws4pmsettings.settings().field_mappings
         if not field_mappings:
             portal.REQUEST.set("error_in_vocabularies", True)
-            IStatusMessage(portal.REQUEST).addStatusMessage(_(NO_FIELD_MAPPINGS_ERROR), "error")
+            IStatusMessage(portal.REQUEST).addStatusMessage(
+                _(NO_FIELD_MAPPINGS_ERROR), "error"
+            )
             return SimpleVocabulary([])
         forcedCategory = None
         vars = {}
-        meetingConfigId = portal.REQUEST.get("meetingConfigId") or portal.REQUEST.form.get(
-            "form.widgets.meetingConfigId"
-        )
+        meetingConfigId = portal.REQUEST.get(
+            "meetingConfigId"
+        ) or portal.REQUEST.form.get("form.widgets.meetingConfigId")
         vars["meetingConfigId"] = meetingConfigId
         for field_mapping in field_mappings:
             # try to find out if a proposingGroup is forced in the configuration
@@ -214,7 +231,7 @@ class categories_for_user_vocabulary(object):
                         context, portal, field_mapping["expression"], vars
                     )
                     break
-                except Exception, e:
+                except Exception as e:
                     portal.REQUEST.set("error_in_vocabularies", True)
                     IStatusMessage(portal.REQUEST).addStatusMessage(
                         _(
@@ -234,7 +251,9 @@ class categories_for_user_vocabulary(object):
             portal.REQUEST.set("error_in_vocabularies", True)
             # add a status message if the main error is not the fact that we can not connect to the WS
             if configInfos is not None:
-                IStatusMessage(portal.REQUEST).addStatusMessage(_(NO_CONFIG_INFOS_ERROR), "error")
+                IStatusMessage(portal.REQUEST).addStatusMessage(
+                    _(NO_CONFIG_INFOS_ERROR), "error"
+                )
             return SimpleVocabulary([])
         categories = []
         # find categories for given meetingConfigId
@@ -253,23 +272,25 @@ class categories_for_user_vocabulary(object):
                 forcedCategoryExists = True
                 terms.append(
                     SimpleTerm(
-                        unicode(category["id"]),
-                        unicode(category["id"]),
-                        unicode(category["title"]),
+                        str(category["id"]),
+                        str(category["id"]),
+                        str(category["title"]),
                     )
                 )
                 break
             if not forcedCategory:
                 terms.append(
                     SimpleTerm(
-                        unicode(category["id"]),
-                        unicode(category["id"]),
-                        unicode(category["title"]),
+                        str(category["id"]),
+                        str(category["id"]),
+                        str(category["title"]),
                     )
                 )
         if not forcedCategoryExists:
             portal.REQUEST.set("error_in_vocabularies", True)
-            IStatusMessage(portal.REQUEST).addStatusMessage(_(CAN_NOT_CREATE_WITH_CATEGORY_ERROR), "error")
+            IStatusMessage(portal.REQUEST).addStatusMessage(
+                _(CAN_NOT_CREATE_WITH_CATEGORY_ERROR), "error"
+            )
             return SimpleVocabulary([])
         return SimpleVocabulary(terms)
 
@@ -280,13 +301,14 @@ categories_for_user_vocabularyFactory = categories_for_user_vocabulary()
 def desired_meetingdates_vocabulary__call___cachekey(method, self, context):
     """Cache key for desired_meetingdates_vocabulary.__call__, valid forever."""
     request = api.portal.getRequest()
-    meetingConfigId = request.get('meetingConfigId', request.form.get('form.widgets.meetingConfigId'))
+    meetingConfigId = request.get(
+        "meetingConfigId", request.form.get("form.widgets.meetingConfigId")
+    )
     return meetingConfigId
 
 
+@implementer(IVocabularyFactory)
 class desired_meetingdates_vocabulary(object):
-    implements(IVocabularyFactory)
-
     @ram.cache(desired_meetingdates_vocabulary__call___cachekey)
     def __call__(self, context):
         """Query every available categories for current user in a distant PloneMeeting."""
@@ -294,16 +316,22 @@ class desired_meetingdates_vocabulary(object):
         # while called in an inline_validation, portal is not correct...
         if not portal.__module__ == "Products.CMFPlone.Portal":
             portal = portal.aq_inner.aq_parent
-        ws4pmsettings = getMultiAdapter((portal, portal.REQUEST), name="ws4pmclient-settings")
+        ws4pmsettings = getMultiAdapter(
+            (portal, portal.REQUEST), name="ws4pmclient-settings"
+        )
         configInfos = ws4pmsettings._rest_getConfigInfos(showCategories=True)
         if not configInfos:
             portal.REQUEST.set("error_in_vocabularies", True)
             # add a status message if the main error is not the fact that we can not connect to the WS
             if configInfos is not None:
-                IStatusMessage(portal.REQUEST).addStatusMessage(_(NO_CONFIG_INFOS_ERROR), "error")
+                IStatusMessage(portal.REQUEST).addStatusMessage(
+                    _(NO_CONFIG_INFOS_ERROR), "error"
+                )
             return SimpleVocabulary([])
         request = api.portal.getRequest()
-        meeting_config_id = request.get("meetingConfigId", request.form.get("form.widgets.meetingConfigId"))
+        meeting_config_id = request.get(
+            "meetingConfigId", request.form.get("form.widgets.meetingConfigId")
+        )
         data = {"meetingConfigId": meeting_config_id}
         possible_meetings = ws4pmsettings._rest_getMeetingsAcceptingItems(data)
         local = pytz.timezone("Europe/Brussels")
@@ -312,18 +340,23 @@ class desired_meetingdates_vocabulary(object):
         for meeting in possible_meetings:
             meeting["date"] = datetime.strptime(meeting["date"], "%Y-%m-%dT%H:%M:%S")
             meeting["date"] = local.localize(meeting["date"])
-            meeting['date'] = meeting['date'].astimezone(local)
+            meeting["date"] = meeting["date"].astimezone(local)
         terms = []
-        allowed_meetings = queryMultiAdapter((context, possible_meetings), IPreferredMeetings)
+        allowed_meetings = queryMultiAdapter(
+            (context, possible_meetings), IPreferredMeetings
+        )
         meetings = allowed_meetings and allowed_meetings.get() or possible_meetings
         for meeting_info in meetings:
-            display_date = datetime.strftime(meeting_info["date"], "%d/%m/%Y %H:%M") \
-                if isinstance(meeting_info["date"], datetime) else meeting_info["date"]
+            display_date = (
+                datetime.strftime(meeting_info["date"], "%d/%m/%Y %H:%M")
+                if isinstance(meeting_info["date"], datetime)
+                else meeting_info["date"]
+            )
             terms.append(
                 SimpleTerm(
-                    unicode(meeting_info["UID"]),
-                    unicode(meeting_info["UID"]),
-                    unicode(display_date),
+                    str(meeting_info["UID"]),
+                    str(meeting_info["UID"]),
+                    str(display_date),
                 )
             )
         return SimpleVocabulary(terms)
@@ -332,9 +365,8 @@ class desired_meetingdates_vocabulary(object):
 desired_meetingdates_vocabularyFactory = desired_meetingdates_vocabulary()
 
 
+@implementer(IVocabularyFactory)
 class annexes_for_user_vocabulary(object):
-    implements(IVocabularyFactory)
-
     def __call__(self, context):
         """Query every available data we can use to create an item in the distant PloneMeeting."""
         terms = []

@@ -15,8 +15,8 @@
         />
 
     <adapter
-        for="Products.ATContentTypes.interfaces.file.IATFile"
-        factory=".annexes.ATRawReadFile"
+        for="plone.app.contenttypes.interfaces.IFile"
+        factory=".annexes.FileRawReadFile"
         provides="zope.filerepresentation.interfaces.IRawReadFile"
     />
 
@@ -131,13 +131,6 @@
         name="imio.pm.wsclient.images"
         layer="imio.pm.wsclient.interfaces.IWS4PMClientLayer"
         directory="images"
-    />
-
-    <!-- Resource directory for js -->
-    <browser:resourceDirectory
-        name="imio.pm.wsclient.javascripts"
-        layer="imio.pm.wsclient.interfaces.IWS4PMClientLayer"
-        directory="javascripts"
     />
 
 </configure>

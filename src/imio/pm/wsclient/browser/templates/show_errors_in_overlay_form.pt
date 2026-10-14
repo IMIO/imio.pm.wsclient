@@ -6,11 +6,8 @@
       metal:use-macro="context/@@ploneform-macros/form"
       i18n:domain="plone">
 <body>
-            <metal:title-slot fill-slot="title" />
-            <metal:define use-macro="titlelessform">
-                <metal:fields-slot fill-slot="fields" />
-                <metal:description-slot fill-slot="description" />
-                <metal:actions-slot fill-slot="actions" />
-            </metal:define>
+  <metal:title-slot fill-slot="title" />
+  <metal:fields-slot fill-slot="fields" />
+  <metal:actions-slot fill-slot="actions" />
 </body>
 </html>
