@@ -61,7 +61,7 @@
                    </td>
                    </tal:showInfos>
                    <tal:warnHiddenInfos condition="not: item/UID|nothing">
-                   <td colspan="7"><span style="color: red;">The item has already been sent to meeting config "<span tal:content="item/extraInfos/meeting_config_title" />" but you are not allowed to see it!</span></td>
+                   <td colspan="9"><span style="color: red;">The item has already been sent to meeting config "<span tal:content="item/extra_include_config/title" />" but you are not allowed to see it!</span></td>
                    </tal:warnHiddenInfos>
                 </tr>
             </tbody>

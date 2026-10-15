@@ -300,7 +300,7 @@ msgstr "Cet élément a déjà été envoyé vers iA.Delib!"
 #. Default: "This element is linked to item(s) in PloneMeeting but your are not allowed to see it."
 #: ../config.py:10
 msgid "This element is linked to item(s) in PloneMeeting but your are not allowed to see it."
-msgstr "Cet élément est lié à un(des) point(s) dans iA.Delib mais vous n'avez pas l'autorisation des le(s) voir."
+msgstr "Cet élément est lié à un(des) point(s) dans iA.Delib mais vous n'avez pas l'autorisation de le(s) voir."
 
 #. Default: "Unable to connect to PloneMeeting! Please contact system administrator!"
 #: ../config.py:13

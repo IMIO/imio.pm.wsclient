@@ -219,6 +219,51 @@ class testViewlets(WS4PMCLIENTTestCase):
         self.changeUser('pmCreator2')
         cleanMemoize(self.request, viewlet)
         self.assertTrue(viewlet.getPloneMeetingLinkedInfos() == (CAN_NOT_SEE_LINKED_ITEMS_INFO, 'info'))
+        # the viewlet renders the message, also without viewlet_display_condition
+        viewlet.ws4pmSettings.settings().viewlet_display_condition = u''
+        cleanMemoize(self.request, viewlet)
+        self.assertIn(CAN_NOT_SEE_LINKED_ITEMS_INFO, viewlet.render())
+
+    @patch("imio.pm.wsclient.browser.settings.WS4PMClientSettings._rest_getConfigInfos")
+    @patch("imio.pm.wsclient.browser.settings.WS4PMClientSettings._rest_getItemInfos")
+    @patch("imio.pm.wsclient.browser.settings.WS4PMClientSettings._rest_searchItems")
+    @patch("imio.pm.wsclient.browser.settings.WS4PMClientSettings.checkAlreadySentToPloneMeeting")
+    def test_canNotSeeSomeLinkedInfos(
+        self, checkAlreadySentToPloneMeeting, _rest_searchItems, _rest_getItemInfos, _rest_getConfigInfos
+    ):
+        """
+          If the element has been sent to 2 meeting configs but current user can only see
+          the item of one of them, the other one is mentioned
+        """
+        checkAlreadySentToPloneMeeting.return_value = True
+        _rest_searchItems.return_value = [{"UID": "1234"}]
+        _rest_getItemInfos.return_value = [{
+            "@id": "http://nohost/pu-1234",
+            "UID": "1234",
+            "created": "2022-01-01T00:00:00+00:00",
+            "title": "PU/1244",
+            "creators": [{"title": "pmCreator1"}],
+            "review_state": {"title": "accepted"},
+            "category": {"title": "Development"},
+            "preferredMeeting": {"title": None},
+            "extra_include_meeting": {},
+            "extra_include_annexes": [],
+            "extra_include_pod_templates": [],
+            "extra_include_config": {"id": "plonemeeting-assembly", "title": "PloneMeeting Assembly"},
+        }]
+        _rest_getConfigInfos.return_value = [
+            {"id": u"plonegov-assembly", "title": u"PloneGov Assembly"},
+            {"id": u"plonemeeting-assembly", "title": u"PloneMeeting Assembly"},
+        ]
+        self.changeUser('admin')
+        setCorrectSettingsConfig(self.portal)
+        document = createDocument(self.portal)
+        IAnnotations(document)[WS4PMCLIENT_ANNOTATION_KEY] = ['plonemeeting-assembly', 'plonegov-assembly']
+        viewlet = PloneMeetingInfosViewlet(document, self.request, None, None)
+        viewlet.update()
+        render = viewlet.render()
+        self.assertIn("PU/1244", render)
+        self.assertIn("<span>PloneGov Assembly</span>", render)
 
     def test_canNotConnectTemporarily(self):
         """
