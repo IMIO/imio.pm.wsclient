@@ -4,7 +4,8 @@ Changelog
 2.0.8 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- URB-3817: Fix upgrade step
+  [jchandelle]
 
 
 2.0.7 (2026-02-03)
