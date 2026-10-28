@@ -11,6 +11,7 @@
         appId="imio.pm.wsclient"
         category="Products"
         condition_expr=""
+        icon_expr="string:send"
         url_expr="string:${portal_url}/@@ws4pmclient-settings"
         visible="True"
         i18n:attributes="title">
