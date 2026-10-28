@@ -30,6 +30,7 @@ class TestRedirectView(WS4PMClientTestCase):
             "http://evil.example.org/plone",
             "javascript:alert(1)",
             document.absolute_url() + '?a="><script>alert(1)</script>',
+            "http://nohost/plone/\\evil.example.org/%41",
             "",
         ):
             self.request.form["url"] = url

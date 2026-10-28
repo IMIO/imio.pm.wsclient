@@ -18,7 +18,8 @@ class RedirectView(BrowserView):
         url = self.request.form.get("url", "")
         # only redirect inside the portal (no open redirect)
         portal_url = api.portal.get_tool("portal_url")
-        if not url or not portal_url.isURLInPortal(url):
+        # a backslash may be read as "/" by browsers (\evil.org on a root-mounted portal)
+        if not url or "\\" in url or not portal_url.isURLInPortal(url):
             url = portal_url()
         if "ajax_load" in self.request.form:
             return self.DEFAULT.format(escape(url))
