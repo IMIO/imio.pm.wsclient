@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from html import escape
 from imio.pm.wsclient.interfaces import IRedirect
+from plone import api
 from Products.Five import BrowserView
 from zope.component.hooks import getSite
 from zope.interface import implementer
@@ -14,8 +16,12 @@ class RedirectView(BrowserView):
     def __call__(self):
         """ """
         url = self.request.form.get("url", "")
+        # only redirect inside the portal (no open redirect)
+        portal_url = api.portal.get_tool("portal_url")
+        if not url or not portal_url.isURLInPortal(url):
+            url = portal_url()
         if "ajax_load" in self.request.form:
-            return self.DEFAULT.format(url)
+            return self.DEFAULT.format(escape(url))
         else:
             self.request.RESPONSE.redirect(url)
 

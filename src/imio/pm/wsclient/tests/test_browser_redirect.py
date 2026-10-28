@@ -21,6 +21,25 @@ class TestRedirectView(WS4PMClientTestCase):
                 document.absolute_url()
             ),
         )
+        # the url is escaped in the page and must be in the portal
+        self.request.form["url"] = document.absolute_url() + "?a=1&b=2"
+        self.assertIn(
+            'data-view-url="{0}?a=1&amp;b=2"'.format(document.absolute_url()), view()
+        )
+        for url in (
+            "http://evil.example.org/plone",
+            "javascript:alert(1)",
+            document.absolute_url() + '?a="><script>alert(1)</script>',
+            "",
+        ):
+            self.request.form["url"] = url
+            self.assertIn('data-view-url="http://nohost/plone"', view())
+        del self.request.form["ajax_load"]
+        self.request.form["url"] = "http://evil.example.org/plone"
+        view()
+        self.assertEqual(
+            self.request.response.getHeader("location"), "http://nohost/plone"
+        )
 
 
 class TestRedirect(WS4PMClientTestCase):
