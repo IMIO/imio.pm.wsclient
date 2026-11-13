@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.0.8 (unreleased)
+2.0.8 (2026-11-13)
 ------------------
 
 - URB-3817: Fix upgrade step
