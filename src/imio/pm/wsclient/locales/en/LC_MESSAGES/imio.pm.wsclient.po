@@ -292,10 +292,10 @@ msgstr ""
 msgid "There was an error evaluating the TAL expression '${expr}' for the field '${field_name}'! The error was : ${error}. Please contact system administrator."
 msgstr "There was an error evaluating the TAL expression '${expr}' for the field '${field_name}'! The error was : ${error}. Please contact system administrator."
 
-#. Default: "This element has already been sent to PloneMeeting!"
+#. Default: "This element has already been sent to ${config_name} PloneMeeting assembly!"
 #: ../config.py:14
-msgid "This element has already been sent to PloneMeeting!"
-msgstr "This element has already been sent to PloneMeeting!"
+msgid "This element has already been sent to ${config_name} PloneMeeting assembly!"
+msgstr "This element has already been sent to « ${config_name} » PloneMeeting assembly!"
 
 #. Default: "This element is linked to item(s) in PloneMeeting but your are not allowed to see it."
 #: ../config.py:10

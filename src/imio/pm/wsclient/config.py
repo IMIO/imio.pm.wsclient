@@ -1,5 +1,6 @@
 from imio.pm.wsclient import WS4PMClientMessageFactory as _
 
+
 # suffix used when adding our actions to portal_actions
 ACTION_SUFFIX = 'plonemeeting_wsclient_action_'
 
@@ -11,7 +12,7 @@ CAN_NOT_SEE_LINKED_ITEMS_INFO = _(u"This element is linked to item(s) in PloneMe
 CORRECTLY_SENT_TO_PM_INFO = _(u"The item has been correctly sent to PloneMeeting.")
 CONFIG_UNABLE_TO_CONNECT_ERROR = _(u"Unable to connect to PloneMeeting! The error message was : ${error}!")
 UNABLE_TO_CONNECT_ERROR = _(u"Unable to connect to PloneMeeting! Please contact system administrator!")
-ALREADY_SENT_TO_PM_ERROR = _(u"This element has already been sent to PloneMeeting!")
+ALREADY_SENT_TO_PM_ERROR = _(u"This element has already been sent to ${config_name} PloneMeeting assembly!")
 TAL_EVAL_FIELD_ERROR = _(
     u"There was an error evaluating the TAL expression '${expr}' for the field '${field_name}'! "
     "The error was : ${error}. Please contact system administrator."
@@ -58,6 +59,3 @@ SEND_WITHOUT_SUFFICIENT_FIELD_MAPPINGS_DEFINED_WARNING = _(
 )
 ANNEXID_MANDATORY_ERROR = _(u"An annex id is mandatory to download an annex!")
 MISSING_FILE_ERROR = _(u"The requested file could not be found on the item")
-
-# annotations key
-WS4PMCLIENT_ANNOTATION_KEY = "imio.pm.wsclient-sent_to"

@@ -54,6 +54,7 @@ class testVocabularies(WS4PMCLIENTTestCase):
                 u"review_state": u"created",
                 u"title": u"03 march 2013",
                 u"date": u"2013-03-03T00:00:00",
+                u"formatted_date": u"03/03/2013",
             },
             {
                 u"@extra_includes": [],
@@ -68,6 +69,7 @@ class testVocabularies(WS4PMCLIENTTestCase):
                 u"review_state": u"created",
                 u"title": u"03 march 2013",
                 u"date": u"2013-03-03T00:00:00",
+                u"formatted_date": u"03/03/2013",
             },
         ]
         raw_voc = vocabularies.desired_meetingdates_vocabularyFactory(api.portal.get())
@@ -89,6 +91,7 @@ class testVocabularies(WS4PMCLIENTTestCase):
                 u"review_state": u"created",
                 u"title": u"03 march 2013",
                 u"date": u"2013-08-03T00:00:00",
+                u"formatted_date": u"03/08/2013",
             },
         ]
         raw_voc = vocabularies.desired_meetingdates_vocabularyFactory(api.portal.get())
@@ -100,7 +103,7 @@ class testVocabularies(WS4PMCLIENTTestCase):
         setRequest(request)
         raw_voc = vocabularies.desired_meetingdates_vocabularyFactory(api.portal.get())
         self.assertEqual(len(raw_voc), 1)
-        self.assertEqual(list(raw_voc)[0].title, u"03/08/2013 00:00")
+        self.assertEqual(list(raw_voc)[0].title, u"03/08/2013")
         self.assertEqual(list(raw_voc)[0].value, "89ada78808d04a04b145518b2a469f2a")
         self.assertEqual(list(raw_voc)[0].token, "89ada78808d04a04b145518b2a469f2a")
 
