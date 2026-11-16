@@ -4,7 +4,8 @@ Changelog
 2.0.9 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fixed the PloneMeeting infos viewlet failing instead of showing that linked items are not viewable (PM-4458).
+  [chris-adam]
 
 
 2.0.8 (2026-11-13)

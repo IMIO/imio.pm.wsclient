@@ -44,19 +44,19 @@ class PloneMeetingInfosViewlet(ViewletBase):
         viewlet_display_condition = settings.viewlet_display_condition
         # if we have no defined viewlet_display_condition, use the isLinked value
         if not viewlet_display_condition or not viewlet_display_condition.strip():
-            return isLinked
+            viewlet_display_condition = u'isLinked'
         # add 'isLinked' to data available in the TAL expression
         vars = {}
         vars['isLinked'] = isLinked
         try:
             res = self.ws4pmSettings.renderTALExpression(self.context,
                                                          self.portal_state.portal(),
-                                                         settings.viewlet_display_condition,
+                                                         viewlet_display_condition,
                                                          vars)
             if not res:
                 return False
         except Exception, e:
-            return (_(UNABLE_TO_DISPLAY_VIEWLET_ERROR, mapping={'expr': settings.viewlet_display_condition,
+            return (_(UNABLE_TO_DISPLAY_VIEWLET_ERROR, mapping={'expr': viewlet_display_condition,
                                                                 'field_name': 'viewlet_display_condition',
                                                                 'error': e}), 'error')
         # evaluate self.getPloneMeetingLinkedInfos
@@ -149,7 +149,7 @@ class PloneMeetingInfosViewlet(ViewletBase):
 
         # sort res to comply with sent order, for example sent first to college then council
         def sortByMeetingConfigId(x, y):
-            return cmp(x["created"], y["created"])
+            return cmp(x.get("created", ""), y.get("created", ""))
         res.sort(sortByMeetingConfigId, reverse=True)
         return res
 
